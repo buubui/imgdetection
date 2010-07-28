@@ -1,0 +1,36 @@
+function value = HisOfCell(Dm, Da, c, r, d1, d2, bins)
+% Dm: Matrix weight
+% Da: matrix of gradient
+% c, r: column and row of a point
+% d1, d2: lenght of cell
+% bins: number of bin
+[u,v] = size(Dm);
+MatM = zeros(d);
+MatA = zeros(d);
+value = zeros(1,bins);
+if (r+d2) <= u && (c+d1) <= v
+    MatM = Dm(r:r+d2, c:c+d1);
+    MatA = Da(r:r+d2, c:c+d1);
+elseif (r+d2) > u && (c+d1) <= v
+     MatM = Dm(end-d:end , c:c+d1);
+     MatA = Da(end-d:end , c:c+d1);
+elseif (r+d) <= u && (c+d) > v
+    MatM = Dm(r:r+d2 , end-d: end);
+    MatA = Da(r:r+d2 , end-d: end);
+else
+    MatM = Dm(end-d:end , end-d: end);
+    MatA = Da(end-d: end , end-d: end);
+end
+Dtheta = 180/bins;
+for i =1:bins
+    for j =1:d1
+        for k =1:d2
+            if(MatA(j,k)< i*Dtheta && MatA(j,k)>=(i-1)*Dtheta)
+                value(1,i) = value(1 , i) + MatM(j,k);
+            end
+        end
+    end
+end
+
+ 
+end

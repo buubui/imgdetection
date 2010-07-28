@@ -1,0 +1,15 @@
+function [MatM, MatA] = ComputeWeightGradient(img, Dx, Dy)
+%%% normalize gamma here
+[r, c] = size(img);
+img = rgb2gray(img);
+img = im2double(img);
+imgX = imfilter(img,Dx);
+imgY = imfilter(img, Dy);
+%%% compute weight
+MatM = zeros(r, c);
+for i =1:r
+    for j = 1:c
+        MatM(i,j) = Dx(i,j)^2 + Dy(i,j)^2)
+    end
+end
+end
