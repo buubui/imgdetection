@@ -9,6 +9,9 @@ using namespace System;
 
 #include "stdafx.h"
 #include "imFilter.h"
+#include <math.h>
+#include "HOG.h"
+
 
 //int _tmain(int argc, _TCHAR* argv[])
 //{
@@ -164,27 +167,76 @@ int main(array<System::String ^> ^args)
 	Mat* mat = new Mat(1,3,CV_32F,value);
 	 double d =(double)( mat->at<double> (1,2));
 	mat()*/
-	IplImage* img = cvLoadImage("e:\\2009_003218.jpg");
-	/*float a[] = { -1, 2, -3, 4, -5, 6, -7, 8, -9 };
-	CvMat A = cvMat(3, 3, CV_32F, &a);*/
 
-	cvSetImageROI(img, cvRect(10, 15, 200, 100));
-	IplImage* img2 = cvCreateImage(cvGetSize(img),img->depth,img->nChannels);
-	cvCopy(img,img2,NULL);
-	cvResetImageROI(img);
+	//IplImage* img = cvLoadImage("D:\\Lectures\\Luan_van\\VOC\\VOCdevkit\\VOC2010\\JPEGImages\\2008_003591.jpg");
+	///*float a[] = { -1, 2, -3, 4, -5, 6, -7, 8, -9 };
+	//CvMat A = cvMat(3, 3, CV_32F, &a);*/
+	//
+	//cvSetImageROI(img, cvRect(10, 15, 200, 100));
+	//IplImage* img2 = cvCreateImage(cvGetSize(img),img->depth,img->nChannels);
+	//cvCopy(img,img2,NULL);
+	//cvResetImageROI(img);
 
-	IplImage** arrImg =imFilter(img) ;
-	cvShowImage("filterx",arrImg[0]);
-	cvShowImage("filtery",arrImg[1]);
-	for(int i=0;i<100;i++){
+	//IplImage** arrImg =imFilter(img) ;
+	//cvShowImage("filterx",arrImg[0]);
+	//cvShowImage("filtery",arrImg[1]);
+	
+	/*Mat newmat = imread("D:\\Lectures\\Luan_van\\VOC\\VOCdevkit\\VOC2010\\JPEGImages\\2008_003591.jpg",0);
+	imshow("ori",newmat);
+	equalizeHist(newmat,newmat);
+	printf("%d;%d;%d",newmat.rows,newmat.cols,newmat.channels());
+
+	imshow("asdasd",newmat);
+	float v[]={-1,0,1};
+	Mat Dx (1,3,CV_32F,v);
+	Mat dst,dst2;
+	filter2D(newmat,dst,newmat.depth(),Dx);
+	filter2D(newmat,dst2,newmat.depth(),Dx.t());
+	imshow("filter",dst);
+	imshow("filter-y",dst2);
+
+	Mat mat2 = newmat(Range(3,10),Range(1,6));
+	printf("%d,%d\n",mat2.rows,mat2.cols);*/
+
+	/*for(int i=0;i<100;i++){
 		CvScalar s = cvGet2D(arrImg[1],50,100+i);
 		printf("%f:%f:%f:%f\n",s.val[0],s.val[1],s.val[2],s.val[3]);
-	}
+	}*/
 	//cvShowImage("ori",img);
 	//cvShowImage("aaa",img2);
+
+
+	
+	Mat img = imread("e:\\2009_003218.jpg");
+	Mat* imFils = imFilter(img);
+	imshow("filter x",imFils[0]);
+	imshow("filter y",imFils[1]);
+	//img.locateROI(Size(20,35),Point(20,30));
+	//imshow("roi",img);
 	cvWaitKey();
-
-
+	double y = 1;
+	printf("AAAAAAA:  %f",atan(1.0)*180/M_PI);
     Console::WriteLine(L"Hello World");
+	//printf("%d %d %d",imFils[0].rows,imFils[0].cols, imFils[0].at<uchar>(1,2));
+	HOG** H = calcHOG(imFils[0],imFils[1]);
+	HIS* his = calcHisOfCell(H,Rect(150,150,40,40),9);
+	/*for (int i=0;i<9;i++)
+	{
+		printf("%2.2f, ",i,his->vector_weight[i]);
+	}*/
+	/*HIS*** his_wnd = calcHisOfCellsInWnd(H,Size(32,32),Size(4,4),9);
+	printf("\n");
+	for(int ii =0; ii<32/4;ii++)
+		for(int jj =0; jj<32/4;jj++)
+		{
+
+		
+	for (int i=0;i<9;i++)
+	{
+		printf("%2.2f, ",his_wnd[ii][jj]->vector_weight[i]);
+	}
+		printf("\n");
+		}*/
+
     return 0;
 }

@@ -1,2 +1,2 @@
 #include "cv.h"
-IplImage** imFilter(IplImage* img);
+Mat* imFilter(const Mat& img);
