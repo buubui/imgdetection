@@ -207,36 +207,92 @@ int main(array<System::String ^> ^args)
 
 
 	
-	Mat img = imread("e:\\2009_003218.jpg");
+	Mat img = imread("e:\\001.jpg");
 	Mat* imFils = imFilter(img);
-	imshow("filter x",imFils[0]);
-	imshow("filter y",imFils[1]);
+	Mat img_gray;
+	cvtColor(img,img_gray,CV_BGR2GRAY);
+	equalizeHist(img_gray,img_gray);
+	
+	
+//	imshow("filter x",imFils[0]);
+//	imshow("filter y",imFils[1]);
+	
+	
+
+
+
 	//img.locateROI(Size(20,35),Point(20,30));
 	//imshow("roi",img);
-	cvWaitKey();
+//	cvWaitKey();
 	double y = 1;
-	printf("AAAAAAA:  %f",atan(1.0)*180/M_PI);
+//	printf("AAAAAAA:  %f",atan(1.0)*180/M_PI);
     Console::WriteLine(L"Hello World");
 	//printf("%d %d %d",imFils[0].rows,imFils[0].cols, imFils[0].at<uchar>(1,2));
-	HOG** H = calcHOG(imFils[0],imFils[1]);
-	HIS* his = calcHisOfCell(H,Rect(150,150,40,40),9);
+	
+	Mat G = calcGradientOfPixels(imFils[0],imFils[1]);
+	/*printf("\nGRADIENT:\n");
+	for(int i=0;i<300;i++)
+		for(int j=0;j<200;j++)
+			printf("%f: %f \n",G.at<Gradient>(i,j)[0],G.at<Gradient>(i,j)[1]);*/
+
+	HIS* his = calcHisOfCell(G,Rect(50,50,10,10),9);
 	/*for (int i=0;i<9;i++)
 	{
-		printf("%2.2f, ",i,his->vector_weight[i]);
+		printf("%f, ",his->vector_weight[i]);
 	}*/
-	/*HIS*** his_wnd = calcHisOfCellsInWnd(H,Size(32,32),Size(4,4),9);
+	Mat his_wnd = calcHisOfCellsInWnd(G,Size(32,32),Size(4,4),9);
 	printf("\n");
-	for(int ii =0; ii<32/4;ii++)
-		for(int jj =0; jj<32/4;jj++)
-		{
 
-		
-	for (int i=0;i<9;i++)
+	calcHistOfBlockInWnd(his_wnd,Rect(2,2,3,3));
+
+
+	//for(int ii =0; ii<32/4;ii++)
+	//	for(int jj =0; jj<32/4;jj++)
+	//	{
+
+	//	
+	//for (int i=0;i<9;i++)
+	//{
+	//	printf("%2.2f, ",his_wnd.at<HIS*>(ii,jj)->vector_weight[i]);
+	//}
+	//	printf("\n");
+	//	}
+	/*Mat aa(2,5,DataType<Gradient>::type);
+	for (int i=0;i<aa.rows;i++)
 	{
-		printf("%2.2f, ",his_wnd[ii][jj]->vector_weight[i]);
-	}
-		printf("\n");
-		}*/
+		for (int j=0;j<aa.cols;j++)
+		{
+			aa.at<Gradient>(i,j) = Gradient(2,3);
+		}
+	}*/
 
+	/*Mat aa(20,7,DataType<Gradient>::type);
+	for (int i=0;i<aa.rows;i++)
+	{
+		for (int j=0;j<aa.cols;j++)
+		{
+			aa.at<Gradient>(i,j) = Gradient(2,3);
+		}
+	}*/
+	/*int n =9;
+	Vec<int,5> a;
+	double * b = new double[10];
+	double c[10];
+	printf("size %d",sizeof(c));*/
+	Mat aa(200,700,DataType<HIS*>::type);
+	for (int i=0;i<aa.rows;i++)
+	{
+		for (int j=0;j<aa.cols;j++)
+		{
+			aa.at<HIS*>(i,j) = new HIS(70);
+		}
+	}
+	
+	
+	printf("HIS:  %d %f",aa.at<HIS*>(0,0)->n_bins,aa.at<HIS*>(0,0)->vector_weight[0]);
+	
+	//G.release();
+	
+	
     return 0;
 }
