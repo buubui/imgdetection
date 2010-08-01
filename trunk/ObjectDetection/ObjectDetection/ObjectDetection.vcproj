@@ -61,6 +61,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="cv210d.lib cxcore210d.lib highgui210d.lib $(NOINHERIT)"
 				LinkIncremental="2"
+				ModuleDefinitionFile=""
 				GenerateDebugInformation="true"
 				AssemblyDebug="1"
 				TargetMachine="1"
@@ -132,6 +133,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="$(NoInherit)"
 				LinkIncremental="1"
+				ModuleDefinitionFile="m.def"
 				GenerateDebugInformation="true"
 				TargetMachine="1"
 			/>

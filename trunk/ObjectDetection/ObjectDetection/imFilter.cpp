@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "imFilter.h"
+#include "HOG.h"
 using namespace System;
 using namespace System::Collections;
 //IplImage** imFilter(IplImage* img){
@@ -40,13 +41,34 @@ Mat* imFilter(const Mat& img){
 	cvtColor(img,img_gray,CV_BGR2GRAY);
 	equalizeHist(img_gray,img_gray);
 	
+
+	
+	
+	//convert image from uchar(0->255) to double (0->1)
+	//Mat imdouble= im2double(img_gray);
+	Mat imdouble;
+	img_gray.convertTo(imdouble,CV_64FC1,1./255);
+	img_gray.release();
+
+	
 	float v[]={-1,0,1};
 	Mat Dx (1,3,CV_32F,v);
 	Mat dst,dst2;
-	filter2D(img_gray,dst,img_gray.depth(),Dx);
+	filter2D(imdouble,dst,imdouble.depth(),Dx);
+	//filter2D(img_gray,dst,img_gray.depth(),Dx);
 	arrFils[0] = dst;
-	filter2D(img_gray,dst2,img_gray.depth(),Dx.t());
+	filter2D(imdouble,dst2,imdouble.depth(),Dx.t());
+	//filter2D(img_gray,dst2,img_gray.depth(),Dx.t());
 	arrFils[1] = dst2;
+	
+	/*for (int i=0;i<30;i++)
+	{
+		for (int j=0;j<30;j++)
+		{
+			printf("%f ; ",arrFils[0].at<double>(i,j));
+		}
+	}*/
+
 
 	return arrFils;
 }
