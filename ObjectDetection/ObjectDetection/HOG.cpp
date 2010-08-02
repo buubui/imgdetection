@@ -126,9 +126,31 @@ Mat NormalizeBlock(Mat m, int c)
 		n =norm(m,NORM_L2);	mat = m/sqrt( n*n + M_e); break;
 	case 1: // L1 Norm
 		mat = m/(norm(m,NORM_L1) + M_e); break;
+	case 2: //L1-sqrt
+		sqrt( m/(norm(m,NORM_L1) + M_e),mat); break;
 	}
+	
 	return mat;
 }
+
+HIS* NormalizeBlock(HIS* h, int c)
+{
+
+	Mat m(1,h->n_bins,CV_64FC1);
+	for (int i = 0 ; i<h->n_bins;i++)
+	{
+		m.at<double>(0,i) = h->vector_weight[i];
+	}
+	Mat mat = NormalizeBlock(m,c);
+	HIS* r = new HIS(h->n_bins);
+	for (int i = 0 ; i<h->n_bins;i++)
+	{
+		r->vector_weight[i] = mat.at<double>(0,i) ;
+	}
+
+	return r;
+}
+
 Mat im2double(const Mat& m)
 {
 	int r = m.rows;
@@ -177,13 +199,14 @@ HIS* calcHistOfBlockInWnd(Mat mat, Rect p)
 	return hist;
 }
 
-HIS* calcHistOfWnd(Mat mat, Size blockSize, Vec2i overlap)
+HIS* calcHistOfWnd(Mat mat, Size blockSize, Vec2i overlap, int norm_c)
 {
 	int n = mat.at<HIS*>(0,0)->n_bins;
-	int n_block_w = floor( (mat.cols - overlap[0])/(blockSize.width - overlap[0]));
-	int n_block_h = floor( (mat.rows - overlap[1])/(blockSize.height - overlap[1]));
+	int n_block_w = floor( 1.*(mat.cols - overlap[0])/(blockSize.width - overlap[0]));
+	int n_block_h = floor( 1.*(mat.rows - overlap[1])/(blockSize.height - overlap[1]));
 	int n_block = n_block_h*n_block_w;
 	HIS* H = new HIS(n_block*blockSize.width*blockSize.height*n);
+
 	int x=0,y=0;
 	int s=0;
 	for (int i=0; i < n_block_w;i++)
@@ -192,6 +215,7 @@ HIS* calcHistOfWnd(Mat mat, Size blockSize, Vec2i overlap)
 		for (int j = 0 ; j<n_block_h;j++)
 		{
 			HIS* h_b = calcHistOfBlockInWnd(mat,Rect(x,y,blockSize.width,blockSize.height));
+			h_b= NormalizeBlock(h_b,norm_c);
 			for (int e=0;e<n*blockSize.width*blockSize.height;e++)
 			{
 				H->vector_weight[s]=h_b->vector_weight[e];

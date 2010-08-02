@@ -230,6 +230,7 @@ int main(array<System::String ^> ^args)
 	//printf("%d %d %d",imFils[0].rows,imFils[0].cols, imFils[0].at<uchar>(1,2));
 	
 	Mat G = calcGradientOfPixels(imFils[0],imFils[1]);
+	
 	/*printf("\nGRADIENT:\n");
 	for(int i=0;i<300;i++)
 		for(int j=0;j<200;j++)
@@ -240,11 +241,22 @@ int main(array<System::String ^> ^args)
 	{
 		printf("%f, ",his->vector_weight[i]);
 	}*/
-	Mat his_wnd = calcHisOfCellsInWnd(G,Size(32,32),Size(4,4),9);
+	Mat his_wnd = calcHisOfCellsInWnd(G,Size(64,128),Size(8,8),9);
 	printf("\n");
 
-	calcHistOfBlockInWnd(his_wnd,Rect(2,2,3,3));
-
+//	calcHistOfBlockInWnd(his_wnd,Rect(2,2,3,3));
+	/*HIS* h_n = NormalizeBlock(his,2);
+	for (int i=0;i<h_n->n_bins;i++)
+	{
+	printf("%f, ",h_n->vector_weight[i]);
+	}*/
+	HIS* h_w = calcHistOfWnd(his_wnd,Size(3,3),Vec2i(2,2),2);
+	printf("\nWINDOW\n");
+	for (int i=0;i<h_w->n_bins;i++)
+	{
+		printf("%f ; ",h_w->vector_weight[i]);
+	}
+	printf("\n n_BIN %d\n",h_w->n_bins);
 
 	//for(int ii =0; ii<32/4;ii++)
 	//	for(int jj =0; jj<32/4;jj++)
