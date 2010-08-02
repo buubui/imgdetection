@@ -39,10 +39,11 @@ HIS* calcHisOfCell(Mat hog_pixels, Rect r, int n_bins);
 Mat calcHisOfCellsInWnd(Mat hog_pixels,Size wndSize, Size cellSize, int n_bins);
 
 Mat NormalizeBlock(Mat m, int c);
+HIS* NormalizeBlock(HIS* h, int c);
 Mat im2double(const Mat& m);
 HIS* calcHistOfBlockInWnd(Mat mat, Rect p);
 
-HIS* calcHistOfWnd(Mat mat, Size blockSize, Vec2i overlap);
+HIS* calcHistOfWnd(Mat mat, Size blockSize, Vec2i overlap, int norm_c);
 
 
 
