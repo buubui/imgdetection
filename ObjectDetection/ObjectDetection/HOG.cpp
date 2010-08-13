@@ -80,7 +80,10 @@ HIS* calcHisOfCell(Mat hog_pixels, Rect r, int n_bins)
 		for (int j=0;j<r.height;j++)
 		{
 		//	printf("\n%f:%f\n",hog_pixels.at<Gradient>(i+r.x,j+r.y)[0],hog_pixels.at<Gradient>(i+r.x,j+r.y)[1]);
-			int n_b = (int)( (hog_pixels.at<Gradient>(i+r.x,j+r.y)[0]+90)/a);
+		//	int n_b = (int)( (hog_pixels.at<Gradient>(i+r.x,j+r.y)[0]+90)/a);
+			float angle = hog_pixels.at<Gradient>(i+r.x,j+r.y)[0]; 
+			angle += angle<0?180:0;
+			int n_b = (int)( (angle)/a);
 			H->vector_weight[n_b]+=hog_pixels.at<Gradient>(i+r.x,j+r.y)[1];
 			
 		}
@@ -92,14 +95,14 @@ HIS* calcHisOfCell(Mat hog_pixels, Rect r, int n_bins)
 	return H;
 
 };
-Mat calcHisOfCellsInWnd(Mat hog_pixels,Size wndSize, Size cellSize, int n_bins)
+Mat calcHisOfCellsInWnd(Mat hog_pixels,Rect wnd, Size cellSize, int n_bins)
 {
-	int c = (int)(wndSize.width/cellSize.width);
-	int r = (int)(wndSize.height/cellSize.height);
+	int c = (int)(wnd.width/cellSize.width);
+	int r = (int)(wnd.height/cellSize.height);
 	
 	Mat H(r,c,DataType<HIS*>::type);
-	int currX =0;
-	int currY=0;
+	int currX =wnd.x;
+	int currY=wnd.y;
 	for (int i=0;i<r;i++)
 	{
 		currX=0;
