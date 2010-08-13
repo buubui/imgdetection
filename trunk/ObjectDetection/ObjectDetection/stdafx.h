@@ -13,6 +13,9 @@
 #include "highgui.h"
 #include "cvaux.h"
 #include <math.h>
+#include <iostream>
+#include <fstream>
+using namespace std;
 using namespace cv;
 using namespace System;
 using namespace System::Collections;

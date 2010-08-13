@@ -161,88 +161,56 @@ using namespace System;
 
 int main(array<System::String ^> ^args)
 {
-	/*Scalar* value = new Scalar();
-	float aa[] = {1,2,3,4,5};
-	value = aa;
-	Mat* mat = new Mat(1,3,CV_32F,value);
-	 double d =(double)( mat->at<double> (1,2));
-	mat()*/
-
-	//IplImage* img = cvLoadImage("D:\\Lectures\\Luan_van\\VOC\\VOCdevkit\\VOC2010\\JPEGImages\\2008_003591.jpg");
-	///*float a[] = { -1, 2, -3, 4, -5, 6, -7, 8, -9 };
-	//CvMat A = cvMat(3, 3, CV_32F, &a);*/
-	//
-	//cvSetImageROI(img, cvRect(10, 15, 200, 100));
-	//IplImage* img2 = cvCreateImage(cvGetSize(img),img->depth,img->nChannels);
-	//cvCopy(img,img2,NULL);
-	//cvResetImageROI(img);
-
-	//IplImage** arrImg =imFilter(img) ;
-	//cvShowImage("filterx",arrImg[0]);
-	//cvShowImage("filtery",arrImg[1]);
 	
-	/*Mat newmat = imread("D:\\Lectures\\Luan_van\\VOC\\VOCdevkit\\VOC2010\\JPEGImages\\2008_003591.jpg",0);
-	imshow("ori",newmat);
-	equalizeHist(newmat,newmat);
-	printf("%d;%d;%d",newmat.rows,newmat.cols,newmat.channels());
-
-	imshow("asdasd",newmat);
-	float v[]={-1,0,1};
-	Mat Dx (1,3,CV_32F,v);
-	Mat dst,dst2;
-	filter2D(newmat,dst,newmat.depth(),Dx);
-	filter2D(newmat,dst2,newmat.depth(),Dx.t());
-	imshow("filter",dst);
-	imshow("filter-y",dst2);
-
-	Mat mat2 = newmat(Range(3,10),Range(1,6));
-	printf("%d,%d\n",mat2.rows,mat2.cols);*/
-
-	/*for(int i=0;i<100;i++){
-		CvScalar s = cvGet2D(arrImg[1],50,100+i);
-		printf("%f:%f:%f:%f\n",s.val[0],s.val[1],s.val[2],s.val[3]);
-	}*/
-	//cvShowImage("ori",img);
-	//cvShowImage("aaa",img2);
-
-
-	
-	Mat img = imread("e:\\001.jpg");
+	Mat img = imread("E:\\cameraman.jpg");
+	imshow("asdasd",img);
 	Mat* imFils = imFilter(img);
-	Mat img_gray;
+	/*Mat img_gray;
 	cvtColor(img,img_gray,CV_BGR2GRAY);
 	equalizeHist(img_gray,img_gray);
+	*/
 	
-	
-//	imshow("filter x",imFils[0]);
-//	imshow("filter y",imFils[1]);
-	
-	
-
-
-
-	//img.locateROI(Size(20,35),Point(20,30));
-	//imshow("roi",img);
-//	cvWaitKey();
-	double y = 1;
-//	printf("AAAAAAA:  %f",atan(1.0)*180/M_PI);
-    Console::WriteLine(L"Hello World");
-	//printf("%d %d %d",imFils[0].rows,imFils[0].cols, imFils[0].at<uchar>(1,2));
+	//imshow("filter x",imFils[0]);
+	//imshow("filter y",imFils[1]);
 	
 	Mat G = calcGradientOfPixels(imFils[0],imFils[1]);
 	
-	/*printf("\nGRADIENT:\n");
-	for(int i=0;i<300;i++)
-		for(int j=0;j<200;j++)
-			printf("%f: %f \n",G.at<Gradient>(i,j)[0],G.at<Gradient>(i,j)[1]);*/
+	printf("\nGRADIENT:\n");
+	for(int i=0;i<30;i++)
+		for(int j=0;j<20;j++)
+			printf("%f: %f \n",G.at<Gradient>(i,j)[0],G.at<Gradient>(i,j)[1]);
 
-	HIS* his = calcHisOfCell(G,Rect(50,50,10,10),9);
-	/*for (int i=0;i<9;i++)
+	/*HIS* his = calcHisOfCell(G,Rect(50,50,10,10),9);
+	for (int i=0;i<9;i++)
 	{
 		printf("%f, ",his->vector_weight[i]);
 	}*/
-	Mat his_wnd = calcHisOfCellsInWnd(G,Size(64,128),Size(8,8),9);
-	printf("\n");
+//	Mat his_wnd = calcHisOfCellsInWnd(G,Rect(0,0,64,128),Size(8,8),9);
+	Mat his_wnd = calcHisOfCellsInWnd(G,Rect(0,0,img.cols,img.rows),Size(8,8),9);
+	ofstream myfile;
+	myfile.open ("hisCell.txt");
+	printf("\ncalcHisOfCellsInWnd\n");
+	myfile <<"[";
+	for(int ii =0; ii<img.cols/8;ii++)
+	{
+		for(int jj =0; jj<img.rows/8;jj++)
+		{
+
+			
+			for (int i=0;i<9;i++)
+			{
+				printf("%2.2f, ",his_wnd.at<HIS*>(ii,jj)->vector_weight[i]);
+				myfile << his_wnd.at<HIS*>(ii,jj)->vector_weight[i] <<" ";
+			}
+			myfile << "\n ;";
+		
+		printf("\n");
+		}
+		
+
+	}		
+			
+			myfile.close();
 
 //	calcHistOfBlockInWnd(his_wnd,Rect(2,2,3,3));
 	/*HIS* h_n = NormalizeBlock(his,2);
@@ -250,25 +218,17 @@ int main(array<System::String ^> ^args)
 	{
 	printf("%f, ",h_n->vector_weight[i]);
 	}*/
-	HIS* h_w = calcHistOfWnd(his_wnd,Size(3,3),Vec2i(2,2),2);
-	printf("\nWINDOW\n");
+	/*HIS* h_w = calcHistOfWnd(his_wnd,Size(3,3),Vec2i(2,2),2);
+
+
+	printf("\ncalcHistOfWnd\n");
 	for (int i=0;i<h_w->n_bins;i++)
 	{
 		printf("%f ; ",h_w->vector_weight[i]);
 	}
-	printf("\n n_BIN %d\n",h_w->n_bins);
+	printf("\n n_BIN %d\n",h_w->n_bins);*/
 
-	//for(int ii =0; ii<32/4;ii++)
-	//	for(int jj =0; jj<32/4;jj++)
-	//	{
-
-	//	
-	//for (int i=0;i<9;i++)
-	//{
-	//	printf("%2.2f, ",his_wnd.at<HIS*>(ii,jj)->vector_weight[i]);
-	//}
-	//	printf("\n");
-	//	}
+	
 	/*Mat aa(2,5,DataType<Gradient>::type);
 	for (int i=0;i<aa.rows;i++)
 	{
@@ -291,20 +251,8 @@ int main(array<System::String ^> ^args)
 	double * b = new double[10];
 	double c[10];
 	printf("size %d",sizeof(c));*/
-	Mat aa(200,700,DataType<HIS*>::type);
-	for (int i=0;i<aa.rows;i++)
-	{
-		for (int j=0;j<aa.cols;j++)
-		{
-			aa.at<HIS*>(i,j) = new HIS(70);
-		}
-	}
-	
-	
-	printf("HIS:  %d %f",aa.at<HIS*>(0,0)->n_bins,aa.at<HIS*>(0,0)->vector_weight[0]);
-	
 	//G.release();
 	
-	
+		cvWaitKey();	
     return 0;
 }

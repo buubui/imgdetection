@@ -36,7 +36,7 @@ Mat calcGradientOfPixels(const Mat&filx,const Mat&fily);
 //calculate HIstoram of an cell
 HIS* calcHisOfCell(Mat hog_pixels, Rect r, int n_bins);
 //HIS*** calcHisOfCellsInWnd(Gradient** hog_pixels,Size wndSize, Size cellSize, int n_bins);
-Mat calcHisOfCellsInWnd(Mat hog_pixels,Size wndSize, Size cellSize, int n_bins);
+Mat calcHisOfCellsInWnd(Mat hog_pixels,Rect wnd, Size cellSize, int n_bins);
 
 Mat NormalizeBlock(Mat m, int c);
 HIS* NormalizeBlock(HIS* h, int c);
