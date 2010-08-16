@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "HOG.h"
 #include <cxoperations.hpp>
+
 //Gradient** calcHOG(const Mat&filx,const Mat&fily)
 //{
 //	int r = filx.rows;
@@ -75,16 +76,16 @@ HIS* calcHisOfCell(Mat hog_pixels, Rect r, int n_bins)
 	HIS* H=new HIS(n_bins);
 	double w=0;
 	double a =180.0 /n_bins;
-	for (int i=0;i<r.width;i++)
+	for (int i=0;i<r.height;i++)
 	{
-		for (int j=0;j<r.height;j++)
+		for (int j=0;j<r.width;j++)
 		{
 		//	printf("\n%f:%f\n",hog_pixels.at<Gradient>(i+r.x,j+r.y)[0],hog_pixels.at<Gradient>(i+r.x,j+r.y)[1]);
 		//	int n_b = (int)( (hog_pixels.at<Gradient>(i+r.x,j+r.y)[0]+90)/a);
-			float angle = hog_pixels.at<Gradient>(i+r.x,j+r.y)[0]; 
+			float angle = hog_pixels.at<Gradient>(i+r.y,j+r.x)[0]; 
 			angle += angle<0?180:0;
 			int n_b = (int)( (angle)/a);
-			H->vector_weight[n_b]+=hog_pixels.at<Gradient>(i+r.x,j+r.y)[1];
+			H->vector_weight[n_b]+=hog_pixels.at<Gradient>(i+r.y,j+r.x)[1];
 			
 		}
 	}
@@ -107,8 +108,20 @@ Mat calcHisOfCellsInWnd(Mat hog_pixels,Rect wnd, Size cellSize, int n_bins)
 	{
 		currX=0;
 		for (int j=0;j<c;j++)
+			
+		{
+		//	cout<< j<<"<"<<c<<"\n";
+			try
 		{
 			H.at<HIS*>(i,j)= calcHisOfCell(hog_pixels,Rect(currX,currY,cellSize.width,cellSize.height),n_bins);
+		}
+		
+		catch (...)
+		{
+			cerr<< "-----Exception:" <<i<<";"<<j;
+			exit(0);
+		}
+			
 			currX+=cellSize.width;
 		}
 		currY+=cellSize.height;
