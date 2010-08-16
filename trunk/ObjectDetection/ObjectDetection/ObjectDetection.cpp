@@ -162,7 +162,7 @@ using namespace System;
 int main(array<System::String ^> ^args)
 {
 	
-	Mat img = imread("E:\\cameraman.jpg");
+	Mat img = imread("E:\\5.png");
 	imshow("asdasd",img);
 	Mat* imFils = imFilter(img);
 	/*Mat img_gray;
@@ -176,9 +176,9 @@ int main(array<System::String ^> ^args)
 	Mat G = calcGradientOfPixels(imFils[0],imFils[1]);
 	
 	printf("\nGRADIENT:\n");
-	for(int i=0;i<30;i++)
-		for(int j=0;j<20;j++)
-			printf("%f: %f \n",G.at<Gradient>(i,j)[0],G.at<Gradient>(i,j)[1]);
+//	for(int i=0;i<30;i++)
+//		for(int j=0;j<20;j++)
+//			printf("%f: %f \n",G.at<Gradient>(i,j)[0],G.at<Gradient>(i,j)[1]);
 
 	/*HIS* his = calcHisOfCell(G,Rect(50,50,10,10),9);
 	for (int i=0;i<9;i++)
@@ -186,14 +186,16 @@ int main(array<System::String ^> ^args)
 		printf("%f, ",his->vector_weight[i]);
 	}*/
 //	Mat his_wnd = calcHisOfCellsInWnd(G,Rect(0,0,64,128),Size(8,8),9);
+	Rect R(0,0,img.cols,img.rows);
+	cout <<"RECT:"<< R.width << ";"<<img.cols<<";"<<G.cols;
 	Mat his_wnd = calcHisOfCellsInWnd(G,Rect(0,0,img.cols,img.rows),Size(8,8),9);
 	ofstream myfile;
 	myfile.open ("hisCell.txt");
 	printf("\ncalcHisOfCellsInWnd\n");
 	myfile <<"[";
-	for(int ii =0; ii<img.cols/8;ii++)
+	for(int ii =0; ii<his_wnd.rows;ii++)
 	{
-		for(int jj =0; jj<img.rows/8;jj++)
+		for(int jj =0; jj<his_wnd.cols;jj++)
 		{
 
 			
@@ -211,6 +213,7 @@ int main(array<System::String ^> ^args)
 	}		
 			
 			myfile.close();
+			printf("\n %d %d",his_wnd.rows,his_wnd.cols);
 
 //	calcHistOfBlockInWnd(his_wnd,Rect(2,2,3,3));
 	/*HIS* h_n = NormalizeBlock(his,2);
