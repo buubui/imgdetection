@@ -11,7 +11,8 @@ using namespace System;
 #include "imFilter.h"
 #include <math.h>
 #include "HOG.h"
-
+#include <wtypes.h>
+#include "ctime"
 
 //int _tmain(int argc, _TCHAR* argv[])
 //{
@@ -162,7 +163,7 @@ using namespace System;
 int main(array<System::String ^> ^args)
 {
 	ifstream inputfile;
-	inputfile.open ("input.txt");
+	inputfile.open ("input/filelist.txt");
 	string filepath,filename;
 	if (inputfile.is_open())
 	{
@@ -174,7 +175,30 @@ int main(array<System::String ^> ^args)
 //		}
 	}
 	inputfile.close();
-	
+
+	ifstream conffile;
+	conffile.open ("input/config.txt");
+	string tmp;
+	Size cellSize,blockSize;
+	if (conffile.is_open())
+	{
+		//		while (! inputfile.eof() )
+		//		{
+		getline (conffile,tmp);//cell
+		getline (conffile,tmp);
+		cellSize.width = atoi(tmp.c_str());
+		getline (conffile,tmp);
+		cellSize.height = atoi(tmp.c_str());
+		getline (conffile,tmp);//block
+		getline (conffile,tmp);
+		blockSize.width = atoi(tmp.c_str());
+		getline (conffile,tmp);
+		blockSize.height = atoi(tmp.c_str());
+
+		//		}
+	}
+	conffile.close();
+	printf("%d %d",cellSize.width,cellSize.height);
 	Mat img = imread(filepath+filename);
 	imshow("asdasd",img);
 	Mat* imFils = imFilter(img);
@@ -201,10 +225,17 @@ int main(array<System::String ^> ^args)
 //	Mat his_wnd = calcHisOfCellsInWnd(G,Rect(0,0,64,128),Size(8,8),9);
 	Rect R(0,0,img.cols,img.rows);
 	cout <<"RECT:"<< R.width << ";"<<img.cols<<";"<<G.cols;
-	Mat his_wnd = calcHisOfCellsInWnd2(G,Rect(0,0,img.cols,img.rows),Size(8,8),9);
+	Mat his_wnd = calcHisOfCellsInWnd2(G,Rect(0,0,img.cols,img.rows),cellSize,9);
 	ofstream myfile;
-	string outputfile ="output/hisCell_"+filename+std::string(".txt") ;
-	myfile.open(outputfile.c_str());
+//	SYSTEMTIME st;
+//	GetSystemTime(&st);
+	time_t curr;
+	tm local;
+	time(&curr); // get current time_t value
+	local=*(localtime(&curr)); // dereference and assign
+	stringstream outputfile; 
+	outputfile<<"output/hisCell_"<<filename<<"_cell"<<cellSize.width<<"x"<<cellSize.height<<"_block"<<blockSize.width<<"x"<<blockSize.height<<"_"<<local.tm_year+1900<<"_"<<local.tm_mon<<"_"<<local.tm_mday<<"_"<<local.tm_hour<<"_"<<local.tm_min<<".txt" ;
+	myfile.open(outputfile.str().c_str());
 	printf("\ncalcHisOfCellsInWnd\n");
 	myfile <<"[";
 	for(int ii =0; ii<his_wnd.rows;ii++)
@@ -228,6 +259,7 @@ int main(array<System::String ^> ^args)
 			myfile <<"\n"<<his_wnd.rows<<" "<<his_wnd.cols;
 			myfile.close();
 			printf("\n %d %d",his_wnd.rows,his_wnd.cols);
+			
 
 //	calcHistOfBlockInWnd(his_wnd,Rect(2,2,3,3));
 	/*HIS* h_n = NormalizeBlock(his,2);

@@ -179,31 +179,31 @@ Mat calcHisOfCellsInWnd2(Mat hog_pixels,Rect wnd, Size cellSize, int n_bins)
 					{
 						if (currPix.y>currCenter.y)
 						{
-							tmp[0]=1;
-							tmp[1]=1;
+							tmp[0]=1; //r
+							tmp[1]=1; //c
 
-							H1 = (i+tmp[0])<r-1?(H.at<HIS*>(i+tmp[0],j)):NULL;
-							H2 = (j+tmp[1])<c-1?(H.at<HIS*>(i,j+tmp[1])):NULL;
+							H2 = (i+tmp[0])<r-1?(H.at<HIS*>(i+tmp[0],j)):NULL;
+							H1 = (j+tmp[1])<c-1?(H.at<HIS*>(i,j+tmp[1])):NULL;
 							H3 = (i+tmp[0]<r)&&(j+tmp[1]<c)?(H.at<HIS*>(i+tmp[0],j+tmp[1])):NULL;
 							
 						}
 						else{
-							tmp[0]=1;
-							tmp[1]=-1;
-							H1 = (i+tmp[0])<r-1?(H.at<HIS*>(i+tmp[0],j)):NULL;
-							H2 = (j+tmp[1])>0?(H.at<HIS*>(i,j+tmp[1])):NULL;
-							H3 = (i+tmp[0]<r-1)&&(j+tmp[1]>0)?(H.at<HIS*>(i+tmp[0],j+tmp[1])):NULL;
+							tmp[0]=-1; //r
+							tmp[1]=1; //c
+							H2 = (i+tmp[0])>0?(H.at<HIS*>(i+tmp[0],j)):NULL;
+							H1 = (j+tmp[1])<c-1?(H.at<HIS*>(i,j+tmp[1])):NULL;
+							H3 = (i+tmp[0]>0)&&(j+tmp[1]<c-1)?(H.at<HIS*>(i+tmp[0],j+tmp[1])):NULL;
 
 						}
 					}
 					else{
 						if (currPix.y>currCenter.y)
 						{
-							tmp[0]=-1;
-							tmp[1]=1;
-							H1 = (i+tmp[0])>0?(H.at<HIS*>(i+tmp[0],j)):NULL;
-							H2 = (j+tmp[1])<c-1?(H.at<HIS*>(i,j+tmp[1])):NULL;
-							H3 = (i+tmp[0]>0)&&(j+tmp[1]<c)?(H.at<HIS*>(i+tmp[0],j+tmp[1])):NULL;
+							tmp[0]=+1; //r
+							tmp[1]=-1; //c
+							H2 = (i+tmp[0])<r-1?(H.at<HIS*>(i+tmp[0],j)):NULL;
+							H1 = (j+tmp[1])>0?(H.at<HIS*>(i,j+tmp[1])):NULL;
+							H3 = (i+tmp[0]<r-1)&&(j+tmp[1]>0)?(H.at<HIS*>(i+tmp[0],j+tmp[1])):NULL;
 								
 
 						}
@@ -221,7 +221,7 @@ Mat calcHisOfCellsInWnd2(Mat hog_pixels,Rect wnd, Size cellSize, int n_bins)
 					double r0=0,r1=0,r2=0,r3=0;
 					if (H1!=NULL)
 					{
-						Point currCenter1(currCenter.x +tmp[0]*cellSize.width ,currCenter.y);
+						Point currCenter1(currCenter.x +tmp[1]*cellSize.width ,currCenter.y);
 						int d_01 = currPix.y -currCenter.y;
 						if(d_01<0) d_01=-d_01;
 						int d_02 = currPix.x -currCenter.x;
@@ -229,9 +229,9 @@ Mat calcHisOfCellsInWnd2(Mat hog_pixels,Rect wnd, Size cellSize, int n_bins)
 						
 						if(H2!=NULL)
 						{
-							Point currCenter2(currCenter.x ,currCenter.y+tmp[1]*cellSize.height );
+							Point currCenter2(currCenter.x ,currCenter.y+tmp[0]*cellSize.height );
 							
-							Point currCenter3(currCenter.x+tmp[0]*cellSize.width ,currCenter.y+tmp[1]*cellSize.height );
+							Point currCenter3(currCenter.x+tmp[1]*cellSize.width ,currCenter.y+tmp[0]*cellSize.height );
 							int d_13 = cellSize.width - d_02;
 							if(d_13<0) d_13=-d_13;
 							int d_23 = cellSize.height - d_01;
