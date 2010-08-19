@@ -161,8 +161,21 @@ using namespace System;
 
 int main(array<System::String ^> ^args)
 {
+	ifstream inputfile;
+	inputfile.open ("input.txt");
+	string filepath,filename;
+	if (inputfile.is_open())
+	{
+//		while (! inputfile.eof() )
+//		{
+			getline (inputfile,filepath);
+			getline (inputfile,filename);
+			
+//		}
+	}
+	inputfile.close();
 	
-	Mat img = imread("E:\\3.png");
+	Mat img = imread(filepath+filename);
 	imshow("asdasd",img);
 	Mat* imFils = imFilter(img);
 	/*Mat img_gray;
@@ -190,7 +203,8 @@ int main(array<System::String ^> ^args)
 	cout <<"RECT:"<< R.width << ";"<<img.cols<<";"<<G.cols;
 	Mat his_wnd = calcHisOfCellsInWnd2(G,Rect(0,0,img.cols,img.rows),Size(8,8),9);
 	ofstream myfile;
-	myfile.open ("hisCell.txt");
+	string outputfile ="output/hisCell_"+filename+std::string(".txt") ;
+	myfile.open(outputfile.c_str());
 	printf("\ncalcHisOfCellsInWnd\n");
 	myfile <<"[";
 	for(int ii =0; ii<his_wnd.rows;ii++)
@@ -211,7 +225,7 @@ int main(array<System::String ^> ^args)
 		
 
 	}		
-			
+			myfile <<"\n"<<his_wnd.rows<<" "<<his_wnd.cols;
 			myfile.close();
 			printf("\n %d %d",his_wnd.rows,his_wnd.cols);
 
