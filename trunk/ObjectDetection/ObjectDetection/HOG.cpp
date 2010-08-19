@@ -57,6 +57,7 @@ Mat calcGradientOfPixels(const Mat&filx,const Mat&fily)
 			double w =sqrt( x*x+y*y);
 			double a;
 			a  =  atan(y/(x+0.00001))*180/M_PI;
+			a+=a<0?180:0;
 			G.at<Gradient>(i,j)[0] =a;
 			G.at<Gradient>(i,j)[1] =w;
 
@@ -83,7 +84,6 @@ HIS* calcHisOfCell(Mat hog_pixels, Rect r, int n_bins)
 		//	printf("\n%f:%f\n",hog_pixels.at<Gradient>(i+r.x,j+r.y)[0],hog_pixels.at<Gradient>(i+r.x,j+r.y)[1]);
 		//	int n_b = (int)( (hog_pixels.at<Gradient>(i+r.x,j+r.y)[0]+90)/a);
 			float angle = hog_pixels.at<Gradient>(i+r.y,j+r.x)[0]; 
-			angle += angle<0?180:0;
 			int n_b = (int)( (angle)/a);
 			H->vector_weight[n_b]+=hog_pixels.at<Gradient>(i+r.y,j+r.x)[1];
 			
@@ -128,6 +128,209 @@ Mat calcHisOfCellsInWnd(Mat hog_pixels,Rect wnd, Size cellSize, int n_bins)
 	}
 	return H;	
 
+
+};
+
+
+
+Mat calcHisOfCellsInWnd2(Mat hog_pixels,Rect wnd, Size cellSize, int n_bins)
+{
+	int c = (int)(wnd.width/cellSize.width);
+	int r = (int)(wnd.height/cellSize.height);
+
+	Mat H(r,c,DataType<HIS*>::type);
+	int currX =wnd.x;
+	int currY=wnd.y;
+
+	for (int i=0;i<r;i++)
+	{
+		for (int j=0;j<c;j++)
+
+		{
+			H.at<HIS*>(i,j) = new HIS(n_bins);
+		}
+	}
+
+	for (int i=0;i<r;i++)
+	{
+		currX=0;
+		for (int j=0;j<c;j++)
+
+		{
+			Rect rect(currX,currY,cellSize.width,cellSize.height);
+			double a =180./n_bins;
+			HIS* H0=H.at<HIS*>(i,j);
+			Point currCenter(currX+cellSize.width/2,currY+cellSize.height/2);
+			for (int ii=0;ii<rect.height;ii++)
+			{
+				for (int jj=0;jj<rect.width;jj++)
+				{
+					//	printf("\n%f:%f\n",hog_pixels.at<Gradient>(i+r.x,j+r.y)[0],hog_pixels.at<Gradient>(i+r.x,j+r.y)[1]);
+					//	int n_b = (int)( (hog_pixels.at<Gradient>(i+r.x,j+r.y)[0]+90)/a);
+					float angle = hog_pixels.at<Gradient>(ii+rect.y,jj+rect.x)[0]; 
+					float weight = hog_pixels.at<Gradient>(ii+rect.y,jj+rect.x)[1]; 
+					int n_b = (int)( (angle)/a);
+					Point currPix(currX+jj,currY+ii);
+					Vec2i tmp;
+					HIS* H1 = (i+tmp[0])<r-1?(H.at<HIS*>(i+tmp[0],j)):NULL;
+					HIS* H2 = (j+tmp[1])<c-1?(H.at<HIS*>(i,j+tmp[1])):NULL;
+					HIS* H3 = (i+tmp[0]<r)&&(j+tmp[1]<c)?(H.at<HIS*>(i+tmp[0],j+tmp[1])):NULL;
+					if (currPix.x>currCenter.x)
+					{
+						if (currPix.y>currCenter.y)
+						{
+							tmp[0]=1;
+							tmp[1]=1;
+
+							H1 = (i+tmp[0])<r-1?(H.at<HIS*>(i+tmp[0],j)):NULL;
+							H2 = (j+tmp[1])<c-1?(H.at<HIS*>(i,j+tmp[1])):NULL;
+							H3 = (i+tmp[0]<r)&&(j+tmp[1]<c)?(H.at<HIS*>(i+tmp[0],j+tmp[1])):NULL;
+							
+						}
+						else{
+							tmp[0]=1;
+							tmp[1]=-1;
+							H1 = (i+tmp[0])<r-1?(H.at<HIS*>(i+tmp[0],j)):NULL;
+							H2 = (j+tmp[1])>0?(H.at<HIS*>(i,j+tmp[1])):NULL;
+							H3 = (i+tmp[0]<r-1)&&(j+tmp[1]>0)?(H.at<HIS*>(i+tmp[0],j+tmp[1])):NULL;
+
+						}
+					}
+					else{
+						if (currPix.y>currCenter.y)
+						{
+							tmp[0]=-1;
+							tmp[1]=1;
+							H1 = (i+tmp[0])>0?(H.at<HIS*>(i+tmp[0],j)):NULL;
+							H2 = (j+tmp[1])<c-1?(H.at<HIS*>(i,j+tmp[1])):NULL;
+							H3 = (i+tmp[0]>0)&&(j+tmp[1]<c)?(H.at<HIS*>(i+tmp[0],j+tmp[1])):NULL;
+								
+
+						}
+						else{
+							tmp[0]=-1;
+							tmp[1]=-1;
+							H1 = (i+tmp[0])>0?(H.at<HIS*>(i+tmp[0],j)):NULL;
+							H2 = (j+tmp[1])>0?(H.at<HIS*>(i,j+tmp[1])):NULL;
+							H3 = (i+tmp[0]>0)&&(j+tmp[1]>0)?(H.at<HIS*>(i+tmp[0],j+tmp[1])):NULL;
+
+						}
+					}
+
+					
+					double r0=0,r1=0,r2=0,r3=0;
+					if (H1!=NULL)
+					{
+						Point currCenter1(currCenter.x +tmp[0]*cellSize.width ,currCenter.y);
+						int d_01 = currPix.y -currCenter.y;
+						if(d_01<0) d_01=-d_01;
+						int d_02 = currPix.x -currCenter.x;
+						if(d_02<0) d_02=-d_02;
+						
+						if(H2!=NULL)
+						{
+							Point currCenter2(currCenter.x ,currCenter.y+tmp[1]*cellSize.height );
+							
+							Point currCenter3(currCenter.x+tmp[0]*cellSize.width ,currCenter.y+tmp[1]*cellSize.height );
+							int d_13 = cellSize.width - d_02;
+							if(d_13<0) d_13=-d_13;
+							int d_23 = cellSize.height - d_01;
+							if(d_23<0) d_23=-d_23;
+							
+							r0= (1. - 1.*d_01/cellSize.height) * (1. - 1.*d_02/cellSize.width);
+							r1 = (1. - 1.*d_01/cellSize.height) * (1. - 1.*d_13/cellSize.width);
+							r2 = (1. - 1.*d_23/cellSize.height) * (1. - 1.*d_02/cellSize.width);
+							r3 = (1. - 1.*d_23/cellSize.height) * (1. - 1.*d_13/cellSize.width);
+
+							/*H0->vector_weight[n_b]+=weight*r0;
+							H1->vector_weight[n_b]+=weight*r1;
+							H2->vector_weight[n_b]+=weight*r2;
+							H3->vector_weight[n_b]+=weight*r3;*/
+							setHisOfCell(Gradient(angle,weight*r0),H0,cellSize);
+							setHisOfCell(Gradient(angle,weight*r1),H1,cellSize);
+							setHisOfCell(Gradient(angle,weight*r2),H2,cellSize);
+							setHisOfCell(Gradient(angle,weight*r3),H3,cellSize);
+						}
+						else{
+							r0 =  (1. - 1.*d_02/cellSize.width);
+							r1 =  (1.*d_02/cellSize.width);
+							//r2 = (1. - 1.*d_23/cellSize.height) * (1. - 1.*d_02/cellSize.width);
+							//r3 = (1. - 1.*d_23/cellSize.height) * (1. - 1.*d_13/cellSize.width);
+
+						//	H0->vector_weight[n_b]+=weight*r0;
+						//	H1->vector_weight[n_b]+=weight*r1;
+							//H2->vector_weight[n_b]+=weight*r2;
+							//H3->vector_weight[n_b]+=weight*r3;
+							setHisOfCell(Gradient(angle,weight*r0),H0,cellSize);
+							setHisOfCell(Gradient(angle,weight*r1),H1,cellSize);
+						}
+					}
+					else if(H2!=NULL){
+						int d_01 = currPix.y -currCenter.y;
+						if(d_01<0) d_01=-d_01;
+						int d_02 = currPix.x -currCenter.x;
+						if(d_02<0) d_02=-d_02;
+						
+						Point currCenter2(currCenter.x ,currCenter.y+tmp[1]*cellSize.height );
+
+						r0= (1. - 1.*d_01/cellSize.height);// * (1. - 1.*d_02/cellSize.width);
+						//r1 = (1. - 1.*d_01/cellSize.height) * (1. - 1.*d_13/cellSize.width);
+						r2 = (1.*d_01/cellSize.height); //* (1. - 1.*d_02/cellSize.width);
+						//r3 = (1. - 1.*d_23/cellSize.height) * (1. - 1.*d_13/cellSize.width);
+
+						//H0->vector_weight[n_b]+=weight*r0;
+						//H1->vector_weight[n_b]+=weight*r1;
+						//H2->vector_weight[n_b]+=weight*r2;
+						//H3->vector_weight[n_b]+=weight*r3;
+
+						setHisOfCell(Gradient(angle,weight*r0),H0,cellSize);
+						setHisOfCell(Gradient(angle,weight*r2),H2,cellSize);
+					}
+					else{
+						//H0->vector_weight[n_b]+=weight;
+						setHisOfCell(Gradient(angle,weight),H0,cellSize);
+					}
+					
+					//H0->vector_weight[n_b]+=hog_pixels.at<Gradient>(ii+r.y,jj+r.x)[1];
+
+				}
+			}
+			//H.at<HIS*>(i,j)= calcHisOfCell(hog_pixels,Rect(currX,currY,cellSize.width,cellSize.height),n_bins);
+			
+
+			currX+=cellSize.width;
+		}
+		currY+=cellSize.height;
+	}
+	return H;	
+
+
+};
+void setHisOfCell(Gradient hog_pixcell, HIS* Hcell,Size cellSize)
+{
+	float a = hog_pixcell[0];
+	float w = hog_pixcell[1];
+	float step = 180./Hcell->n_bins;
+	int n_b = (int)( (a)/step);
+		if(a<n_b*(step+0.5))
+		{
+			if(n_b>0)
+			{
+				float r1=  (n_b*(step+0.5)-a)/step ;
+				float r0 = 1-r1;
+				Hcell->vector_weight[n_b]+=r0*w;
+				Hcell->vector_weight[n_b-1]+=r1*w;
+			}else Hcell->vector_weight[n_b]+=w;
+		}else{
+			if(n_b < Hcell->n_bins-1)
+			{
+				float r1= (a- n_b*(step+0.5))/step ;
+				float r0 = 1-r1;
+				Hcell->vector_weight[n_b]+=r0*w;
+				Hcell->vector_weight[n_b+1]+=r1*w;
+			}else Hcell->vector_weight[n_b]+=w;
+		}
+	//Hcell->vector_weight[n_b]+= 
 
 };
 

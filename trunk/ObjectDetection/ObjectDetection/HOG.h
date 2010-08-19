@@ -44,7 +44,7 @@ Mat im2double(const Mat& m);
 HIS* calcHistOfBlockInWnd(Mat mat, Rect p);
 
 HIS* calcHistOfWnd(Mat mat, Size blockSize, Vec2i overlap, int norm_c);
-
-
+Mat calcHisOfCellsInWnd2(Mat hog_pixels,Rect wnd, Size cellSize, int n_bins);
+void setHisOfCell(Gradient hog_pixcell, HIS* Hcell,Size cellSize);
 
 #endif

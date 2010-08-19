@@ -162,7 +162,7 @@ using namespace System;
 int main(array<System::String ^> ^args)
 {
 	
-	Mat img = imread("E:\\5.png");
+	Mat img = imread("E:\\3.png");
 	imshow("asdasd",img);
 	Mat* imFils = imFilter(img);
 	/*Mat img_gray;
@@ -188,7 +188,7 @@ int main(array<System::String ^> ^args)
 //	Mat his_wnd = calcHisOfCellsInWnd(G,Rect(0,0,64,128),Size(8,8),9);
 	Rect R(0,0,img.cols,img.rows);
 	cout <<"RECT:"<< R.width << ";"<<img.cols<<";"<<G.cols;
-	Mat his_wnd = calcHisOfCellsInWnd(G,Rect(0,0,img.cols,img.rows),Size(8,8),9);
+	Mat his_wnd = calcHisOfCellsInWnd2(G,Rect(0,0,img.cols,img.rows),Size(8,8),9);
 	ofstream myfile;
 	myfile.open ("hisCell.txt");
 	printf("\ncalcHisOfCellsInWnd\n");
