@@ -11,7 +11,6 @@ using namespace System;
 #include "imFilter.h"
 #include <math.h>
 #include "HOG.h"
-#include <wtypes.h>
 #include "ctime"
 
 //int _tmain(int argc, _TCHAR* argv[])
