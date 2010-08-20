@@ -197,7 +197,6 @@ int main(array<System::String ^> ^args)
 		//		}
 	}
 	conffile.close();
-	printf("%d %d",cellSize.width,cellSize.height);
 	Mat img = imread(filepath+filename);
 	imshow("asdasd",img);
 	Mat* imFils = imFilter(img);
@@ -236,7 +235,8 @@ int main(array<System::String ^> ^args)
 	outputfile<<"output/hisCell_"<<filename<<"_cell"<<cellSize.width<<"x"<<cellSize.height<<"_block"<<blockSize.width<<"x"<<blockSize.height<<"_"<<local.tm_year+1900<<"_"<<local.tm_mon<<"_"<<local.tm_mday<<"_"<<local.tm_hour<<"_"<<local.tm_min<<".txt" ;
 	myfile.open(outputfile.str().c_str());
 	printf("\ncalcHisOfCellsInWnd\n");
-	myfile <<"[";
+	//myfile <<"[";
+	myfile <<his_wnd.rows<<", "<<his_wnd.cols<<"\n";
 	for(int ii =0; ii<his_wnd.rows;ii++)
 	{
 		for(int jj =0; jj<his_wnd.cols;jj++)
@@ -246,16 +246,19 @@ int main(array<System::String ^> ^args)
 			for (int i=0;i<9;i++)
 			{
 				printf("%2.2f, ",his_wnd.at<HIS*>(ii,jj)->vector_weight[i]);
-				myfile << his_wnd.at<HIS*>(ii,jj)->vector_weight[i] <<" ";
+				myfile << his_wnd.at<HIS*>(ii,jj)->vector_weight[i] ;
+				if(i == 8) continue;
+				myfile<<", ";
 			}
-			myfile << "\n ;";
+			//if(ii==his_wnd.rows-1 && jj == his_wnd.cols-1) continue;
+			myfile << "\n";
 		
 		printf("\n");
 		}
 		
 
 	}		
-			myfile <<"\n"<<his_wnd.rows<<" "<<his_wnd.cols;
+			
 			myfile.close();
 			printf("\n %d %d",his_wnd.rows,his_wnd.cols);
 			
