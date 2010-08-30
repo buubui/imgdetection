@@ -172,9 +172,12 @@ Mat calcHisOfCellsInWnd2(Mat hog_pixels,Rect wnd, Size cellSize, int n_bins)
 					int n_b = (int)( (angle)/a);
 					Point currPix(currX+jj,currY+ii);
 					Vec2i tmp;
-					HIS* H1 = (i+tmp[0])<r-1?(H.at<HIS*>(i+tmp[0],j)):NULL;
+					/*HIS* H1 = (i+tmp[0])<r-1?(H.at<HIS*>(i+tmp[0],j)):NULL;
 					HIS* H2 = (j+tmp[1])<c-1?(H.at<HIS*>(i,j+tmp[1])):NULL;
-					HIS* H3 = (i+tmp[0]<r)&&(j+tmp[1]<c)?(H.at<HIS*>(i+tmp[0],j+tmp[1])):NULL;
+					HIS* H3 = (i+tmp[0]<r)&&(j+tmp[1]<c)?(H.at<HIS*>(i+tmp[0],j+tmp[1])):NULL;*/
+					HIS* H1 = NULL;
+					HIS* H2 = NULL;
+					HIS* H3 = NULL;
 					if (currPix.x>currCenter.x)
 					{
 						if (currPix.y>currCenter.y)
@@ -409,11 +412,11 @@ HIS* calcHistOfBlockInWnd(Mat mat, Rect p)
 			
 		}
 	}
-	printf("\n BLOCK: %d\n",s);
-	for (int i =0 ; i<n*w*h;i++)
+//	printf("\n BLOCK: %d\n",s);
+	/*for (int i =0 ; i<n*w*h;i++)
 	{
 		printf("%f \n ",hist->vector_weight[i]);
-	}
+	}*/
 
 	return hist;
 }
