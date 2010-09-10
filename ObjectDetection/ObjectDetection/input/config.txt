@@ -5,5 +5,5 @@ BlockSize
 3
 3
 WindowSize
-96
-160
+70
+134
