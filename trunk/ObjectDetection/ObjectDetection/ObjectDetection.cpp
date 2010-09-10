@@ -12,7 +12,7 @@ using namespace System;
 #include <math.h>
 #include "HOG.h"
 #include "ctime"
-
+void getWeight(string filename,Mat* &weight, double& b);
 //int _tmain(int argc, _TCHAR* argv[])
 //{
 //	clock_t start, stop;
@@ -282,7 +282,129 @@ void generateData(string inputfilelist, int pos,int randTime){
 
 }
 
+void multiscaleExp(Mat img,float step )
+{
+	Mat result = img.clone();
+	Point startP(0,0);
+	double scale =1.;
+	Size cellSz,wndSz; 
+	Size tmp;
+	tmp.width = wndSize.width / cellSize.width;
+	tmp.height = wndSize.height /cellSize.height;
+	cellSz.width = cellSize.width;
+	cellSz.height = cellSize.height;
+	wndSz.width = wndSize.width;
+	wndSz.height = wndSize.height;
+	Rect slideWnd(0,0,wndSize.width,wndSize.height);
+	int i =0;
+	Mat * weight;
+	double b;
+	getWeight("w.txt",weight,b);
+	Mat* imFils = imFilter(img);
+	Mat G = calcGradientOfPixels(imFils[0],imFils[1]);
+	Rect MaxWnd(0,0,wndSize.width,wndSize.height);
+	double max=0;
+	for (int h=0;h<img.rows;h+=100)
+	{
+		//printf("%d\n",h);
+		for (int w=0;w<img.cols;w+=30)
+		{
+			startP.x= w;
+			startP.y = h;
+			slideWnd.x = startP.x;
+			slideWnd.y = startP.y;
+			scale =1.;
+			cellSz.width = cellSize.width;
+			cellSz.height = cellSize.height;
+			wndSz.width = wndSize.width;
+			wndSz.height = wndSize.height;
+			slideWnd.width =wndSz.width;
+			slideWnd.height =wndSz.height;
+			while( wndSz.width* scale <=(img.cols - startP.x) && wndSz.height* scale <=(img.rows - startP.y))
+			{
+				
+				Mat img_slideWnd=img(slideWnd);
+				
+				
+				Mat his_wnd = calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9);
+				HIS* h_w = calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2);
+				Mat his(1,h_w->n_bins,CV_64F);
+				//printf("%d",h_w->n_bins);
+				for (int i=0;i<h_w->n_bins;i++)
+				{
+					his.at<double>(0,i)=h_w->vector_weight[i];
+				}
+				Mat R = his* (*weight ) - b;
+				double v = R.at<double>(0,0);
+				if(v>0){
+					printf(" (%d,%d) (%dx%d) %f %f\n",startP.x,startP.y, wndSz.width,wndSz.height,scale, v);
+					rectangle(result,slideWnd,Scalar(0,0,256));
+					stringstream outputfile;
+					outputfile <<"img "<<startP.x<<" "<<startP.y<<" "<<wndSz.width<<" "<<wndSz.height;
+				//	imshow(outputfile.str(),img_slideWnd);
+					if(v>max){
+						max=v;
+						MaxWnd = slideWnd;
+					}
+				}
+				delete h_w;
+		//		imFils[0].release();
+		//		imFils[1].release();
+				his_wnd.release();
+		//		G.release();
+				i++;
+				//scale =  pow(step,i);
+				scale = scale + step;
+				cellSz.width = ( 2+cellSz.width);
+				cellSz.height = ( 2+cellSz.height);
 
+				wndSz.width = cellSz.width * tmp.width;
+				wndSz.height = cellSz.height * tmp.height;
+
+				slideWnd.width =wndSz.width;
+				slideWnd.height =wndSz.height;
+
+			}
+
+
+		}
+	}
+		
+	//	imshow("max",img(MaxWnd));
+		imshow("result",result);
+}
+void loadConfig()
+{
+	ifstream conffile;
+	conffile.open ("input/config.txt");
+	string tmp;
+
+	if (conffile.is_open())
+	{
+		//		while (! inputfile.eof() )
+		//		{
+		getline (conffile,tmp);//cell
+		getline (conffile,tmp);
+		cellSize.width = atoi(tmp.c_str());
+		getline (conffile,tmp);
+		cellSize.height = atoi(tmp.c_str());
+		getline (conffile,tmp);//block
+		getline (conffile,tmp);
+		blockSize.width = atoi(tmp.c_str());
+		getline (conffile,tmp);
+		blockSize.height = atoi(tmp.c_str());
+		getline (conffile,tmp);//window
+		getline (conffile,tmp);
+		wndSize.width = atoi(tmp.c_str());
+		getline (conffile,tmp);
+		wndSize.height = atoi(tmp.c_str());
+
+		//		}
+	}
+	conffile.close();
+
+
+}
 void generateData2(string posfilelist, string negfilelist,int randTimePos,int randTimeNeg){
 	ifstream conffile;
 	conffile.open ("input/config.txt");
@@ -371,6 +493,11 @@ void generateData2(string posfilelist, string negfilelist,int randTimePos,int ra
 					slideWnd.x =rnd;
 					rnd = rand()%sizeH;
 					slideWnd.y = rnd;
+				}else{
+					if(pos>0&&(img.rows > slideWnd.height)){
+						slideWnd.x = (img.rows - slideWnd.height)/2;
+						slideWnd.y = (img.cols - slideWnd.width)/2;
+					}
 				}
 				printf("%d. %s (%d,%d)\n",i+1,filename.c_str(),slideWnd.x,slideWnd.y);
 				Mat img_slideWnd=img(slideWnd);
@@ -391,7 +518,7 @@ void generateData2(string posfilelist, string negfilelist,int randTimePos,int ra
 						myfile2 << i+1<<":"<<v<<"\t";
 				}
 				myfile << pos<<"\n";
-				myfile2 <<"\n";
+				myfile2 <<"\t #"<<filename<<"\t ("<<slideWnd.x<<", "<<slideWnd.y<<", "<<slideWnd.width<<", "<<slideWnd.height<<")\n";
 				delete h_w;
 				his_wnd.release();
 				G.release();
@@ -416,11 +543,53 @@ void generateData2(string posfilelist, string negfilelist,int randTimePos,int ra
 
 }
 
+void getWeight(string filename,Mat* &weight, double& b){
+	ifstream fi;
+	fi.open (filename.c_str());
+	string tmp;
+	int n;
+	if (fi.is_open())
+	{
+		getline (fi,tmp);
+		n = atoi(tmp.c_str());
+		weight = new Mat(n,1,CV_64F);
+		for (int i=0;i<n;i++)
+		{
+			getline (fi,tmp);
+			
+			weight->at<double>(i,0)=atof(tmp.c_str());
+		}
+		getline (fi,tmp);
+
+		b=atof(tmp.c_str());
+	}
+
+}
+
+
 
 
 int main(array<System::String ^> ^args)
 {
-	generateData2("input/filelist_pos.txt","input/filelist_neg.txt",1,2);
+//	generateData2("input/a.txt","input/b.txt",1,1);
+	//Mat * w;
+	//double b;
+	//getWeight("w.txt",w,b);
+	//printf("%f",b);
+	//for (int i=0;i<w->rows;i++)
+	//{
+	//	printf("%f ;",w->at<double>(i,0));
+	//}
+	loadConfig();
+	Mat img = imread("E:\\crop001682.png");
+	//rectangle(img,Rect(10,10,100,200),Scalar(0,0,256));
+//	imshow("asd",img);
+	multiscaleExp(img,0.01);
+	Mat a(2,1,CV_64F);
+	Mat b =a.t();
+	Mat c = a*b;
+
+
 //	generateData("input/filelist_pos.txt",1,1);
 //	generateData("input/filelist_neg.txt",-1,2);
 	//	ifstream inputfile;
