@@ -1,7 +1,7 @@
 // ObjectDetection.cpp : main project file.
 
 #include "stdafx.h"
-
+#include <boost/algorithm/string.hpp>
 using namespace System;
 
 // TestOpenCv.cpp : Defines the entry point for the console application.
@@ -275,12 +275,8 @@ void generateData(string inputfilelist, int pos,int randTime){
 	inputfile.close();
 
 
-
-
-	
-
-
 }
+
 
 void multiscaleExp(Mat img,float step )
 {
@@ -289,8 +285,10 @@ void multiscaleExp(Mat img,float step )
 	double scale =0.;
 	Size cellSz,wndSz; 
 	Size tmp;
+	
 	tmp.width = wndSize.width / cellSize.width;
 	tmp.height = wndSize.height /cellSize.height;
+	float baseWidth=cellSize.width*tmp.width;
 	cellSz.width = cellSize.width;
 	cellSz.height = cellSize.height;
 	wndSz.width = wndSize.width;
@@ -304,10 +302,10 @@ void multiscaleExp(Mat img,float step )
 	Mat G = calcGradientOfPixels(imFils[0],imFils[1]);
 	Rect MaxWnd(0,0,wndSize.width,wndSize.height);
 	double max=0;
-	for (int h=0;h<img.rows;h+=100)
+	for (int h=0;h<img.rows;h+=50)
 	{
 		//printf("%d\n",h);
-		for (int w=0;w<img.cols;w+=30)
+		for (int w=0;w<img.cols;w+=50)
 		{
 			startP.x= w;
 			startP.y = h;
@@ -338,8 +336,11 @@ void multiscaleExp(Mat img,float step )
 				double v = R.at<double>(0,0);
 				if(v>0){
 //					printf(" (%d,%d) (%dx%d) %f %f\n",startP.x,startP.y, wndSz.width,wndSz.height,scale, v);
-					printf("%d\t%d\t%f\t%f\n",(startP.x+wndSz.width)/2,(startP.y+wndSz.height)/2,scale, v);
+					printf("%d, %d, %f\n",startP.x+wndSz.width/2,startP.y+wndSz.height/2,wndSz.width/baseWidth);
 					rectangle(result,slideWnd,Scalar(0,0,256));
+					stringstream out;
+					out<<v;
+					putText(result,out.str(),Point(slideWnd.x,slideWnd.y-3),FONT_HERSHEY_COMPLEX_SMALL,0.5,Scalar(0,256,0));
 					stringstream outputfile;
 					outputfile <<"img "<<startP.x<<" "<<startP.y<<" "<<wndSz.width<<" "<<wndSz.height;
 				//	imshow(outputfile.str(),img_slideWnd);
@@ -581,11 +582,42 @@ Rect getRect(int x,int y, float scale)
 	cellSz.width = ( scale+cellSize.width);
 	cellSz.height = ( scale+cellSize.height);
 
-	result.width =cellSize.width*tmp.width; 
-	result.height= cellSize.height*tmp.height;
-	//result.x = 
+	result.width =cellSize.width*tmp.width*scale; 
+	result.height= cellSize.height*tmp.height*scale;
+	result.x = x - result.width/2;
+	result.y = y - result.height/2;
 	return result;
 	
+}
+void drawRect2Img(Mat & img, string rectFile)
+{
+	ifstream ffile;
+	ffile.open (rectFile.c_str());
+	string tmp;
+
+
+	if (ffile.is_open())
+	{
+				while (! ffile.eof() )
+				{
+		getline (ffile,tmp);
+		std::vector<std::string> strs;
+		char* s = (char*)(tmp.c_str());
+		boost::split(strs,s , boost::is_any_of(","));
+		if (strs.size()<3)
+			break;
+		//cellSize.width = atoi(tmp.c_str());
+		Rect r=getRect((int)atof(strs[0].c_str()),(int)atof(strs[1].c_str()),atof(strs[2].c_str()));
+		rectangle(img,r,Scalar(0,0,256));
+		
+		
+
+		
+
+				}
+	}
+	ffile.close();
+
 }
 int main(array<System::String ^> ^args)
 {
@@ -599,17 +631,28 @@ int main(array<System::String ^> ^args)
 	//	printf("%f ;",w->at<double>(i,0));
 	//}
 	loadConfig();
-	Mat img = imread("E:\\crop_000027.png");
+	Mat img = imread("E:\\crop001704.png");
 	//rectangle(img,Rect(10,10,100,200),Scalar(0,0,256));
 //	imshow("asd",img);
-	multiscaleExp(img,0.01);
+//	multiscaleExp(img,0.01);
 	//Rect x(112,202,11,11);
 	//Rect y(110,194,11,11);
 	//
-	//rectangle(img,x,Scalar(0,0,256));
-	//rectangle(img,y,Scalar(0,0,256));
-	//
-	//imshow("asd",img);
+	/*Rect x = getRect(583,268,2.5386);
+	Rect y = getRect(284,335,2.853);
+	Rect z = getRect(791,328,1.6288);
+	Rect a =getRect(77,191,2.0473);
+	Rect b = getRect(721,101,1.5835);
+	
+	rectangle(img,x,Scalar(0,0,256));
+	rectangle(img,y,Scalar(0,0,256));
+	rectangle(img,z,Scalar(0,0,256));
+	rectangle(img,a,Scalar(0,256,0));
+	rectangle(img,b,Scalar(0,256,0));*/
+	drawRect2Img(img,"../Debug/result1704.txt");
+	imwrite("result1704.png",img,vector<int>(CV_IMWRITE_PNG_COMPRESSION,4));
+	imshow("asd",img);
+	
 
 
 //	generateData("input/filelist_pos.txt",1,1);
