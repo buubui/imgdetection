@@ -286,7 +286,7 @@ void multiscaleExp(Mat img,float step )
 {
 	Mat result = img.clone();
 	Point startP(0,0);
-	double scale =1.;
+	double scale =0.;
 	Size cellSz,wndSz; 
 	Size tmp;
 	tmp.width = wndSize.width / cellSize.width;
@@ -313,14 +313,14 @@ void multiscaleExp(Mat img,float step )
 			startP.y = h;
 			slideWnd.x = startP.x;
 			slideWnd.y = startP.y;
-			scale =1.;
+			scale =0.;
 			cellSz.width = cellSize.width;
 			cellSz.height = cellSize.height;
 			wndSz.width = wndSize.width;
 			wndSz.height = wndSize.height;
 			slideWnd.width =wndSz.width;
 			slideWnd.height =wndSz.height;
-			while( wndSz.width* scale <=(img.cols - startP.x) && wndSz.height* scale <=(img.rows - startP.y))
+			while( wndSz.width <=(img.cols - startP.x) && wndSz.height <=(img.rows - startP.y))
 			{
 				
 				Mat img_slideWnd=img(slideWnd);
@@ -337,7 +337,8 @@ void multiscaleExp(Mat img,float step )
 				Mat R = his* (*weight ) - b;
 				double v = R.at<double>(0,0);
 				if(v>0){
-					printf(" (%d,%d) (%dx%d) %f %f\n",startP.x,startP.y, wndSz.width,wndSz.height,scale, v);
+//					printf(" (%d,%d) (%dx%d) %f %f\n",startP.x,startP.y, wndSz.width,wndSz.height,scale, v);
+					printf("%d\t%d\t%f\t%f\n",(startP.x+wndSz.width)/2,(startP.y+wndSz.height)/2,scale, v);
 					rectangle(result,slideWnd,Scalar(0,0,256));
 					stringstream outputfile;
 					outputfile <<"img "<<startP.x<<" "<<startP.y<<" "<<wndSz.width<<" "<<wndSz.height;
@@ -354,9 +355,9 @@ void multiscaleExp(Mat img,float step )
 		//		G.release();
 				i++;
 				//scale =  pow(step,i);
-				scale = scale + step;
-				cellSz.width = ( 2+cellSz.width);
-				cellSz.height = ( 2+cellSz.height);
+				scale = scale + 2;
+				cellSz.width = ( scale+cellSize.width);
+				cellSz.height = ( scale+cellSize.height);
 
 				wndSz.width = cellSz.width * tmp.width;
 				wndSz.height = cellSz.height * tmp.height;
@@ -568,7 +569,24 @@ void getWeight(string filename,Mat* &weight, double& b){
 
 
 
+Rect getRect(int x,int y, float scale)
+{
+	
+	Size cellSz; 
+	Size tmp;
+	Rect result;
+	tmp.width = wndSize.width / cellSize.width;
+	tmp.height = wndSize.height /cellSize.height;
+	//cellSz = cellSize;
+	cellSz.width = ( scale+cellSize.width);
+	cellSz.height = ( scale+cellSize.height);
 
+	result.width =cellSize.width*tmp.width; 
+	result.height= cellSize.height*tmp.height;
+	//result.x = 
+	return result;
+	
+}
 int main(array<System::String ^> ^args)
 {
 //	generateData2("input/a.txt","input/b.txt",1,1);
@@ -581,13 +599,17 @@ int main(array<System::String ^> ^args)
 	//	printf("%f ;",w->at<double>(i,0));
 	//}
 	loadConfig();
-	Mat img = imread("E:\\crop001682.png");
+	Mat img = imread("E:\\crop_000027.png");
 	//rectangle(img,Rect(10,10,100,200),Scalar(0,0,256));
 //	imshow("asd",img);
 	multiscaleExp(img,0.01);
-	Mat a(2,1,CV_64F);
-	Mat b =a.t();
-	Mat c = a*b;
+	//Rect x(112,202,11,11);
+	//Rect y(110,194,11,11);
+	//
+	//rectangle(img,x,Scalar(0,0,256));
+	//rectangle(img,y,Scalar(0,0,256));
+	//
+	//imshow("asd",img);
 
 
 //	generateData("input/filelist_pos.txt",1,1);
