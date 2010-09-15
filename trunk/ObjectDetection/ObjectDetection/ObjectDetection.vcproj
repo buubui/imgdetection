@@ -205,6 +205,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\loadConfigs.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\multiscaleDetectRect.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\ObjectDetection.cpp"
 				>
 			</File>
@@ -228,6 +236,10 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath=".\svmData.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -239,6 +251,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\glbVars.h"
+				>
+			</File>
+			<File
 				RelativePath=".\HOG.h"
 				>
 			</File>
@@ -247,11 +263,23 @@
 				>
 			</File>
 			<File
+				RelativePath=".\loadConfigs.h"
+				>
+			</File>
+			<File
+				RelativePath=".\multiscaleDetectRect.h"
+				>
+			</File>
+			<File
 				RelativePath=".\resource.h"
 				>
 			</File>
 			<File
 				RelativePath=".\stdafx.h"
+				>
+			</File>
+			<File
+				RelativePath=".\svmData.h"
 				>
 			</File>
 		</Filter>
