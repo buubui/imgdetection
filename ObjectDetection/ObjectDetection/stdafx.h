@@ -20,4 +20,11 @@ using namespace cv;
 using namespace System;
 using namespace System::Collections;
 
+
+#include "loadConfigs.h"
+#include "multiscaleDetectRect.h"
+#include "imFilter.h"
+#include "HOG.h"
+#include "svmData.h"
+
 // TODO: reference additional headers your program requires here
