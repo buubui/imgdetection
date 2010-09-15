@@ -302,6 +302,8 @@ void multiscaleExp(Mat img,float step )
 	Mat G = calcGradientOfPixels(imFils[0],imFils[1]);
 	Rect MaxWnd(0,0,wndSize.width,wndSize.height);
 	double max=0;
+	Mat img_slideWnd, his_wnd;
+	Mat* his=NULL;
 	for (int h=0;h<img.rows;h+=50)
 	{
 		//printf("%d\n",h);
@@ -318,42 +320,58 @@ void multiscaleExp(Mat img,float step )
 			wndSz.height = wndSize.height;
 			slideWnd.width =wndSz.width;
 			slideWnd.height =wndSz.height;
+			
 			while( wndSz.width <=(img.cols - startP.x) && wndSz.height <=(img.rows - startP.y))
 			{
 				
-				Mat img_slideWnd=img(slideWnd);
+				img_slideWnd=img(slideWnd);
 				
 				
-				Mat his_wnd = calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9);
+				his_wnd = calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9);
 				HIS* h_w = calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2);
-				Mat his(1,h_w->n_bins,CV_64F);
+				if(!his)
+					his=new Mat(1,h_w->n_bins,CV_64F);
 				//printf("%d",h_w->n_bins);
 				for (int i=0;i<h_w->n_bins;i++)
 				{
-					his.at<double>(0,i)=h_w->vector_weight[i];
+					his->at<double>(0,i)=h_w->vector_weight[i];
 				}
-				Mat R = his* (*weight ) - b;
+				Mat R = (*his)* (*weight ) - b;
 				double v = R.at<double>(0,0);
+				cout<<v<<endl;
 				if(v>0){
 //					printf(" (%d,%d) (%dx%d) %f %f\n",startP.x,startP.y, wndSz.width,wndSz.height,scale, v);
 					printf("%d, %d, %f\n",startP.x+wndSz.width/2,startP.y+wndSz.height/2,wndSz.width/baseWidth);
-					rectangle(result,slideWnd,Scalar(0,0,256));
+					rectangle(result,slideWnd,Scalar(0,256,0),2);
 					stringstream out;
 					out<<v;
 					putText(result,out.str(),Point(slideWnd.x,slideWnd.y-3),FONT_HERSHEY_COMPLEX_SMALL,0.5,Scalar(0,256,0));
 					stringstream outputfile;
 					outputfile <<"img "<<startP.x<<" "<<startP.y<<" "<<wndSz.width<<" "<<wndSz.height;
 				//	imshow(outputfile.str(),img_slideWnd);
-					if(v>max){
-						max=v;
-						MaxWnd = slideWnd;
-					}
+				//	if(v>max){
+				//		max=v;
+				//		MaxWnd = slideWnd;
+				//	}
 				}
+				
 				delete h_w;
+
+				
 		//		imFils[0].release();
 		//		imFils[1].release();
+				for (int ii=0;ii<his_wnd.rows;ii++)
+				{
+					for (int jj=0;jj<his_wnd.cols;jj++)
+					{
+						HIS* hh=his_wnd.at<HIS*>(ii,jj);
+						delete hh;
+					}
+				}
 				his_wnd.release();
 		//		G.release();
+				R.release();
+				
 				i++;
 				//scale =  pow(step,i);
 				scale = scale + 2;
@@ -371,6 +389,9 @@ void multiscaleExp(Mat img,float step )
 
 		}
 	}
+	imFils[0].release();
+	imFils[1].release();
+	G.release();
 		
 	//	imshow("max",img(MaxWnd));
 		imshow("result",result);
@@ -407,37 +428,8 @@ void loadConfig()
 
 
 }
-void generateData2(string posfilelist, string negfilelist,int randTimePos,int randTimeNeg){
-	ifstream conffile;
-	conffile.open ("input/config.txt");
-	string tmp;
-
-	if (conffile.is_open())
-	{
-		//		while (! inputfile.eof() )
-		//		{
-		getline (conffile,tmp);//cell
-		getline (conffile,tmp);
-		cellSize.width = atoi(tmp.c_str());
-		getline (conffile,tmp);
-		cellSize.height = atoi(tmp.c_str());
-		getline (conffile,tmp);//block
-		getline (conffile,tmp);
-		blockSize.width = atoi(tmp.c_str());
-		getline (conffile,tmp);
-		blockSize.height = atoi(tmp.c_str());
-		getline (conffile,tmp);//window
-		getline (conffile,tmp);
-		wndSize.width = atoi(tmp.c_str());
-		getline (conffile,tmp);
-		wndSize.height = atoi(tmp.c_str());
-
-		//		}
-	}
-	conffile.close();
-
-
-
+void generateData2(string posfilelist, string negfilelist,int randTimePos,int randTimeNeg)
+{	
 	ifstream inputFile;
 	printf("%s\n",posfilelist.c_str());
 	inputFile.open (posfilelist.c_str());
@@ -462,10 +454,18 @@ void generateData2(string posfilelist, string negfilelist,int randTimePos,int ra
 		outputfile2<<"output/his"<<"_svmLight_"<<local.tm_year+1900<<"_"<<local.tm_mon<<"_"<<local.tm_mday<<"_"<<local.tm_hour<<"_"<<local.tm_min<<".txt" ;
 		myfile.open(outputfile.str().c_str());
 		myfile2.open(outputfile2.str().c_str());
+		Size cellSz,wndSz,tmp;
+		tmp.width = wndSize.width / cellSize.width;
+		tmp.height = wndSize.height / cellSize.height;
 		for (int i=0;;i++)
 
 			//		while (! inputfile.eof() )
 		{
+			/*cellSz = cellSize;
+			wndSz = wndSize;
+			slideWnd.width = wndSize.width;
+			slideWnd.height =wndSize.height;*/
+
 			getline (inputFile,filename);
 			if (filename.length()<2)
 			{
@@ -484,29 +484,70 @@ void generateData2(string posfilelist, string negfilelist,int randTimePos,int ra
 			}
 
 			Mat img = imread(filepath+filename);
-
-			for (int j =0;j<randTime;j++)
+			Mat* imFils = imFilter(img);
+			Mat G = calcGradientOfPixels(imFils[0],imFils[1]);
+			bool continueScale = false;
+			for (int j =0;j<randTime;)
 			{
+				
 				if(randTime>1){
-					int rnd;
-					int sizeW = img.cols - wndSize.width;
-					int sizeH = img.rows - wndSize.height;
-					rnd = rand()%sizeW;
-					slideWnd.x =rnd;
-					rnd = rand()%sizeH;
-					slideWnd.y = rnd;
+					
+					if (!continueScale)
+					{
+						int rnd;
+						int sizeW = img.cols - wndSize.width;
+						int sizeH = img.rows - wndSize.height;
+						rnd = rand()%sizeW;
+						slideWnd.x =rnd;
+						rnd = rand()%sizeH;
+						slideWnd.y = rnd;
+						slideWnd.width = wndSize.width;
+						slideWnd.height=wndSize.height;
+					}else{
+						cellSz.width++;
+						cellSz.height++;
+					}
+					
+				//	for (int t=0;;t++)
+				//	{
+						
+						if( (cellSz.width*tmp.width>img.cols - slideWnd.x) || (cellSz.height*tmp.height>img.rows - slideWnd.y) )
+						{
+						//	printf("SAI %d %d. %s (%d,%d, %d, %d)\n",j,i+1,filename.c_str(),slideWnd.x,slideWnd.y,slideWnd.width,slideWnd.height);
+							cellSz = cellSize;
+							wndSz = wndSize;
+							slideWnd.width = wndSize.width;
+							slideWnd.height =wndSize.height;
+							j++;
+							continueScale = false;
+							continue;
+						}
+					continueScale = true;
+				//	}
+					wndSz.width = cellSz.width*tmp.width;
+					wndSz.height = cellSz.height*tmp.height;
+					slideWnd.width = wndSz.width;
+					slideWnd.height = wndSz.height;
+	
+					
 				}else{
 					if(pos>0&&(img.rows > slideWnd.height)){
 						slideWnd.x = (img.rows - slideWnd.height)/2;
 						slideWnd.y = (img.cols - slideWnd.width)/2;
 					}
+					cellSz = cellSize;
+					wndSz = wndSize;
+					slideWnd.width = wndSize.width;
+					slideWnd.height =wndSize.height;
+					j++;
+					continueScale = false;
 				}
-				printf("%d. %s (%d,%d)\n",i+1,filename.c_str(),slideWnd.x,slideWnd.y);
+				printf("%d %d. %s (%d,%d, %d, %d)\n",j,i+1,filename.c_str(),slideWnd.x,slideWnd.y,slideWnd.width,slideWnd.height);
 				Mat img_slideWnd=img(slideWnd);
 				//	imshow(filename,img);
-				Mat* imFils = imFilter(img_slideWnd);
-				Mat G = calcGradientOfPixels(imFils[0],imFils[1]);
-				Mat his_wnd = calcHisOfCellsInWnd2(G,Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSize,9);
+		//		Mat* imFils = imFilter(img_slideWnd);
+		//		Mat G = calcGradientOfPixels(imFils[0],imFils[1]);
+				Mat his_wnd = calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9);
 				HIS* h_w = calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2);
 
 
@@ -521,14 +562,24 @@ void generateData2(string posfilelist, string negfilelist,int randTimePos,int ra
 				}
 				myfile << pos<<"\n";
 				myfile2 <<"\t #"<<filename<<"\t ("<<slideWnd.x<<", "<<slideWnd.y<<", "<<slideWnd.width<<", "<<slideWnd.height<<")\n";
+			//	delete[] h_w->vector_weight;
 				delete h_w;
+				for (int ii=0;ii<his_wnd.rows;ii++)
+				{
+					for (int jj=0;jj<his_wnd.cols;jj++)
+					{
+						HIS* hh=his_wnd.at<HIS*>(ii,jj);
+						delete hh;
+					}
+				}
 				his_wnd.release();
-				G.release();
-				imFils[0].release();
-				imFils[1].release();
+				
 
 			}
 			img.release();
+			G.release();
+			imFils[0].release();
+			imFils[1].release();
 
 
 		}
@@ -608,7 +659,7 @@ void drawRect2Img(Mat & img, string rectFile)
 			break;
 		//cellSize.width = atoi(tmp.c_str());
 		Rect r=getRect((int)atof(strs[0].c_str()),(int)atof(strs[1].c_str()),atof(strs[2].c_str()));
-		rectangle(img,r,Scalar(0,0,256));
+		rectangle(img,r,Scalar(0,256,0),2);
 		
 		
 
@@ -621,37 +672,45 @@ void drawRect2Img(Mat & img, string rectFile)
 }
 int main(array<System::String ^> ^args)
 {
-//	generateData2("input/a.txt","input/b.txt",1,1);
-	//Mat * w;
-	//double b;
-	//getWeight("w.txt",w,b);
-	//printf("%f",b);
-	//for (int i=0;i<w->rows;i++)
-	//{
-	//	printf("%f ;",w->at<double>(i,0));
-	//}
 	loadConfig();
-	Mat img = imread("E:\\crop001704.png");
-	//rectangle(img,Rect(10,10,100,200),Scalar(0,0,256));
-//	imshow("asd",img);
-//	multiscaleExp(img,0.01);
-	//Rect x(112,202,11,11);
-	//Rect y(110,194,11,11);
-	//
-	/*Rect x = getRect(583,268,2.5386);
-	Rect y = getRect(284,335,2.853);
-	Rect z = getRect(791,328,1.6288);
-	Rect a =getRect(77,191,2.0473);
-	Rect b = getRect(721,101,1.5835);
+//	generateData2("input/trainPos.txt","input/trainNeg.txt",1,10);
+
+	//CHECK MEMORY LEAKING
+//	while(1){
+//	Mat img = imread("E:\crop_000027.png");
+//	Mat* imFils = imFilter(img);
+//	Mat G = calcGradientOfPixels(imFils[0],imFils[1]);
+//	Mat his_wnd = calcHisOfCellsInWnd2(G,Rect(0,0,img.cols,img.rows),cellSize,9);
+//	
+//		
+//	HIS* h_w = calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2);
+////	double* vv = &(h_w->vector_weight[0]);
+////	cout<<*vv<<endl;
+////	delete[] h_w->vector_weight;
+////	cout<<*vv<<endl;
+//	delete h_w;
+//	
+//	for (int i=0;i<his_wnd.rows;i++)
+//	{
+//		for (int j=0;j<his_wnd.cols;j++)
+//		{
+//			HIS* hh=his_wnd.at<HIS*>(i,j);
+//		//	delete[] hh->vector_weight;
+//			delete hh;
+//		}
+//	}
+//	his_wnd.release();
+//	img.release();
+//	imFils[0].release();
+//	imFils[1].release();
+//	G.release();
+//	}
+	Mat img = imread("E:\\crop001008.png");
+	multiscaleExp(img,0.01);
 	
-	rectangle(img,x,Scalar(0,0,256));
-	rectangle(img,y,Scalar(0,0,256));
-	rectangle(img,z,Scalar(0,0,256));
-	rectangle(img,a,Scalar(0,256,0));
-	rectangle(img,b,Scalar(0,256,0));*/
-	drawRect2Img(img,"../Debug/result1704.txt");
-	imwrite("result1704.png",img,vector<int>(CV_IMWRITE_PNG_COMPRESSION,4));
-	imshow("asd",img);
+//	drawRect2Img(img,"../Debug/result1008.txt");
+//	imwrite("../Debug/result1008.png",img,vector<int>(CV_IMWRITE_PNG_COMPRESSION,4));
+//	imshow("asd",img);
 	
 
 

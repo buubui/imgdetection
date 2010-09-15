@@ -27,7 +27,9 @@ struct HIS{
 			vector_weight[i]=0.0;
 		}
 	}
-	~HIS(){}
+	~HIS(){
+		delete[] vector_weight;
+	}
 };
 
 //calculate HOG of each pixels;
@@ -39,11 +41,12 @@ HIS* calcHisOfCell(Mat hog_pixels, Rect r, int n_bins);
 Mat calcHisOfCellsInWnd(Mat hog_pixels,Rect wnd, Size cellSize, int n_bins);
 
 Mat NormalizeBlock(Mat m, int c);
-HIS* NormalizeBlock(HIS* h, int c);
+void NormalizeBlock(HIS* h, int c);
 Mat im2double(const Mat& m);
-HIS* calcHistOfBlockInWnd(Mat mat, Rect p);
-
-HIS* calcHistOfWnd(Mat mat, Size blockSize, Vec2i overlap, int norm_c);
+//HIS* calcHistOfBlockInWnd(Mat mat, Rect p);
+HIS* calcHistOfBlockInWnd(const Mat& mat, Rect p);
+//HIS* calcHistOfWnd(Mat mat, Size blockSize, Vec2i overlap, int norm_c);
+HIS* calcHistOfWnd(const Mat& mat, const Size& blockSize, Vec2i overlap, int norm_c);
 Mat calcHisOfCellsInWnd2(Mat hog_pixels,Rect wnd, Size cellSize, int n_bins);
 void setHisOfCell(Gradient hog_pixcell, HIS* Hcell,Size cellSize);
 
