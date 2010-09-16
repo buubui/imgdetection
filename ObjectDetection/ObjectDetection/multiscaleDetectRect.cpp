@@ -120,8 +120,17 @@ void multiscale(Mat img,float step )
 	imshow("result",result);
 }
 
-void multiscaleExp(Mat img,float step )
+void multiscaleExp(string filepath,float step )
 {
+	Mat img = imread(filepath);
+	std::vector<std::string> strs;
+	char* s = (char*)(filepath.c_str());
+	boost::split(strs,s , boost::is_any_of(".\\"));
+	string filename ="output/"+ strs[strs.size()-2]+"_multiscale.txt";
+	ofstream out;
+
+	out.open(filename.c_str());
+
 	Mat result = img.clone();
 	Point startP(0,0);
 	double scale =1.;
@@ -146,16 +155,17 @@ void multiscaleExp(Mat img,float step )
 	double max=0;
 	Mat img_slideWnd, his_wnd;
 	Mat* his=NULL;
-	for (int h=wndSize.height;h<img.rows-wndSize.height;h+=80)
+	for (int h=tmp.height*cellSize.height/2;h<img.rows-wndSize.height/2;h+=8)
 	{
 		
-		for (int w=wndSize.width;w<img.cols-wndSize.width;w+=10)
+		for (int w=tmp.width*cellSize.width/2;w<img.cols-wndSize.width/2;w+=8)
 		{
 			startP.x= w;
 			startP.y = h;
 			scale =1.;
 
 			slideWnd= getRect(startP.x,startP.y,scale);
+		//	cout<<"AAAAA "<<slideWnd.x<<", "<<slideWnd.y<<", "<<slideWnd.width<<", "<<slideWnd.height<<endl;
 		//	slideWnd.x = startP.x;
 		//	slideWnd.y = startP.y;
 			
@@ -188,9 +198,10 @@ void multiscaleExp(Mat img,float step )
 				Mat R = (*his)* (*weight ) - b;
 				double v = R.at<double>(0,0);
 				
-				if(v>0){
+				if(v>0.0252){
 					//					printf(" (%d,%d) (%dx%d) %f %f\n",startP.x,startP.y, wndSz.width,wndSz.height,scale, v);
 					printf("%d, %d, %f\n",startP.x+wndSz.width/2,startP.y+wndSz.height/2,wndSz.width/baseWidth);
+					out<<startP.x<<", "<<startP.y<<", "<<wndSz.width/baseWidth<<endl;
 					rectangle(result,slideWnd,Scalar(0,256,0),2);
 					stringstream out;
 					out<<v;
@@ -237,7 +248,7 @@ void multiscaleExp(Mat img,float step )
 			//	slideWnd.height =wndSz.height;
 				
 
-				cout<<slideWnd.x<<" "<<slideWnd.y<<" "<<slideWnd.width<<" "<<slideWnd.height<<endl;
+				cout<<slideWnd.x<<", "<<slideWnd.y<<", "<<slideWnd.width<<", "<<slideWnd.height<<endl;
 			}
 
 
@@ -246,7 +257,7 @@ void multiscaleExp(Mat img,float step )
 	imFils[0].release();
 	imFils[1].release();
 	G.release();
-
+	out.close();
 	//	imshow("max",img(MaxWnd));
 	imshow("result",result);
 }
