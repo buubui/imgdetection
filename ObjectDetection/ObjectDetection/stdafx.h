@@ -27,4 +27,5 @@ using namespace System::Collections;
 #include "HOG.h"
 #include "svmData.h"
 #include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/replace.hpp>
 // TODO: reference additional headers your program requires here

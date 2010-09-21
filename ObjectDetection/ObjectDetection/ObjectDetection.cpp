@@ -59,7 +59,7 @@ int main(array<System::String ^> ^args)
 	}*/
 //	svmGenerateData2("input/testPos.txt","input/testNeg.txt",1,4);
 //	string ffile="no_person__no_bike_015.png";
-	string fname="crop001533";
+	string fname="crop_000006";
 	Mat imgOrg = imread("E:\\"+fname+".png");
 	Mat img;
 	double maxSz=640*480.;
@@ -79,8 +79,14 @@ int main(array<System::String ^> ^args)
 
 	int n_mean,p_mean;
 	double*means;
-	meanshiftFromFile("output/"+fname+"_multiscale.txt",40,2,means,n_mean,p_mean);
-
+	meanshiftFromFile("output/"+fname+"_multiscale.txt",100,3,means,n_mean,p_mean);
+	
+	for (int i=0;i<n_mean*p_mean;i++)
+	{
+		cout<<means[i]<<", ";
+		if(i>0&&i%p_mean==p_mean-1)
+			cout<<endl;
+	}
 	drawRect2Img(img,"output/"+fname+"_meanshift.txt");
 	imwrite("output/"+fname+"_meanshift.png",img,vector<int>(CV_IMWRITE_PNG_COMPRESSION,4));
 	imshow(fname+"_meanshift",img);
