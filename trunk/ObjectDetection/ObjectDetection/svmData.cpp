@@ -125,9 +125,11 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 	inputFile.open (posfilelist.c_str());
 	//inputNegFile.open (negfilelist.c_str());
 	string filepath,filename;
-	int pos=1,randTime=randTimePos;
-	string posStr = pos==1?"Pos":"Neg";
+	int randTime=randTimePos;
+	string pos ="+1";
+	string posStr = pos.compare("+1")==0?"Pos":"Neg";
 	Rect slideWnd(0,0,wndSize.width,wndSize.height);
+	float scale=1.,step=1.2;
 	if (inputFile.is_open())
 	{
 		getline (inputFile,filepath);
@@ -159,13 +161,13 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 			getline (inputFile,filename);
 			if (filename.length()<2)
 			{
-				if(pos!=1)
+				if(pos.compare("+1")!=0)
 					break;
 				inputFile.close();
 				inputFile.open(negfilelist.c_str());
 				if(!inputFile.is_open())
 					printf("XXXXXX");
-				pos=-1;
+				pos="-1";
 				randTime=randTimeNeg;
 				inputFile.seekg(0, ios::beg);
 				getline (inputFile,filepath);
@@ -193,9 +195,26 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 						slideWnd.y = rnd;
 						slideWnd.width = wndSize.width;
 						slideWnd.height=wndSize.height;
+						scale=1.;
 					}else{
-						cellSz.width++;
-						cellSz.height++;
+					//	cellSz.width+=2;
+					//	cellSz.height+=2;
+
+						scale = scale * step;
+						float tt = scale* cellSize.width;
+						if( (int)tt==cellSz.width)
+						{
+							cellSz.width = ceil( tt);
+							cellSz.height = ceil( scale* cellSize.height);
+						}else{
+							cellSz.width = (int)tt;
+							cellSz.height = (int)( scale* cellSize.height);
+						}
+					//	scale = (float)cellSz.width/cellSize.width;
+					//	slideWnd= getRect(startP.x,startP.y,scale);
+					//	wndSz.width =slideWnd.width;
+					//	wndSz.height =slideWnd.height;
+
 					}
 
 					//	for (int t=0;;t++)
@@ -221,7 +240,8 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 
 
 				}else{
-					if(pos>0&&(img.rows > slideWnd.height)){
+					scale=1.;
+					if(pos.compare("+1")==0&&(img.rows > slideWnd.height)){
 						slideWnd.x = (img.rows - slideWnd.height)/2;
 						slideWnd.y = (img.cols - slideWnd.width)/2;
 					}

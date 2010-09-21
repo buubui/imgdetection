@@ -26,5 +26,5 @@ using namespace System::Collections;
 #include "imFilter.h"
 #include "HOG.h"
 #include "svmData.h"
-
+#include <boost/algorithm/string.hpp>
 // TODO: reference additional headers your program requires here

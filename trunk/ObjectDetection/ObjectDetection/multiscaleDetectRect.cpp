@@ -122,7 +122,13 @@ void multiscale(Mat img,float step )
 
 void multiscaleExp(string filepath,float step )
 {
-	Mat img = imread(filepath);
+	Mat imgOrg = imread(filepath);
+	Mat img;
+	int maxSz=640;
+	float m=imgOrg.rows>imgOrg.cols?imgOrg.rows:imgOrg.cols;
+	float resizeScale=maxSz/m;
+	resize(imgOrg,img,Size(imgOrg.cols*resizeScale,imgOrg.rows*resizeScale),resizeScale,resizeScale);
+	imgOrg.release();
 	std::vector<std::string> strs;
 	char* s = (char*)(filepath.c_str());
 	boost::split(strs,s , boost::is_any_of(".\\"));
@@ -197,17 +203,17 @@ void multiscaleExp(string filepath,float step )
 				}
 				Mat R = (*his)* (*weight ) - b;
 				double v = R.at<double>(0,0);
-				
-				if(v>0.0252){
+			//	v>0.068
+				if(v>0.0){
 					//					printf(" (%d,%d) (%dx%d) %f %f\n",startP.x,startP.y, wndSz.width,wndSz.height,scale, v);
-					printf("%d, %d, %f\n",startP.x+wndSz.width/2,startP.y+wndSz.height/2,wndSz.width/baseWidth);
-					out<<startP.x<<", "<<startP.y<<", "<<wndSz.width/baseWidth<<endl;
+					printf("%d, %d, %f, %f\n",startP.x,startP.y,wndSz.width/baseWidth,v);
+					out<<startP.x<<", "<<startP.y<<", "<<log(wndSz.width/baseWidth)<<", "<<v<<endl;
 					rectangle(result,slideWnd,Scalar(0,256,0),2);
-					stringstream out;
-					out<<v;
-					putText(result,out.str(),Point(slideWnd.x,slideWnd.y-3),FONT_HERSHEY_COMPLEX_SMALL,0.5,Scalar(0,256,0));
-					stringstream outputfile;
-					outputfile <<"img "<<startP.x<<" "<<startP.y<<" "<<wndSz.width<<" "<<wndSz.height;
+				//	stringstream outStr;
+				//	outStr<<v;
+				//	putText(result,outStr.str(),Point(slideWnd.x,slideWnd.y-3),FONT_HERSHEY_COMPLEX_SMALL,0.5,Scalar(0,256,0));
+					/*stringstream outputfile;
+					outputfile <<"img "<<startP.x<<" "<<startP.y<<" "<<wndSz.width<<" "<<wndSz.height;*/
 					//	imshow(outputfile.str(),img_slideWnd);
 					//	if(v>max){
 					//		max=v;
@@ -248,7 +254,7 @@ void multiscaleExp(string filepath,float step )
 			//	slideWnd.height =wndSz.height;
 				
 
-				cout<<slideWnd.x<<", "<<slideWnd.y<<", "<<slideWnd.width<<", "<<slideWnd.height<<endl;
+		//		cout<<slideWnd.x<<", "<<slideWnd.y<<", "<<slideWnd.width<<", "<<slideWnd.height<<endl;
 			}
 
 
@@ -307,7 +313,7 @@ void drawRect2Img(Mat & img, string rectFile)
 			if (strs.size()<3)
 				break;
 			//cellSize.width = atoi(tmp.c_str());
-			Rect r=getRect((int)atof(strs[0].c_str()),(int)atof(strs[1].c_str()),atof(strs[2].c_str()));
+			Rect r=getRect((int)atof(strs[0].c_str()),(int)atof(strs[1].c_str()),exp(atof(strs[2].c_str())));
 			rectangle(img,r,Scalar(0,256,0),2);
 
 

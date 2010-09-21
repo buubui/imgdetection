@@ -12,20 +12,78 @@ using namespace System;
 #include "HOG.h"
 #include "ctime"
 #include "glbVars.h"
-
-
+#include "meanshift.h"
+#include <list>
+void takefalseImg(string ffile)
+{
+	ifstream in1,in2;
+	in1.open(ffile.c_str());
+	in2.open("input/testPos.txt");
+	if(!in1.is_open())
+		return;
+	string tmp1,tmp2;
+	bool b=true;
+	string path;
+	getline(in2,path);
+	for(int i=1;;i++)
+	{
+		if(b)
+		{
+			getline(in1,tmp1);
+			if(tmp1.size()<1)
+				break;
+			b=false;
+		}
+		getline(in2,tmp2);
+		if(i==atoi(tmp1.c_str()))
+		{
+			//
+			Mat img = imread(path+tmp2);
+			imwrite("output/false/"+tmp2,img,vector<int>(CV_IMWRITE_PNG_COMPRESSION,4));
+			imshow("img_"+tmp2,img);
+			b=true;
+		}
+	}
+}
 int main(array<System::String ^> ^args)
 {
 	loadConfig();
-//	svmGenerateData2("input/testPos.txt","input/testNeg.txt",1,3);
-	Mat img = imread("E:\\crop001607.png");
-//	multiscaleExp("E:\\crop001607.png",1.7);
-//	Rect x = getRect(100,200,2);
-//	rectangle(img,x,Scalar(256,0,0),2);
-		drawRect2Img(img,"output/crop001607_meanshift.txt");
-		imwrite("output/crop001607_meanshift.png",img,vector<int>(CV_IMWRITE_PNG_COMPRESSION,4));
-		imshow("asd",img);
+	
+//	meanshiftFromFile("output/crop001533_multiscale.txt",50,2,means,n_mean,p_mean);
+	/*cout<<endl<<n_mean<<endl;
+	for (int i=0;i<n_mean*p_mean;i++)
+	{
+		cout<<means[i]<<", ";
+		if(i>0&&i%p_mean==p_mean-1)
+			cout<<endl;
+	}*/
+//	svmGenerateData2("input/testPos.txt","input/testNeg.txt",1,4);
+//	string ffile="no_person__no_bike_015.png";
+	Mat imgOrg = imread("E:\\crop001008.png");
+	Mat img;
+	int maxSz=640;
+	float m=imgOrg.rows>imgOrg.cols?imgOrg.rows:imgOrg.cols;
+	float resizeScale=maxSz/m;
+	resize(imgOrg,img,Size(imgOrg.cols*resizeScale,imgOrg.rows*resizeScale),resizeScale,resizeScale);
+	imgOrg.release();
+//	Mat img = imread("E:\\crop001008.png");
+//	Mat img2;
+//	resize(img,img2,Size(img.cols*0.5,img.rows*0.5),0.5,0.5);
+//	imshow("asd",img2);
+//	Mat wnd=img(Rect(226, 88, 152, 304));
+//	imwrite("output/false/"+ffile+"(226, 88, 152, 304).png",wnd,vector<int>(CV_IMWRITE_PNG_COMPRESSION,4));
+//	imshow("asdasd",wnd);
+	multiscaleExp("E:\\crop001008.png",1.2);
+//	takefalseImg("input/false_pos.txt");
 
+	int n_mean,p_mean;
+	double*means;
+	meanshiftFromFile("output/crop001008_multiscale.txt",50,2,means,n_mean,p_mean);
+
+	drawRect2Img(img,"output/crop001008_meanshift.txt");
+	imwrite("output/crop001008_meanshift.png",img,vector<int>(CV_IMWRITE_PNG_COMPRESSION,4));
+	imshow("meanshift",img);
+	
 	//CHECK MEMORY LEAKING
 //	while(1){
 //	Mat img = imread("E:\crop_000027.png");

@@ -209,6 +209,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\meanshift.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\multiscaleDetectRect.cpp"
 				>
 			</File>
@@ -264,6 +268,10 @@
 			</File>
 			<File
 				RelativePath=".\loadConfigs.h"
+				>
+			</File>
+			<File
+				RelativePath=".\meanshift.h"
 				>
 			</File>
 			<File

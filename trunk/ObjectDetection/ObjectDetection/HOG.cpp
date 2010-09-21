@@ -159,6 +159,8 @@ Mat calcHisOfCellsInWnd2(Mat hog_pixels,Rect wnd, Size cellSize, int n_bins)
 		{
 			Rect rect(currX,currY,cellSize.width,cellSize.height);
 			double a =180./n_bins;
+			if(H.at<HIS*>(i,j)==NULL)
+				H.at<HIS*>(i,j) = new HIS(n_bins);
 			HIS* H0=H.at<HIS*>(i,j);
 			Point currCenter(currX+cellSize.width/2,currY+cellSize.height/2);
 			for (int ii=0;ii<rect.height;ii++)
