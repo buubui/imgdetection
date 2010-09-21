@@ -59,11 +59,12 @@ int main(array<System::String ^> ^args)
 	}*/
 //	svmGenerateData2("input/testPos.txt","input/testNeg.txt",1,4);
 //	string ffile="no_person__no_bike_015.png";
-	Mat imgOrg = imread("E:\\crop001008.png");
+	string fname="crop001533";
+	Mat imgOrg = imread("E:\\"+fname+".png");
 	Mat img;
-	int maxSz=640;
-	float m=imgOrg.rows>imgOrg.cols?imgOrg.rows:imgOrg.cols;
-	float resizeScale=maxSz/m;
+	double maxSz=640*480.;
+	double t=(double)imgOrg.rows*imgOrg.cols;
+	float resizeScale=t>maxSz?sqrt(maxSz/t):1.;
 	resize(imgOrg,img,Size(imgOrg.cols*resizeScale,imgOrg.rows*resizeScale),resizeScale,resizeScale);
 	imgOrg.release();
 //	Mat img = imread("E:\\crop001008.png");
@@ -73,16 +74,16 @@ int main(array<System::String ^> ^args)
 //	Mat wnd=img(Rect(226, 88, 152, 304));
 //	imwrite("output/false/"+ffile+"(226, 88, 152, 304).png",wnd,vector<int>(CV_IMWRITE_PNG_COMPRESSION,4));
 //	imshow("asdasd",wnd);
-	multiscaleExp("E:\\crop001008.png",1.2);
+	multiscaleExp("E:\\"+fname+".png",1.2);
 //	takefalseImg("input/false_pos.txt");
 
 	int n_mean,p_mean;
 	double*means;
-	meanshiftFromFile("output/crop001008_multiscale.txt",50,2,means,n_mean,p_mean);
+	meanshiftFromFile("output/"+fname+"_multiscale.txt",40,2,means,n_mean,p_mean);
 
-	drawRect2Img(img,"output/crop001008_meanshift.txt");
-	imwrite("output/crop001008_meanshift.png",img,vector<int>(CV_IMWRITE_PNG_COMPRESSION,4));
-	imshow("meanshift",img);
+	drawRect2Img(img,"output/"+fname+"_meanshift.txt");
+	imwrite("output/"+fname+"_meanshift.png",img,vector<int>(CV_IMWRITE_PNG_COMPRESSION,4));
+	imshow(fname+"_meanshift",img);
 	
 	//CHECK MEMORY LEAKING
 //	while(1){

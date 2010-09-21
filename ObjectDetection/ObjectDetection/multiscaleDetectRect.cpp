@@ -124,9 +124,10 @@ void multiscaleExp(string filepath,float step )
 {
 	Mat imgOrg = imread(filepath);
 	Mat img;
-	int maxSz=640;
-	float m=imgOrg.rows>imgOrg.cols?imgOrg.rows:imgOrg.cols;
-	float resizeScale=maxSz/m;
+	double maxSz=640*480.;
+//	float m=imgOrg.rows>imgOrg.cols?imgOrg.rows:imgOrg.cols;
+	double t=(double)imgOrg.rows*imgOrg.cols;
+	float resizeScale=t>maxSz?sqrt(maxSz/t):1.;
 	resize(imgOrg,img,Size(imgOrg.cols*resizeScale,imgOrg.rows*resizeScale),resizeScale,resizeScale);
 	imgOrg.release();
 	std::vector<std::string> strs;
