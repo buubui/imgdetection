@@ -315,14 +315,12 @@ void drawRect2Img(Mat & img, string rectFile)
 				break;
 			//cellSize.width = atoi(tmp.c_str());
 			Rect r=getRect((int)atof(strs[0].c_str()),(int)atof(strs[1].c_str()),exp(atof(strs[2].c_str())));
+			printf("%d %d %d %d\n",r.x,r.y,r.width,r.height);
 			rectangle(img,r,Scalar(0,256,0),2);
-
-
-
-
-
 		}
-	}
-	ffile.close();
+		ffile.close();
+	}else
+		printf("Cannot open file %s\n",rectFile.c_str());
+	
 
 }

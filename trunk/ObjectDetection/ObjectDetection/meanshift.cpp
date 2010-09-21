@@ -9,6 +9,7 @@
 #include <math.h>
 #include <string.h>
 
+
 //#include "mex.h"
 
 /**************************************************************************
@@ -213,10 +214,12 @@ bool meanshiftFromFile(string fname,double radius,int minCsize,double* &means,in
 	in.close();
 	meanShift2(data,p,n,radius,means,n_mean);
 	ofstream out;
-	std::vector<std::string> strs1;
-	char* s1 = (char*)(fname.c_str());
-	boost::split(strs1,s1 , boost::is_any_of("_"));
-	string outfname=strs1[0]+"_meanshift.txt";
+//	std::vector<std::string> strs1;
+//	char* s1 = (char*)(fname.c_str());
+//	boost::split(strs1,s1 , boost::is_ is_any_of("multiscale.txt"));
+	string outfname=fname;
+	boost::replace_last(outfname, "multiscale", "meanshift");
+//	string outfname=strs1[0]+"_meanshift.txt";
 	cout<<outfname<<endl;
 	out.open(outfname.c_str());
 	if(out.is_open()){
