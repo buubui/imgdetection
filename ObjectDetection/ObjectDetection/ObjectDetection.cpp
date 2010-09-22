@@ -1,9 +1,9 @@
 // ObjectDetection.cpp : main project file.
 
 #include "stdafx.h"
-
+#include "MainWindow.h"
 using namespace System;
-
+using namespace ObjectDetection;
 // TestOpenCv.cpp : Defines the entry point for the console application.
 //
 #include "stdafx.h"
@@ -45,227 +45,240 @@ void takefalseImg(string ffile)
 		}
 	}
 }
+[STAThreadAttribute]
 int main(array<System::String ^> ^args)
 {
 	loadConfig();
-	
-//	svmGenerateData2("input/trainPos.txt","input/trainNeg2.txt",1,10);
+	// Enabling Windows XP visual effects before any controls are created
+	Application::EnableVisualStyles();
+	Application::SetCompatibleTextRenderingDefault(false); 
 
-//	string path="D:\\Lectures\\Luan_van\\DATASET\\INRIAPerson\\Test\\pos\\";
-	string path="D:\\Lectures\\Luan_van\\DATASET\\INRIAPerson\\Train\\pos\\";
-	string fname="person_117";
-	string ext=".png";
-	Mat imgOrg = imread(path+fname+ext);
-	Mat img;
-	double maxSz=500*400.;
-	double minSz = wndSize.width*wndSize.height;
-	double t=(double)imgOrg.rows*imgOrg.cols;
-	float resizeScale=t>maxSz?sqrt(maxSz/t):1.;
-	resizeScale=t<minSz?sqrt(minSz/t):resizeScale;
-	resize(imgOrg,img,Size(imgOrg.cols*resizeScale,imgOrg.rows*resizeScale),resizeScale,resizeScale);
-	cout<<img.rows<<" "<<img.cols<<" "<<resizeScale<<endl;
-	imgOrg.release();
-//	multiscaleExp(path+fname+ext,1.2,0.);
-
-
-	int n_mean,p_mean;
-	double*means;
-	meanshiftFromFile("output/"+fname+"_multiscale.txt",100,8,means,n_mean,p_mean);
-	
-	for (int i=0;i<n_mean*p_mean;i++)
-	{
-		cout<<means[i]<<", ";
-		if(i>0&&i%p_mean==p_mean-1)
-			cout<<endl;
-	}
-	drawRect2Img(img,"output/"+fname+"_meanshift.txt");
-	imwrite("output/"+fname+"_meanshift.png",img,vector<int>(CV_IMWRITE_PNG_COMPRESSION,4));
-	imshow(fname+"_meanshift",img);
-
-	//	takefalseImg("input/false_pos.txt");
-	//CHECK MEMORY LEAKING
-//	while(1){
-//	Mat img = imread("E:\crop_000027.png");
-//	Mat* imFils = imFilter(img);
-//	Mat G = calcGradientOfPixels(imFils[0],imFils[1]);
-//	Mat his_wnd = calcHisOfCellsInWnd2(G,Rect(0,0,img.cols,img.rows),cellSize,9);
-//	
-//		
-//	HIS* h_w = calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2);
-////	double* vv = &(h_w->vector_weight[0]);
-////	cout<<*vv<<endl;
-////	delete[] h_w->vector_weight;
-////	cout<<*vv<<endl;
-//	delete h_w;
-//	
-//	for (int i=0;i<his_wnd.rows;i++)
-//	{
-//		for (int j=0;j<his_wnd.cols;j++)
-//		{
-//			HIS* hh=his_wnd.at<HIS*>(i,j);
-//		//	delete[] hh->vector_weight;
-//			delete hh;
-//		}
-//	}
-//	his_wnd.release();
-//	img.release();
-//	imFils[0].release();
-//	imFils[1].release();
-//	G.release();
-//	}
-	
-
-
-//	generateData("input/filelist_pos.txt",1,1);
-//	generateData("input/filelist_neg.txt",-1,2);
-	//	ifstream inputfile;
-	//	inputfile.open ("input/filelist.txt");
-	//	string filepath,filename;
-	//	if (inputfile.is_open())
-	//	{
-	////		while (! inputfile.eof() )
-	////		{
-	//			getline (inputfile,filepath);
-	//			getline (inputfile,filename);
-	//			
-	////		}
-	//	}
-	//	inputfile.close();
-	//
-	//	ifstream conffile;
-	//	conffile.open ("input/config.txt");
-	//	string tmp;
-	//	Size cellSize,blockSize;
-	//	if (conffile.is_open())
-	//	{
-	//		//		while (! inputfile.eof() )
-	//		//		{
-	//		getline (conffile,tmp);//cell
-	//		getline (conffile,tmp);
-	//		cellSize.width = atoi(tmp.c_str());
-	//		getline (conffile,tmp);
-	//		cellSize.height = atoi(tmp.c_str());
-	//		getline (conffile,tmp);//block
-	//		getline (conffile,tmp);
-	//		blockSize.width = atoi(tmp.c_str());
-	//		getline (conffile,tmp);
-	//		blockSize.height = atoi(tmp.c_str());
-	//
-	//		//		}
-	//	}
-	//	conffile.close();
-	//	Mat img = imread(filepath+filename);
-	//	imshow("asdasd",img);
-	//	Mat* imFils = imFilter(img);
-	//	/*Mat img_gray;
-	//	cvtColor(img,img_gray,CV_BGR2GRAY);
-	//	equalizeHist(img_gray,img_gray);
-	//	*/
-	//	
-	//	//imshow("filter x",imFils[0]);
-	//	//imshow("filter y",imFils[1]);
-	//	
-	//	Mat G = calcGradientOfPixels(imFils[0],imFils[1]);
-	//	
-	//	printf("\nGRADIENT:\n");
-	////	for(int i=0;i<30;i++)
-	////		for(int j=0;j<20;j++)
-	////			printf("%f: %f \n",G.at<Gradient>(i,j)[0],G.at<Gradient>(i,j)[1]);
-	//
-	//	/*HIS* his = calcHisOfCell(G,Rect(50,50,10,10),9);
-	//	for (int i=0;i<9;i++)
-	//	{
-	//		printf("%f, ",his->vector_weight[i]);
-	//	}*/
-	////	Mat his_wnd = calcHisOfCellsInWnd(G,Rect(0,0,64,128),Size(8,8),9);
-	//	Rect R(0,0,img.cols,img.rows);
-	//	cout <<"RECT:"<< R.width << ";"<<img.cols<<";"<<G.cols;
-	//	Mat his_wnd = calcHisOfCellsInWnd2(G,Rect(0,0,img.cols,img.rows),cellSize,9);
-	//	ofstream myfile;
-	////	SYSTEMTIME st;
-	////	GetSystemTime(&st);
-	//	time_t curr;
-	//	tm local;
-	//	time(&curr); // get current time_t value
-	//	local=*(localtime(&curr)); // dereference and assign
-	//	stringstream outputfile; 
-	//	outputfile<<"output/hisCell_"<<filename<<"_cell"<<cellSize.width<<"x"<<cellSize.height<<"_block"<<blockSize.width<<"x"<<blockSize.height<<"_"<<local.tm_year+1900<<"_"<<local.tm_mon<<"_"<<local.tm_mday<<"_"<<local.tm_hour<<"_"<<local.tm_min<<".txt" ;
-	//	myfile.open(outputfile.str().c_str());
-	//	printf("\ncalcHisOfCellsInWnd\n");
-	//	//myfile <<"[";
-	//	myfile <<his_wnd.rows<<", "<<his_wnd.cols<<"\n";
-	//	for(int ii =0; ii<his_wnd.rows;ii++)
-	//	{
-	//		for(int jj =0; jj<his_wnd.cols;jj++)
-	//		{
-	//
-	//			
-	//			for (int i=0;i<9;i++)
-	//			{
-	//				printf("%2.2f, ",his_wnd.at<HIS*>(ii,jj)->vector_weight[i]);
-	//				myfile << his_wnd.at<HIS*>(ii,jj)->vector_weight[i] ;
-	//				if(i == 8) continue;
-	//				myfile<<", ";
-	//			}
-	//			//if(ii==his_wnd.rows-1 && jj == his_wnd.cols-1) continue;
-	//			myfile << "\n";
-	//		
-	//		printf("\n");
-	//		}
-	//		
-	//
-	//	}		
-	//			
-	//			myfile.close();
-	//			printf("\n %d %d",his_wnd.rows,his_wnd.cols);
-	//			
-	//
-	////	calcHistOfBlockInWnd(his_wnd,Rect(2,2,3,3));
-	//	/*HIS* h_n = NormalizeBlock(his,2);
-	//	for (int i=0;i<h_n->n_bins;i++)
-	//	{
-	//	printf("%f, ",h_n->vector_weight[i]);
-	//	}*/
-	//	/*HIS* h_w = calcHistOfWnd(his_wnd,Size(3,3),Vec2i(2,2),2);
-	//
-	//
-	//	printf("\ncalcHistOfWnd\n");
-	//	for (int i=0;i<h_w->n_bins;i++)
-	//	{
-	//		printf("%f ; ",h_w->vector_weight[i]);
-	//	}
-	//	printf("\n n_BIN %d\n",h_w->n_bins);*/
-	//
-	//	
-	//	/*Mat aa(2,5,DataType<Gradient>::type);
-	//	for (int i=0;i<aa.rows;i++)
-	//	{
-	//		for (int j=0;j<aa.cols;j++)
-	//		{
-	//			aa.at<Gradient>(i,j) = Gradient(2,3);
-	//		}
-	//	}*/
-	//
-	//	/*Mat aa(20,7,DataType<Gradient>::type);
-	//	for (int i=0;i<aa.rows;i++)
-	//	{
-	//		for (int j=0;j<aa.cols;j++)
-	//		{
-	//			aa.at<Gradient>(i,j) = Gradient(2,3);
-	//		}
-	//	}*/
-	//	/*int n =9;
-	//	Vec<int,5> a;
-	//	double * b = new double[10];
-	//	double c[10];
-	//	printf("size %d",sizeof(c));*/
-	//	//G.release();
-	//	
-	cvWaitKey();	
+	// Create the main window and run it
+	Application::Run(gcnew MainWindow());
 	return 0;
 }
 
-
+//int main(array<System::String ^> ^args)
+//{
+//	loadConfig();
+//	
+////	svmGenerateData2("input/trainPos.txt","input/trainNeg2.txt",1,10);
+//
+////	string path="D:\\Lectures\\Luan_van\\DATASET\\INRIAPerson\\Test\\pos\\";
+//	string path="D:\\Lectures\\Luan_van\\DATASET\\INRIAPerson\\Train\\pos\\";
+//	string fname="person_117";
+//	string ext=".png";
+//	Mat imgOrg = imread(path+fname+ext);
+//	Mat img;
+//	double maxSz=500*400.;
+//	double minSz = wndSize.width*wndSize.height;
+//	double t=(double)imgOrg.rows*imgOrg.cols;
+//	float resizeScale=t>maxSz?sqrt(maxSz/t):1.;
+//	resizeScale=t<minSz?sqrt(minSz/t):resizeScale;
+//	resize(imgOrg,img,Size(imgOrg.cols*resizeScale,imgOrg.rows*resizeScale),resizeScale,resizeScale);
+//	cout<<img.rows<<" "<<img.cols<<" "<<resizeScale<<endl;
+//	imgOrg.release();
+////	multiscaleExp(path+fname+ext,1.2,0.);
+//
+//
+//	int n_mean,p_mean;
+//	double*means;
+//	meanshiftFromFile("output/"+fname+"_multiscale.txt",100,8,means,n_mean,p_mean);
+//	
+//	for (int i=0;i<n_mean*p_mean;i++)
+//	{
+//		cout<<means[i]<<", ";
+//		if(i>0&&i%p_mean==p_mean-1)
+//			cout<<endl;
+//	}
+//	drawRect2Img(img,"output/"+fname+"_meanshift.txt");
+//	imwrite("output/"+fname+"_meanshift.png",img,vector<int>(CV_IMWRITE_PNG_COMPRESSION,4));
+//	imshow(fname+"_meanshift",img);
+//
+//	//	takefalseImg("input/false_pos.txt");
+//	//CHECK MEMORY LEAKING
+////	while(1){
+////	Mat img = imread("E:\crop_000027.png");
+////	Mat* imFils = imFilter(img);
+////	Mat G = calcGradientOfPixels(imFils[0],imFils[1]);
+////	Mat his_wnd = calcHisOfCellsInWnd2(G,Rect(0,0,img.cols,img.rows),cellSize,9);
+////	
+////		
+////	HIS* h_w = calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2);
+//////	double* vv = &(h_w->vector_weight[0]);
+//////	cout<<*vv<<endl;
+//////	delete[] h_w->vector_weight;
+//////	cout<<*vv<<endl;
+////	delete h_w;
+////	
+////	for (int i=0;i<his_wnd.rows;i++)
+////	{
+////		for (int j=0;j<his_wnd.cols;j++)
+////		{
+////			HIS* hh=his_wnd.at<HIS*>(i,j);
+////		//	delete[] hh->vector_weight;
+////			delete hh;
+////		}
+////	}
+////	his_wnd.release();
+////	img.release();
+////	imFils[0].release();
+////	imFils[1].release();
+////	G.release();
+////	}
+//	
+//
+//
+////	generateData("input/filelist_pos.txt",1,1);
+////	generateData("input/filelist_neg.txt",-1,2);
+//	//	ifstream inputfile;
+//	//	inputfile.open ("input/filelist.txt");
+//	//	string filepath,filename;
+//	//	if (inputfile.is_open())
+//	//	{
+//	////		while (! inputfile.eof() )
+//	////		{
+//	//			getline (inputfile,filepath);
+//	//			getline (inputfile,filename);
+//	//			
+//	////		}
+//	//	}
+//	//	inputfile.close();
+//	//
+//	//	ifstream conffile;
+//	//	conffile.open ("input/config.txt");
+//	//	string tmp;
+//	//	Size cellSize,blockSize;
+//	//	if (conffile.is_open())
+//	//	{
+//	//		//		while (! inputfile.eof() )
+//	//		//		{
+//	//		getline (conffile,tmp);//cell
+//	//		getline (conffile,tmp);
+//	//		cellSize.width = atoi(tmp.c_str());
+//	//		getline (conffile,tmp);
+//	//		cellSize.height = atoi(tmp.c_str());
+//	//		getline (conffile,tmp);//block
+//	//		getline (conffile,tmp);
+//	//		blockSize.width = atoi(tmp.c_str());
+//	//		getline (conffile,tmp);
+//	//		blockSize.height = atoi(tmp.c_str());
+//	//
+//	//		//		}
+//	//	}
+//	//	conffile.close();
+//	//	Mat img = imread(filepath+filename);
+//	//	imshow("asdasd",img);
+//	//	Mat* imFils = imFilter(img);
+//	//	/*Mat img_gray;
+//	//	cvtColor(img,img_gray,CV_BGR2GRAY);
+//	//	equalizeHist(img_gray,img_gray);
+//	//	*/
+//	//	
+//	//	//imshow("filter x",imFils[0]);
+//	//	//imshow("filter y",imFils[1]);
+//	//	
+//	//	Mat G = calcGradientOfPixels(imFils[0],imFils[1]);
+//	//	
+//	//	printf("\nGRADIENT:\n");
+//	////	for(int i=0;i<30;i++)
+//	////		for(int j=0;j<20;j++)
+//	////			printf("%f: %f \n",G.at<Gradient>(i,j)[0],G.at<Gradient>(i,j)[1]);
+//	//
+//	//	/*HIS* his = calcHisOfCell(G,Rect(50,50,10,10),9);
+//	//	for (int i=0;i<9;i++)
+//	//	{
+//	//		printf("%f, ",his->vector_weight[i]);
+//	//	}*/
+//	////	Mat his_wnd = calcHisOfCellsInWnd(G,Rect(0,0,64,128),Size(8,8),9);
+//	//	Rect R(0,0,img.cols,img.rows);
+//	//	cout <<"RECT:"<< R.width << ";"<<img.cols<<";"<<G.cols;
+//	//	Mat his_wnd = calcHisOfCellsInWnd2(G,Rect(0,0,img.cols,img.rows),cellSize,9);
+//	//	ofstream myfile;
+//	////	SYSTEMTIME st;
+//	////	GetSystemTime(&st);
+//	//	time_t curr;
+//	//	tm local;
+//	//	time(&curr); // get current time_t value
+//	//	local=*(localtime(&curr)); // dereference and assign
+//	//	stringstream outputfile; 
+//	//	outputfile<<"output/hisCell_"<<filename<<"_cell"<<cellSize.width<<"x"<<cellSize.height<<"_block"<<blockSize.width<<"x"<<blockSize.height<<"_"<<local.tm_year+1900<<"_"<<local.tm_mon<<"_"<<local.tm_mday<<"_"<<local.tm_hour<<"_"<<local.tm_min<<".txt" ;
+//	//	myfile.open(outputfile.str().c_str());
+//	//	printf("\ncalcHisOfCellsInWnd\n");
+//	//	//myfile <<"[";
+//	//	myfile <<his_wnd.rows<<", "<<his_wnd.cols<<"\n";
+//	//	for(int ii =0; ii<his_wnd.rows;ii++)
+//	//	{
+//	//		for(int jj =0; jj<his_wnd.cols;jj++)
+//	//		{
+//	//
+//	//			
+//	//			for (int i=0;i<9;i++)
+//	//			{
+//	//				printf("%2.2f, ",his_wnd.at<HIS*>(ii,jj)->vector_weight[i]);
+//	//				myfile << his_wnd.at<HIS*>(ii,jj)->vector_weight[i] ;
+//	//				if(i == 8) continue;
+//	//				myfile<<", ";
+//	//			}
+//	//			//if(ii==his_wnd.rows-1 && jj == his_wnd.cols-1) continue;
+//	//			myfile << "\n";
+//	//		
+//	//		printf("\n");
+//	//		}
+//	//		
+//	//
+//	//	}		
+//	//			
+//	//			myfile.close();
+//	//			printf("\n %d %d",his_wnd.rows,his_wnd.cols);
+//	//			
+//	//
+//	////	calcHistOfBlockInWnd(his_wnd,Rect(2,2,3,3));
+//	//	/*HIS* h_n = NormalizeBlock(his,2);
+//	//	for (int i=0;i<h_n->n_bins;i++)
+//	//	{
+//	//	printf("%f, ",h_n->vector_weight[i]);
+//	//	}*/
+//	//	/*HIS* h_w = calcHistOfWnd(his_wnd,Size(3,3),Vec2i(2,2),2);
+//	//
+//	//
+//	//	printf("\ncalcHistOfWnd\n");
+//	//	for (int i=0;i<h_w->n_bins;i++)
+//	//	{
+//	//		printf("%f ; ",h_w->vector_weight[i]);
+//	//	}
+//	//	printf("\n n_BIN %d\n",h_w->n_bins);*/
+//	//
+//	//	
+//	//	/*Mat aa(2,5,DataType<Gradient>::type);
+//	//	for (int i=0;i<aa.rows;i++)
+//	//	{
+//	//		for (int j=0;j<aa.cols;j++)
+//	//		{
+//	//			aa.at<Gradient>(i,j) = Gradient(2,3);
+//	//		}
+//	//	}*/
+//	//
+//	//	/*Mat aa(20,7,DataType<Gradient>::type);
+//	//	for (int i=0;i<aa.rows;i++)
+//	//	{
+//	//		for (int j=0;j<aa.cols;j++)
+//	//		{
+//	//			aa.at<Gradient>(i,j) = Gradient(2,3);
+//	//		}
+//	//	}*/
+//	//	/*int n =9;
+//	//	Vec<int,5> a;
+//	//	double * b = new double[10];
+//	//	double c[10];
+//	//	printf("size %d",sizeof(c));*/
+//	//	//G.release();
+//	//	
+//	cvWaitKey();	
+//	return 0;
+//}
+//
+//
 //int _tmain(int argc, _TCHAR* argv[])
 //{
 //	clock_t start, stop;

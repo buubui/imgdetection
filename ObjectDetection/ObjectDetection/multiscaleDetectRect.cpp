@@ -121,7 +121,7 @@ void multiscale(Mat img,float step )
 	imshow("result",result);
 }
 
-void multiscaleExp(string filepath,float step ,float minb)
+Mat multiscaleExp(string filepath,float step ,float minb)
 {
 	Mat imgOrg = imread(filepath);
 	Mat img;
@@ -278,7 +278,8 @@ void multiscaleExp(string filepath,float step ,float minb)
 	G.release();
 	out.close();
 	//	imshow("max",img(MaxWnd));
-	imshow("result",result);
+//	imshow("result",result);
+	return result;
 }
 
 

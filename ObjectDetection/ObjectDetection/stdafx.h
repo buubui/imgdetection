@@ -28,4 +28,5 @@ using namespace System::Collections;
 #include "svmData.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
+#include "detection.h"
 // TODO: reference additional headers your program requires here
