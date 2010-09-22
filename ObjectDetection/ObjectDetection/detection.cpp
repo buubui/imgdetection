@@ -19,13 +19,16 @@ bool detection(string path,string fname, string ext,float scaleStep,float minB,d
 		cout<<img.rows<<" "<<img.cols<<" "<<resizeScale<<endl;
 		imgOrg.release();
 		if(!justMeanshift){
-			Mat multiscale=multiscaleExp(path+fname+ext,scaleStep,minB);
-			imwrite("output/"+fname+"_multiscale.png",multiscale,vector<int>(CV_IMWRITE_PNG_COMPRESSION,4));
-			multiscale.release();
+			multiscaleExp(path+fname+ext,scaleStep);
 		}
+		Mat multiscale=img.clone();
+		drawRect2Img(multiscale,"output/"+fname+"_multiscale.txt",minB);
+		imwrite("output/"+fname+"_multiscale.png",multiscale,vector<int>(CV_IMWRITE_PNG_COMPRESSION,4));
+		multiscale.release();
+		
 		int n_mean,p_mean;
 		double*means;
-		meanshiftFromFile("output/"+fname+"_multiscale.txt",radius,minCsize,means,n_mean,p_mean);
+		meanshiftFromFile("output/"+fname+"_multiscale.txt",minB,radius,minCsize,means,n_mean,p_mean);
 		
 		for (int i=0;i<n_mean*p_mean;i++)
 		{
@@ -33,7 +36,7 @@ bool detection(string path,string fname, string ext,float scaleStep,float minB,d
 			if(i>0&&i%p_mean==p_mean-1)
 				cout<<endl;
 		}
-		drawRect2Img(img,"output/"+fname+"_meanshift.txt");
+		drawRect2Img(img,"output/"+fname+"_meanshift.txt",0.);
 		if(!imwrite("output/"+fname+"_meanshift.png",img,vector<int>(CV_IMWRITE_PNG_COMPRESSION,4)))
 		{
 			cout<<"KO GHI FILE DC\n";
