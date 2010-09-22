@@ -49,37 +49,28 @@ int main(array<System::String ^> ^args)
 {
 	loadConfig();
 	
-//	meanshiftFromFile("output/crop001533_multiscale.txt",50,2,means,n_mean,p_mean);
-	/*cout<<endl<<n_mean<<endl;
-	for (int i=0;i<n_mean*p_mean;i++)
-	{
-		cout<<means[i]<<", ";
-		if(i>0&&i%p_mean==p_mean-1)
-			cout<<endl;
-	}*/
-//	svmGenerateData2("input/testPos.txt","input/testNeg.txt",1,4);
-//	string ffile="no_person__no_bike_015.png";
-	string fname="crop_000006";
-	Mat imgOrg = imread("E:\\"+fname+".png");
+//	svmGenerateData2("input/trainPos.txt","input/trainNeg2.txt",1,10);
+
+//	string path="D:\\Lectures\\Luan_van\\DATASET\\INRIAPerson\\Test\\pos\\";
+	string path="D:\\Lectures\\Luan_van\\DATASET\\INRIAPerson\\Train\\pos\\";
+	string fname="person_117";
+	string ext=".png";
+	Mat imgOrg = imread(path+fname+ext);
 	Mat img;
-	double maxSz=640*480.;
+	double maxSz=500*400.;
+	double minSz = wndSize.width*wndSize.height;
 	double t=(double)imgOrg.rows*imgOrg.cols;
 	float resizeScale=t>maxSz?sqrt(maxSz/t):1.;
+	resizeScale=t<minSz?sqrt(minSz/t):resizeScale;
 	resize(imgOrg,img,Size(imgOrg.cols*resizeScale,imgOrg.rows*resizeScale),resizeScale,resizeScale);
+	cout<<img.rows<<" "<<img.cols<<" "<<resizeScale<<endl;
 	imgOrg.release();
-//	Mat img = imread("E:\\crop001008.png");
-//	Mat img2;
-//	resize(img,img2,Size(img.cols*0.5,img.rows*0.5),0.5,0.5);
-//	imshow("asd",img2);
-//	Mat wnd=img(Rect(226, 88, 152, 304));
-//	imwrite("output/false/"+ffile+"(226, 88, 152, 304).png",wnd,vector<int>(CV_IMWRITE_PNG_COMPRESSION,4));
-//	imshow("asdasd",wnd);
-	multiscaleExp("E:\\"+fname+".png",1.2);
-//	takefalseImg("input/false_pos.txt");
+//	multiscaleExp(path+fname+ext,1.2,0.);
+
 
 	int n_mean,p_mean;
 	double*means;
-	meanshiftFromFile("output/"+fname+"_multiscale.txt",100,3,means,n_mean,p_mean);
+	meanshiftFromFile("output/"+fname+"_multiscale.txt",100,8,means,n_mean,p_mean);
 	
 	for (int i=0;i<n_mean*p_mean;i++)
 	{
@@ -90,7 +81,8 @@ int main(array<System::String ^> ^args)
 	drawRect2Img(img,"output/"+fname+"_meanshift.txt");
 	imwrite("output/"+fname+"_meanshift.png",img,vector<int>(CV_IMWRITE_PNG_COMPRESSION,4));
 	imshow(fname+"_meanshift",img);
-	
+
+	//	takefalseImg("input/false_pos.txt");
 	//CHECK MEMORY LEAKING
 //	while(1){
 //	Mat img = imread("E:\crop_000027.png");

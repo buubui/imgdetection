@@ -174,8 +174,16 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 				continue;
 				//break;
 			}
-
-			Mat img = imread(filepath+filename);
+			Mat imgOrg = imread(filepath+filename);
+			Mat img;
+			double maxSz=500*400.;
+			double minSz = wndSize.width*wndSize.height;
+			double t=(double)imgOrg.rows*imgOrg.cols;
+			float resizeScale=t>maxSz?sqrt(maxSz/t):1.;
+			resizeScale=t<minSz?sqrt(minSz/t):resizeScale;
+			resize(imgOrg,img,Size(imgOrg.cols*resizeScale,imgOrg.rows*resizeScale),resizeScale,resizeScale);
+			imgOrg.release();
+		//	Mat img = imread(filepath+filename);
 			Mat* imFils = imFilter(img);
 			Mat G = calcGradientOfPixels(imFils[0],imFils[1]);
 			bool continueScale = false;
@@ -210,7 +218,7 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 							cellSz.width = (int)tt;
 							cellSz.height = (int)( scale* cellSize.height);
 						}
-					//	scale = (float)cellSz.width/cellSize.width;
+						scale = (float)cellSz.width/cellSize.width;
 					//	slideWnd= getRect(startP.x,startP.y,scale);
 					//	wndSz.width =slideWnd.width;
 					//	wndSz.height =slideWnd.height;

@@ -142,7 +142,7 @@ void	meanShift2( double data[], int p, int n, double radius, double* &means,int&
 		for (int j=0;j<n_mean;j++)
 		{
 			
-			if(-1<=tmp[j*(p+1)+0]-round(m[i*p+0])&& tmp[j*(p+1)+0]-round(m[i*p+0])<=1 && -1<= tmp[j*(p+1)+1]-round(m[i*p+1])&& tmp[j*(p+1)+1]-round(m[i*p+1])<=1)
+			if(-2<=tmp[j*(p+1)+0]-round(m[i*p+0])&& tmp[j*(p+1)+0]-round(m[i*p+0])<=2 && -2<= tmp[j*(p+1)+1]-round(m[i*p+1])&& tmp[j*(p+1)+1]-round(m[i*p+1])<=2)
 			{
 				for (int k=2;k<p;k++)
 				{

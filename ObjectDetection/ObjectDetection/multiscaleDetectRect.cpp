@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include <boost/algorithm/string.hpp>
+#include "meanshift.h"
 extern Size cellSize,blockSize,wndSize;
 void multiscale(Mat img,float step )
 {
@@ -120,14 +121,15 @@ void multiscale(Mat img,float step )
 	imshow("result",result);
 }
 
-void multiscaleExp(string filepath,float step )
+void multiscaleExp(string filepath,float step ,float minb)
 {
 	Mat imgOrg = imread(filepath);
 	Mat img;
-	double maxSz=640*480.;
-//	float m=imgOrg.rows>imgOrg.cols?imgOrg.rows:imgOrg.cols;
+	double maxSz=500*400.;
+	double minSz = wndSize.width*wndSize.height;
 	double t=(double)imgOrg.rows*imgOrg.cols;
 	float resizeScale=t>maxSz?sqrt(maxSz/t):1.;
+	resizeScale=t<minSz?sqrt(minSz/t):resizeScale;
 	resize(imgOrg,img,Size(imgOrg.cols*resizeScale,imgOrg.rows*resizeScale),resizeScale,resizeScale);
 	imgOrg.release();
 	std::vector<std::string> strs;
@@ -162,10 +164,20 @@ void multiscaleExp(string filepath,float step )
 	double max=0;
 	Mat img_slideWnd, his_wnd;
 	Mat* his=NULL;
-	for (int h=tmp.height*cellSize.height/2;h<img.rows-wndSize.height/2;h+=8)
+	Size addStep;//=Size(2,2);
+	addStep.width=cellSize.width*1.;
+	addStep.height=cellSize.height*1.;
+	float divStep =sqrt(((maxSz)/(img.rows*img.cols)));
+//	divStep=divStep<1.?1:divStep;
+	addStep.width =round(addStep.width /divStep);
+	addStep.height =round(addStep.height /divStep);
+	if(addStep.width<1) addStep.width=1;
+	if(addStep.height<1) addStep.height=1;
+	printf("addstep %d divstep %f\n",addStep.width,divStep);
+	for (int h=tmp.height*cellSize.height/2;h<img.rows-wndSize.height/2;h+=addStep.height)
 	{
 		
-		for (int w=tmp.width*cellSize.width/2;w<img.cols-wndSize.width/2;w+=8)
+		for (int w=tmp.width*cellSize.width/2;w<img.cols-wndSize.width/2;w+=addStep.width)
 		{
 			startP.x= w;
 			startP.y = h;
@@ -205,7 +217,7 @@ void multiscaleExp(string filepath,float step )
 				Mat R = (*his)* (*weight ) - b;
 				double v = R.at<double>(0,0);
 			//	v>0.068
-				if(v>0.0){
+				if(v>minb){
 					//					printf(" (%d,%d) (%dx%d) %f %f\n",startP.x,startP.y, wndSz.width,wndSz.height,scale, v);
 					printf("%d, %d, %f, %f\n",startP.x,startP.y,wndSz.width/baseWidth,v);
 					out<<startP.x<<", "<<startP.y<<", "<<log(wndSz.width/baseWidth)<<", "<<v<<endl;
