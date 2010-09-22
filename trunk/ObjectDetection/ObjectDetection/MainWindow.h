@@ -353,6 +353,9 @@ namespace ObjectDetection {
 				//	detection(path,fname,ext);	
 					 cbBox1->SelectedIndex=0;
 					 cbBox1_SelectedIndexChanged(sender,e);
+					 cbBox2->SelectedIndex=0;
+					 cbBox2_SelectedIndexChanged(sender,e);
+					 this->Text=ffullpath;
 				//	 System::String^ imgpath="output/"+fname+"_meanshift.png";
 				//	this->imgBox1->Image =Image::FromFile(ffullpath);
 					
@@ -419,6 +422,8 @@ private: System::Void btnDetect_Click(System::Object^  sender, System::EventArgs
 			 cbBox2->SelectedIndex=2;
 			cbBox1_SelectedIndexChanged(sender,e);
 			 cbBox2_SelectedIndexChanged(sender,e);
+			// MessageBox::Show("Detection is finished!");
+
 		 }
 private: System::Void btnRefresh_Click(System::Object^  sender, System::EventArgs^  e) {
 			 /*if(cbBox1->SelectedIndex==2){

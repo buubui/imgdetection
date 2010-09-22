@@ -142,7 +142,7 @@ void	meanShift2( double data[], int p, int n, double radius, double* &means,int&
 		for (int j=0;j<n_mean;j++)
 		{
 			
-			if(-2<=tmp[j*(p+1)+0]-round(m[i*p+0])&& tmp[j*(p+1)+0]-round(m[i*p+0])<=2 && -2<= tmp[j*(p+1)+1]-round(m[i*p+1])&& tmp[j*(p+1)+1]-round(m[i*p+1])<=2)
+			if(-(radius-1)<=tmp[j*(p+1)+0]-round(m[i*p+0])&& tmp[j*(p+1)+0]-round(m[i*p+0])<=(radius-1) && -(radius-1)<= tmp[j*(p+1)+1]-round(m[i*p+1])&& tmp[j*(p+1)+1]-round(m[i*p+1])<=(radius-1))
 			{
 				for (int k=2;k<p;k++)
 				{
@@ -182,7 +182,7 @@ void	meanShift2( double data[], int p, int n, double radius, double* &means,int&
 	}
 	
 };
-bool meanshiftFromFile(string fname,double radius,int minCsize,double* &means,int& n_mean ,int& p_mean)
+bool meanshiftFromFile(string fname,double minValue,double radius,int minCsize,double* &means,int& n_mean ,int& p_mean)
 {
 	ifstream in;
 	
@@ -204,6 +204,8 @@ bool meanshiftFromFile(string fname,double radius,int minCsize,double* &means,in
 		}
 		if (strs.size()<3||strs.size()<p)
 			break;
+		if(atof(strs[p-1].c_str())<minValue)
+			continue;
 		for (int i=0;i<p;i++)
 		{
 			data[n*p+i] = atof(strs[i].c_str());

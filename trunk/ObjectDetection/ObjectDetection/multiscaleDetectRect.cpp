@@ -121,7 +121,7 @@ void multiscale(Mat img,float step )
 	imshow("result",result);
 }
 
-Mat multiscaleExp(string filepath,float step ,float minb)
+Mat multiscaleExp(string filepath,float step )
 {
 	Mat imgOrg = imread(filepath);
 	Mat img;
@@ -136,9 +136,9 @@ Mat multiscaleExp(string filepath,float step ,float minb)
 	char* s = (char*)(filepath.c_str());
 	boost::split(strs,s , boost::is_any_of(".\\"));
 	string filename ="output/"+ strs[strs.size()-2]+"_multiscale.txt";
-	ofstream out;
-
-	out.open(filename.c_str());
+	
+	stringstream outstr;
+	
 
 	Mat result = img.clone();
 	Point startP(0,0);
@@ -217,11 +217,11 @@ Mat multiscaleExp(string filepath,float step ,float minb)
 				Mat R = (*his)* (*weight ) - b;
 				double v = R.at<double>(0,0);
 			//	v>0.068
-				if(v>minb){
+				if(v>0.){
 					//					printf(" (%d,%d) (%dx%d) %f %f\n",startP.x,startP.y, wndSz.width,wndSz.height,scale, v);
 					printf("%d, %d, %f, %f\n",startP.x,startP.y,wndSz.width/baseWidth,v);
-					out<<startP.x<<", "<<startP.y<<", "<<log(wndSz.width/baseWidth)<<", "<<v<<endl;
-					rectangle(result,slideWnd,Scalar(0,256,0),2);
+					outstr<<startP.x<<", "<<startP.y<<", "<<log(wndSz.width/baseWidth)<<", "<<v<<endl;
+				//	rectangle(result,slideWnd,Scalar(0,256,0),2);
 				//	stringstream outStr;
 				//	outStr<<v;
 				//	putText(result,outStr.str(),Point(slideWnd.x,slideWnd.y-3),FONT_HERSHEY_COMPLEX_SMALL,0.5,Scalar(0,256,0));
@@ -276,7 +276,13 @@ Mat multiscaleExp(string filepath,float step ,float minb)
 	imFils[0].release();
 	imFils[1].release();
 	G.release();
-	out.close();
+	ofstream out;
+	out.open(filename.c_str());
+	if(out.is_open()){
+		out<<outstr.str();
+		out.close();
+	}
+	
 	//	imshow("max",img(MaxWnd));
 //	imshow("result",result);
 	return result;
@@ -309,7 +315,7 @@ Rect getRect(int x,int y, float scale)
 	return result;
 
 }
-void drawRect2Img(Mat & img, string rectFile)
+void drawRect2Img(Mat & img, string rectFile,float minValue)
 {
 	ifstream ffile;
 	ffile.open (rectFile.c_str());
@@ -327,6 +333,8 @@ void drawRect2Img(Mat & img, string rectFile)
 			if (strs.size()<3)
 				break;
 			//cellSize.width = atoi(tmp.c_str());
+			if(atof(strs[3].c_str())<minValue)
+				continue;
 			Rect r=getRect((int)atof(strs[0].c_str()),(int)atof(strs[1].c_str()),exp(atof(strs[2].c_str())));
 			printf("%d %d %d %d\n",r.x,r.y,r.width,r.height);
 			rectangle(img,r,Scalar(0,256,0),2);
