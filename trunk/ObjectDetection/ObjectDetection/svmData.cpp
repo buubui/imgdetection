@@ -86,17 +86,18 @@ void svmGenerateData(string inputfilelist, int pos,int randTime){
 
 
 				myfile2 << pos<<"\t";
-				for (int i=0;i<h_w->n_bins;i++)
+				for (int i=0;i<h_w->rows*h_w->cols;i++)
 				{
 					//	printf("%f ; ",h_w->vector_weight[i]);
-					double v =h_w->vector_weight[i]; 
+					double v =h_w->at<double>(0,i); 
 					myfile << v<<"\t";
 					if(v!=0)
 						myfile2 << i+1<<":"<<v<<"\t";
 				}
 				myfile << pos<<"\n";
 				myfile2 <<"\n";
-				delete h_w;
+				//delete h_w;
+				h_w->release();
 				his_wnd.release();
 				G.release();
 				imFils[0].release();
@@ -270,10 +271,10 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 
 
 				myfile2 << pos<<"\t";
-				for (int i=0;i<h_w->n_bins;i++)
+				for (int i=0;i<h_w->cols;i++)
 				{
 					//	printf("%f ; ",h_w->vector_weight[i]);
-					double v =h_w->vector_weight[i]; 
+					double v =h_w->at<double>(0,i); 
 					myfile << v<<"\t";
 					if(v!=0)
 						myfile2 << i+1<<":"<<v<<"\t";
@@ -281,13 +282,14 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 				myfile << pos<<"\n";
 				myfile2 <<"\t #"<<filename<<"\t ("<<slideWnd.x<<", "<<slideWnd.y<<", "<<slideWnd.width<<", "<<slideWnd.height<<")\n";
 				//	delete[] h_w->vector_weight;
-				delete h_w;
+				 h_w->release();
+				 delete h_w;
 				for (int ii=0;ii<his_wnd.rows;ii++)
 				{
 					for (int jj=0;jj<his_wnd.cols;jj++)
 					{
 						HIS* hh=his_wnd.at<HIS*>(ii,jj);
-						delete hh;
+						hh->release();
 					}
 				}
 				his_wnd.release();

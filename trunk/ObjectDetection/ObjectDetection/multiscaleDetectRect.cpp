@@ -53,13 +53,20 @@ void multiscale(Mat img,float step )
 
 				his_wnd = calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9);
 				HIS* h_w = calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2);
-				if(!his)
-					his=new Mat(1,h_w->n_bins,CV_64F);
-				//printf("%d",h_w->n_bins);
-				for (int i=0;i<h_w->n_bins;i++)
-				{
-					his->at<double>(0,i)=h_w->vector_weight[i];
+				if(!his){
+					/*Mat A;
+					A=(Mat::zeros(1,h_w->cols,CV_64F));;
+					his= &A;*/
+			//		his=new Mat(1,h_w->cols,CV_64F);
+					his = new Mat();
+					*his=Mat::zeros(1,h_w->cols,CV_64F);
 				}
+				//printf("%d",h_w->n_bins);
+				/*for (int i=0;i<h_w->cols;i++)
+				{
+					his->at<double>(0,i)=h_w->at<double>(0,i);
+				}*/
+				his = h_w;
 				Mat R = (*his)* (*weight ) - b;
 				double v = R.at<double>(0,0);
 				cout<<v<<endl;
@@ -79,7 +86,8 @@ void multiscale(Mat img,float step )
 					//	}
 				}
 
-				delete h_w;
+			//	delete h_w;
+				his->release();
 
 
 				//		imFils[0].release();
@@ -89,7 +97,7 @@ void multiscale(Mat img,float step )
 					for (int jj=0;jj<his_wnd.cols;jj++)
 					{
 						HIS* hh=his_wnd.at<HIS*>(ii,jj);
-						delete hh;
+						hh->release();
 					}
 				}
 				his_wnd.release();
@@ -174,6 +182,7 @@ Mat multiscaleExp(string filepath,float step )
 	if(addStep.width<1) addStep.width=1;
 	if(addStep.height<1) addStep.height=1;
 	printf("addstep %d divstep %f\n",addStep.width,divStep);
+	ofstream outtmp;
 	for (int h=tmp.height*cellSize.height/2;h<img.rows-wndSize.height/2;h+=addStep.height)
 	{
 		
@@ -207,15 +216,25 @@ Mat multiscaleExp(string filepath,float step )
 
 				his_wnd = calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9);
 				HIS* h_w = calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2);
-				if(!his)
-					his=new Mat(1,h_w->n_bins,CV_64F);
+//				if(!his)
+//					his=new Mat(1,h_w->n_bins,CV_64F);
+				his = h_w;
+			//	cout<<his->cols<<endl;
+				
+			//	his = his_wnd.at<HIS*>(0,0);
 				//printf("%d",h_w->n_bins);
-				for (int i=0;i<h_w->n_bins;i++)
+				/*for (int i=0;i<h_w->n_bins;i++)
 				{
 					his->at<double>(0,i)=h_w->vector_weight[i];
-				}
+				}*/
+			//	for (int ttt=0;ttt<his->cols;ttt++)
+			//	{
+				//	printf("\n HIS %d %f, ",his->cols,his->at<double>(0,0));
+			//	}
 				Mat R = (*his)* (*weight ) - b;
 				double v = R.at<double>(0,0);
+				his->release();
+				R.release();
 			//	v>0.068
 				if(v>0.){
 					//					printf(" (%d,%d) (%dx%d) %f %f\n",startP.x,startP.y, wndSz.width,wndSz.height,scale, v);
@@ -247,9 +266,10 @@ Mat multiscaleExp(string filepath,float step )
 						delete hh;
 					}
 				}
+			//	delete his_wnd;
 				his_wnd.release();
 				//		G.release();
-				R.release();
+			//	R.release();
 
 				i++;
 				//scale =  pow(step,i);
