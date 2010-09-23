@@ -49,6 +49,7 @@ void takefalseImg(string ffile)
 int main(array<System::String ^> ^args)
 {
 	loadConfig();
+//	svmGenerateData2("input/testPos.txt","input/testNeg.txt",1,3);
 	// Enabling Windows XP visual effects before any controls are created
 	Application::EnableVisualStyles();
 	Application::SetCompatibleTextRenderingDefault(false); 

@@ -74,7 +74,11 @@ Mat calcGradientOfPixels(const Mat&filx,const Mat&fily)
 //n_bins: so luong bin
 HIS* calcHisOfCell(Mat hog_pixels, Rect r, int n_bins)
 {
-	HIS* H=new HIS(n_bins);
+	/*Mat A;
+	A=(Mat::zeros(1,n_bins,CV_64F));;
+	HIS* H= &A;*/
+	HIS* H = new Mat();
+	*H=Mat::zeros(1,n_bins,CV_64F);
 	double w=0;
 	double a =180.0 /n_bins;
 	for (int i=0;i<r.height;i++)
@@ -85,7 +89,9 @@ HIS* calcHisOfCell(Mat hog_pixels, Rect r, int n_bins)
 		//	int n_b = (int)( (hog_pixels.at<Gradient>(i+r.x,j+r.y)[0]+90)/a);
 			float angle = hog_pixels.at<Gradient>(i+r.y,j+r.x)[0]; 
 			int n_b = (int)( (angle)/a);
-			H->vector_weight[n_b]+=hog_pixels.at<Gradient>(i+r.y,j+r.x)[1];
+			if(H->at<double>(0,n_b)<-100000.)
+				H->at<double>(0,n_b)=0.;
+			H->at<double>(0,n_b)+=hog_pixels.at<Gradient>(i+r.y,j+r.x)[1];
 			
 		}
 	}
@@ -147,7 +153,17 @@ Mat calcHisOfCellsInWnd2(Mat hog_pixels,Rect wnd, Size cellSize, int n_bins)
 		for (int j=0;j<c;j++)
 
 		{
-			H.at<HIS*>(i,j) = new HIS(n_bins);
+			H.at<HIS*>(i,j) = new Mat();
+			*(H.at<HIS*>(i,j))=Mat::zeros(1,n_bins,CV_64F);
+			/*Mat A;
+			A=(Mat::zeros(1,n_bins,CV_64F));;
+			H.at<HIS*>(i,j)= &A;*/
+			
+		/*	for (int t=0;t<h->cols;t++)
+			{
+				h->at<double>(0,t)=0.;
+			}
+			printf("ZEROS %f \n",H.at<HIS*>(i,j)->at<double>(0,0));*/
 		}
 	}
 
@@ -159,8 +175,14 @@ Mat calcHisOfCellsInWnd2(Mat hog_pixels,Rect wnd, Size cellSize, int n_bins)
 		{
 			Rect rect(currX,currY,cellSize.width,cellSize.height);
 			double a =180./n_bins;
-			if(H.at<HIS*>(i,j)==NULL)
-				H.at<HIS*>(i,j) = new HIS(n_bins);
+			if(H.at<HIS*>(i,j)==NULL){
+				/*Mat A;
+				A=(Mat::zeros(1,n_bins,CV_64F));;
+				H.at<HIS*>(i,j)= &A;*/
+			//	H.at<HIS*>(i,j) = new Mat(1,n_bins,CV_64F);
+				H.at<HIS*>(i,j) = new Mat();
+				*(H.at<HIS*>(i,j))=Mat::zeros(1,n_bins,CV_64F);
+			}
 			HIS* H0=H.at<HIS*>(i,j);
 			Point currCenter(currX+cellSize.width/2,currY+cellSize.height/2);
 			for (int ii=0;ii<rect.height;ii++)
@@ -315,7 +337,7 @@ void setHisOfCell(Gradient hog_pixcell, HIS* Hcell,Size cellSize)
 {
 	float a = hog_pixcell[0];
 	float w = hog_pixcell[1];
-	float step = 180./Hcell->n_bins;
+	float step = 180./Hcell->cols;
 	int n_b = (int)( (a)/step);
 		if(a<n_b*(step+0.5))
 		{
@@ -323,26 +345,44 @@ void setHisOfCell(Gradient hog_pixcell, HIS* Hcell,Size cellSize)
 			{
 				float r1=  (n_b*(step+0.5)-a)/step ;
 				float r0 = 1-r1;
-				Hcell->vector_weight[n_b]+=r0*w;
-				Hcell->vector_weight[n_b-1]+=r1*w;
-			}else Hcell->vector_weight[n_b]+=w;
+			//	if(Hcell->at<double>(0,n_b)<-100000.)
+			//		Hcell->at<double>(0,n_b)=0.;
+				Hcell->at<double>(0,n_b)+=r0*w;
+
+			//	if(Hcell->at<double>(0,n_b-1)<-100000.)
+			//		Hcell->at<double>(0,n_b-1)=0.;
+				Hcell->at<double>(0,n_b-1)+=r1*w;
+			}else{
+			//	if(Hcell->at<double>(0,n_b)<-100000.)
+			//		Hcell->at<double>(0,n_b)=0.;
+				Hcell->at<double>(0,n_b)+=w;
+			}
 		}else{
-			if(n_b < Hcell->n_bins-1)
+			if(n_b < Hcell->cols-1)
 			{
 				float r1= (a- n_b*(step+0.5))/step ;
 				float r0 = 1-r1;
-				Hcell->vector_weight[n_b]+=r0*w;
-				Hcell->vector_weight[n_b+1]+=r1*w;
-			}else Hcell->vector_weight[n_b]+=w;
+			//	if(Hcell->at<double>(0,n_b)<-100000.)
+			//		Hcell->at<double>(0,n_b)=0.;
+				Hcell->at<double>(0,n_b)+=r0*w;
+
+			//	if(Hcell->at<double>(0,n_b+1)<-100000.)
+			//		Hcell->at<double>(0,n_b+1)=0.;
+				Hcell->at<double>(0,n_b+1)+=r1*w;
+			}else{
+			//	if(Hcell->at<double>(0,n_b)<-100000.)
+			//		Hcell->at<double>(0,n_b)=0.;
+				Hcell->at<double>(0,n_b)+=w;
+			}
 		}
 	//Hcell->vector_weight[n_b]+= 
 
 };
 
-Mat NormalizeBlock(Mat m, int c)
+void NormalizeBlock(Mat& m, int c)
 {
 	Mat mat;
-	mat.zeros(m.size(),m.type());
+//	mat.zeros(m.size(),m.type());
 	double n =0.;
 	switch(c)
 	{
@@ -353,28 +393,31 @@ Mat NormalizeBlock(Mat m, int c)
 	case 2: //L1-sqrt
 		sqrt( m/(norm(m,NORM_L1) + M_e),mat); break;
 	}
-	
-	return mat;
+	m=mat;	
+//	return mat;
 }
 
-void NormalizeBlock(HIS* h, int c)
-{
-
-	Mat m(1,h->n_bins,CV_64FC1);
-	for (int i = 0 ; i<h->n_bins;i++)
-	{
-		m.at<double>(0,i) = h->vector_weight[i];
-	}
-//	HIS* r = new HIS(h->n_bins);
-	Mat mat = NormalizeBlock(m,c);
-	for (int i = 0 ; i<h->n_bins;i++)
-	{
-		h->vector_weight[i] = mat.at<double>(0,i) ;
-	}
-	mat.release();
-	m.release();
-	return ;
-}
+//void NormalizeBlock(HIS* h, int c)
+//{
+//
+////	Mat m(1,h->n_bins,CV_64FC1);
+//	//for (int i = 0 ; i<h->n_bins;i++)
+//	//{
+//	//	m.at<double>(0,i) = h->vector_weight[i];
+//	//}
+////	HIS* r = new HIS(h->n_bins);
+//	Mat mat = NormalizeBlock(*h,c);
+////	h->release();
+//	
+//	h=&mat;
+//	//for (int i = 0 ; i<h->n_bins;i++)
+//	//{
+//	//	h->vector_weight[i] = mat.at<double>(0,i) ;
+//	//}
+//	//mat.release();
+//	//m.release();
+//	return ;
+//}
 
 Mat im2double(const Mat& m)
 {
@@ -395,12 +438,16 @@ Mat im2double(const Mat& m)
 }
 HIS* calcHistOfBlockInWnd(const Mat& mat, Rect p)
 {
-	int n = mat.at<HIS*>(0,0)->n_bins;
+	int n = mat.at<HIS*>(0,0)->cols;
 	int w = p.width;
 	int h = p.height;
 	int x = p.x;
 	int y = p.y;
-	HIS* hist = new HIS(w*h*n);
+	/*Mat A;
+	A=(Mat::zeros(1,w*h*n,CV_64F));;
+	HIS* hist = &A;*/
+	HIS* hist = new Mat();
+	*hist = Mat::zeros(1,w*h*n,CV_64F);
 	int s =0;
 	for (int i=0;i<h;i++)
 	{
@@ -408,7 +455,7 @@ HIS* calcHistOfBlockInWnd(const Mat& mat, Rect p)
 		{
 			for (int e =0; e<n;e++)
 			{
-				hist->vector_weight[s] = mat.at<HIS*>(x+i,j+y)->vector_weight[e];
+				hist->at<double>(0,s) = mat.at<HIS*>(x+i,j+y)->at<double>(0,e);
 				s++;
 			}
 			
@@ -426,11 +473,15 @@ HIS* calcHistOfBlockInWnd(const Mat& mat, Rect p)
 
 HIS* calcHistOfWnd(const Mat& mat, const Size& blockSize, Vec2i overlap, int norm_c)
 {
-	int n = mat.at<HIS*>(0,0)->n_bins;
+	int n = mat.at<HIS*>(0,0)->cols;
 	int n_block_w = floor( 1.*(mat.cols - overlap[0])/(blockSize.width - overlap[0]));
 	int n_block_h = floor( 1.*(mat.rows - overlap[1])/(blockSize.height - overlap[1]));
 	int n_block = n_block_h*n_block_w;
-	HIS* H = new HIS(n_block*blockSize.width*blockSize.height*n);
+	/*Mat A;
+	A=(Mat::zeros(1,n_block*blockSize.width*blockSize.height*n,CV_64F));;
+	HIS* H= &A;*/
+	HIS* H = new Mat();
+	*H=Mat::zeros(1,n_block*blockSize.width*blockSize.height*n,CV_64F);
 
 	int x=0,y=0;
 	int s=0;
@@ -440,10 +491,10 @@ HIS* calcHistOfWnd(const Mat& mat, const Size& blockSize, Vec2i overlap, int nor
 		for (int j = 0 ; j<n_block_h;j++)
 		{
 			HIS* h_b = calcHistOfBlockInWnd(mat,Rect(x,y,blockSize.width,blockSize.height));
-			NormalizeBlock(h_b,norm_c);
+			NormalizeBlock(*h_b,norm_c);
 			for (int e=0;e<n*blockSize.width*blockSize.height;e++)
 			{
-				H->vector_weight[s]=h_b->vector_weight[e];
+				H->at<double>(0,s)=h_b->at<double>(0,e);
 				s++;
 			}
 			x+= blockSize.width -overlap[0];
