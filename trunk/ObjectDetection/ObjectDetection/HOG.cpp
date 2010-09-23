@@ -393,6 +393,7 @@ void NormalizeBlock(Mat& m, int c)
 	case 2: //L1-sqrt
 		sqrt( m/(norm(m,NORM_L1) + M_e),mat); break;
 	}
+	m.release();
 	m=mat;	
 //	return mat;
 }
@@ -453,11 +454,18 @@ HIS* calcHistOfBlockInWnd(const Mat& mat, Rect p)
 	{
 		for (int j = 0 ; j< w;j++)
 		{
-			for (int e =0; e<n;e++)
+		//	for (int e =0; e<n;e++)
+		//	{
+		//		hist->at<double>(0,s) = mat.at<HIS*>(x+i,j+y)->at<double>(0,e);
+				HIS* h=mat.at<HIS*>(x+i,j+y);
+				h->copyTo((*hist)(Rect(s,0,h->cols,1)));
+				s+=h->cols;
+		//	}
+			/*for (int e =0; e<n;e++)
 			{
 				hist->at<double>(0,s) = mat.at<HIS*>(x+i,j+y)->at<double>(0,e);
 				s++;
-			}
+			}*/
 			
 			
 		}
@@ -492,13 +500,29 @@ HIS* calcHistOfWnd(const Mat& mat, const Size& blockSize, Vec2i overlap, int nor
 		{
 			HIS* h_b = calcHistOfBlockInWnd(mat,Rect(x,y,blockSize.width,blockSize.height));
 			NormalizeBlock(*h_b,norm_c);
+
+
+		//	for (int e=0;e<n*blockSize.width*blockSize.height;e++)
+		//	{
+		//		H->at<double>(0,s)=h_b->at<double>(0,e);
+				h_b->copyTo((*H)(Rect(s,0,h_b->cols,1)));
+				s+=h_b->cols;
+		//	}
+			x+= blockSize.width -overlap[0];
+		//	h_b->release();
+			delete h_b;
+
+
+
+			/*HIS* h_b = calcHistOfBlockInWnd(mat,Rect(x,y,blockSize.width,blockSize.height));
+			NormalizeBlock(*h_b,norm_c);
 			for (int e=0;e<n*blockSize.width*blockSize.height;e++)
 			{
 				H->at<double>(0,s)=h_b->at<double>(0,e);
 				s++;
 			}
 			x+= blockSize.width -overlap[0];
-			delete h_b;
+			delete h_b;*/
 		}
 		y+=blockSize.height - overlap[1];
 		

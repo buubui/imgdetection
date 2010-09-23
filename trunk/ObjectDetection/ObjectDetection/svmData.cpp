@@ -1,5 +1,5 @@
 #include "stdafx.h"
-extern Size cellSize,blockSize,wndSize;
+extern Size cellSize,blockSize,wndSize,maxWndSz;
 void svmGenerateData(string inputfilelist, int pos,int randTime){
 	ifstream conffile;
 	conffile.open ("input/config.txt");
@@ -96,8 +96,8 @@ void svmGenerateData(string inputfilelist, int pos,int randTime){
 				}
 				myfile << pos<<"\n";
 				myfile2 <<"\n";
-				//delete h_w;
-				h_w->release();
+				delete h_w;
+			//	h_w->release();
 				his_wnd.release();
 				G.release();
 				imFils[0].release();
@@ -175,15 +175,11 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 				continue;
 				//break;
 			}
-			Mat imgOrg = imread(filepath+filename);
-			Mat img;
-			double maxSz=500*400.;
+			Mat img = imread(filepath+filename);
+			
+			double maxSz=maxWndSz.width*maxWndSz.height;
 			double minSz = wndSize.width*wndSize.height;
-			double t=(double)imgOrg.rows*imgOrg.cols;
-			float resizeScale=t>maxSz?sqrt(maxSz/t):1.;
-			resizeScale=t<minSz?sqrt(minSz/t):resizeScale;
-			resize(imgOrg,img,Size(imgOrg.cols*resizeScale,imgOrg.rows*resizeScale),resizeScale,resizeScale);
-			imgOrg.release();
+			Rect realRect=resizeImg(img,maxSz,minSz,false);
 		//	Mat img = imread(filepath+filename);
 			Mat* imFils = imFilter(img);
 			Mat G = calcGradientOfPixels(imFils[0],imFils[1]);
@@ -250,9 +246,16 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 
 				}else{
 					scale=1.;
-					if(pos.compare("+1")==0&&(img.rows > slideWnd.height)){
+					if(pos.compare("+1")==0){
+						if(img.rows > slideWnd.height)
+						{
 						slideWnd.x = (img.rows - slideWnd.height)/2;
 						slideWnd.y = (img.cols - slideWnd.width)/2;
+						}else{
+							slideWnd.x=0;
+							slideWnd.y=0;
+						}
+						rand();
 					}
 					cellSz = cellSize;
 					wndSz = wndSize;
@@ -282,14 +285,15 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 				myfile << pos<<"\n";
 				myfile2 <<"\t #"<<filename<<"\t ("<<slideWnd.x<<", "<<slideWnd.y<<", "<<slideWnd.width<<", "<<slideWnd.height<<")\n";
 				//	delete[] h_w->vector_weight;
-				 h_w->release();
+				// h_w->release();
 				 delete h_w;
 				for (int ii=0;ii<his_wnd.rows;ii++)
 				{
 					for (int jj=0;jj<his_wnd.cols;jj++)
 					{
 						HIS* hh=his_wnd.at<HIS*>(ii,jj);
-						hh->release();
+					//	hh->release();
+						delete hh;
 					}
 				}
 				his_wnd.release();
