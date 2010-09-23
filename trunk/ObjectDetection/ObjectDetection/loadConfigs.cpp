@@ -1,5 +1,5 @@
 #include "stdafx.h"
-extern Size cellSize,blockSize,wndSize;
+extern Size cellSize,blockSize,wndSize,maxWndSz;
 
 void loadConfig()
 {
@@ -21,11 +21,16 @@ void loadConfig()
 		blockSize.width = atoi(tmp.c_str());
 		getline (conffile,tmp);
 		blockSize.height = atoi(tmp.c_str());
-		getline (conffile,tmp);//window
+		getline (conffile,tmp);//window size
 		getline (conffile,tmp);
 		wndSize.width = atoi(tmp.c_str());
 		getline (conffile,tmp);
 		wndSize.height = atoi(tmp.c_str());
+		getline (conffile,tmp);//Max Window Size
+		getline (conffile,tmp);
+		maxWndSz.width = atoi(tmp.c_str());
+		getline (conffile,tmp);
+		maxWndSz.height = atoi(tmp.c_str());
 
 		//		}
 	}

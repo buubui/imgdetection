@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include <boost/algorithm/string.hpp>
 #include "meanshift.h"
-extern Size cellSize,blockSize,wndSize;
+extern Size cellSize,blockSize,wndSize,maxWndSz;
 void multiscale(Mat img,float step )
 {
 	Mat result = img.clone();
@@ -131,15 +131,18 @@ void multiscale(Mat img,float step )
 
 Mat multiscaleExp(string filepath,float step )
 {
-	Mat imgOrg = imread(filepath);
-	Mat img;
-	double maxSz=500*400.;
+	Mat img = imread(filepath);
+//	Mat img;
+	
+	double maxSz=maxWndSz.width*maxWndSz.height;
 	double minSz = wndSize.width*wndSize.height;
-	double t=(double)imgOrg.rows*imgOrg.cols;
+	resizeImg(img,maxSz,minSz);
+	/*
+	//double t=(double)imgOrg.rows*imgOrg.cols;
 	float resizeScale=t>maxSz?sqrt(maxSz/t):1.;
 	resizeScale=t<minSz?sqrt(minSz/t):resizeScale;
 	resize(imgOrg,img,Size(imgOrg.cols*resizeScale,imgOrg.rows*resizeScale),resizeScale,resizeScale);
-	imgOrg.release();
+	imgOrg.release();*/
 	std::vector<std::string> strs;
 	char* s = (char*)(filepath.c_str());
 	boost::split(strs,s , boost::is_any_of(".\\"));
