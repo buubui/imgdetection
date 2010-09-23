@@ -5,8 +5,8 @@ BlockSize
 3
 3
 WindowSize
-70
-134
+64
+128
 MaxWindowSize
 500
 400

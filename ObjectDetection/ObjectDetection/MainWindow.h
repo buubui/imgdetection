@@ -8,6 +8,7 @@ using namespace System::Data;
 using namespace System::Drawing;
 #include <msclr\marshal_cppstd.h>
 #include "detection.h"
+#include <time.h>
 
 namespace ObjectDetection {
 
@@ -75,6 +76,7 @@ namespace ObjectDetection {
 	private: System::Windows::Forms::TextBox^  txtMinB;
 	private: System::Windows::Forms::TextBox^  txtRadius;
 	private: System::Windows::Forms::TextBox^  txtMinCSize;
+	private: System::Windows::Forms::CheckBox^  cbMergeRect;
 
 
 
@@ -112,6 +114,7 @@ namespace ObjectDetection {
 			this->txtMinB = (gcnew System::Windows::Forms::TextBox());
 			this->txtRadius = (gcnew System::Windows::Forms::TextBox());
 			this->txtMinCSize = (gcnew System::Windows::Forms::TextBox());
+			this->cbMergeRect = (gcnew System::Windows::Forms::CheckBox());
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->imgBox1))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->imgBox2))->BeginInit();
 			this->tableLayoutPanel1->SuspendLayout();
@@ -252,7 +255,7 @@ namespace ObjectDetection {
 			// label3
 			// 
 			this->label3->AutoSize = true;
-			this->label3->Location = System::Drawing::Point(193, 13);
+			this->label3->Location = System::Drawing::Point(137, 13);
 			this->label3->Name = L"label3";
 			this->label3->Size = System::Drawing::Size(55, 13);
 			this->label3->TabIndex = 11;
@@ -262,7 +265,7 @@ namespace ObjectDetection {
 			// 
 			this->label4->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Right));
 			this->label4->AutoSize = true;
-			this->label4->Location = System::Drawing::Point(328, 13);
+			this->label4->Location = System::Drawing::Point(354, 13);
 			this->label4->Name = L"label4";
 			this->label4->Size = System::Drawing::Size(102, 13);
 			this->label4->TabIndex = 13;
@@ -270,7 +273,7 @@ namespace ObjectDetection {
 			// 
 			// txtMinB
 			// 
-			this->txtMinB->Location = System::Drawing::Point(257, 10);
+			this->txtMinB->Location = System::Drawing::Point(201, 10);
 			this->txtMinB->Name = L"txtMinB";
 			this->txtMinB->Size = System::Drawing::Size(42, 20);
 			this->txtMinB->TabIndex = 14;
@@ -279,7 +282,7 @@ namespace ObjectDetection {
 			// txtRadius
 			// 
 			this->txtRadius->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Right));
-			this->txtRadius->Location = System::Drawing::Point(436, 10);
+			this->txtRadius->Location = System::Drawing::Point(462, 10);
 			this->txtRadius->Name = L"txtRadius";
 			this->txtRadius->Size = System::Drawing::Size(42, 20);
 			this->txtRadius->TabIndex = 15;
@@ -294,11 +297,26 @@ namespace ObjectDetection {
 			this->txtMinCSize->TabIndex = 16;
 			this->txtMinCSize->Text = L"2";
 			// 
+			// cbMergeRect
+			// 
+			this->cbMergeRect->Anchor = System::Windows::Forms::AnchorStyles::Top;
+			this->cbMergeRect->AutoSize = true;
+			this->cbMergeRect->Checked = true;
+			this->cbMergeRect->CheckState = System::Windows::Forms::CheckState::Checked;
+			this->cbMergeRect->Location = System::Drawing::Point(274, 11);
+			this->cbMergeRect->Name = L"cbMergeRect";
+			this->cbMergeRect->Size = System::Drawing::Size(77, 17);
+			this->cbMergeRect->TabIndex = 17;
+			this->cbMergeRect->Text = L"Merge rect";
+			this->cbMergeRect->UseVisualStyleBackColor = true;
+			this->cbMergeRect->CheckedChanged += gcnew System::EventHandler(this, &MainWindow::cbMergeRect_CheckedChanged);
+			// 
 			// MainWindow
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->ClientSize = System::Drawing::Size(646, 403);
+			this->Controls->Add(this->cbMergeRect);
 			this->Controls->Add(this->txtMinCSize);
 			this->Controls->Add(this->txtRadius);
 			this->Controls->Add(this->txtMinB);
@@ -373,10 +391,12 @@ private: System::Void cbBox1_SelectedIndexChanged(System::Object^  sender, Syste
 			 }
 			 System::IO::FileStream^ fs = gcnew System::IO::FileStream(imgpath, 
 				 IO::FileMode::Open, IO::FileAccess::Read);
+				delete imgBox1->Image;
 				 imgBox1->Image = System::Drawing::Image::FromStream(fs);
 				 fs->Close();
 
 			// this->imgBox1->Image =Image::FromFile(imgpath);
+				 
 			 Image^ img = imgBox1->Image;
 			 if((double)img->Height*img->Width> (double)imgBox1->Width*imgBox1->Height)
 			 {
@@ -387,6 +407,7 @@ private: System::Void cbBox1_SelectedIndexChanged(System::Object^  sender, Syste
 private: System::Void MainWindow_Load(System::Object^  sender, System::EventArgs^  e) {
 			 this->imgBox1->SizeMode=  System::Windows::Forms::PictureBoxSizeMode::CenterImage;
 			 this->imgBox2->SizeMode=  System::Windows::Forms::PictureBoxSizeMode::CenterImage;
+			 mergeRect = cbMergeRect->Checked;
 		 }
 private: System::Void cbBox2_SelectedIndexChanged(System::Object^  sender, System::EventArgs^  e) {
 			 int selected=cbBox2->SelectedIndex;
@@ -398,6 +419,7 @@ private: System::Void cbBox2_SelectedIndexChanged(System::Object^  sender, Syste
 			 }
 			 System::IO::FileStream^ fs = gcnew System::IO::FileStream(imgpath, 
 				 IO::FileMode::Open, IO::FileAccess::Read);
+			 delete imgBox2->Image;
 				 imgBox2->Image = System::Drawing::Image::FromStream(fs);
 				 fs->Close();
 
@@ -410,6 +432,8 @@ private: System::Void cbBox2_SelectedIndexChanged(System::Object^  sender, Syste
 				 this->imgBox2->SizeMode=  System::Windows::Forms::PictureBoxSizeMode::CenterImage;
 		 }
 private: System::Void btnDetect_Click(System::Object^  sender, System::EventArgs^  e) {
+			 clock_t t1,t2;
+			 t1 = clock();
 			 std::string path=msclr::interop::marshal_as<std::string>(fpath->ToString());
 			 std::string name=msclr::interop::marshal_as<std::string>(fname->ToString());
 			 std::string ext=msclr::interop::marshal_as<std::string>(fext->ToString());
@@ -417,11 +441,13 @@ private: System::Void btnDetect_Click(System::Object^  sender, System::EventArgs
 			 float minV = atof(msclr::interop::marshal_as<std::string>(txtMinB->Text).c_str());
 			 float radius= atof(msclr::interop::marshal_as<std::string>(txtRadius->Text).c_str());
 			 int minCsize= atoi(msclr::interop::marshal_as<std::string>(txtMinCSize->Text).c_str());
-			 detection(path,name,ext,scaleStep,minV,radius,minCsize,false);	
+			 detection(path,name,ext,scaleStep,minV,radius,minCsize,false,mergeRect);	
 			 cbBox1->SelectedIndex=1;
 			 cbBox2->SelectedIndex=2;
 			cbBox1_SelectedIndexChanged(sender,e);
 			 cbBox2_SelectedIndexChanged(sender,e);
+			 t2 = clock();
+			 printf("Running time: %f",(float)(t2-t1)/(60*CLOCKS_PER_SEC));
 			// MessageBox::Show("Detection is finished!");
 
 		 }
@@ -443,11 +469,15 @@ private: System::Void btnRefresh_Click(System::Object^  sender, System::EventArg
 			 float radius= atof(msclr::interop::marshal_as<std::string>(txtRadius->Text).c_str());
 			 int minCsize= atoi(msclr::interop::marshal_as<std::string>(txtMinCSize->Text).c_str());
 			 printf("%f %f %f %d",scaleStep,minV,radius,minCsize);
-			 detection(path,name,ext,scaleStep,minV,radius,minCsize,true);	
+			 detection(path,name,ext,scaleStep,minV,radius,minCsize,true,mergeRect);	
 			 cbBox1->SelectedIndex=1;
 			 cbBox2->SelectedIndex=2;
 			 cbBox1_SelectedIndexChanged(sender,e);
 			 cbBox2_SelectedIndexChanged(sender,e);
+		 }
+		 private: bool mergeRect;
+private: System::Void cbMergeRect_CheckedChanged(System::Object^  sender, System::EventArgs^  e) {
+			 mergeRect=cbMergeRect->Checked;
 		 }
 };
 }

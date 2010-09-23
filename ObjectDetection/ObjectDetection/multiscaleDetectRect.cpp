@@ -87,7 +87,8 @@ void multiscale(Mat img,float step )
 				}
 
 			//	delete h_w;
-				his->release();
+			//	his->release();
+				delete his;
 
 
 				//		imFils[0].release();
@@ -97,7 +98,8 @@ void multiscale(Mat img,float step )
 					for (int jj=0;jj<his_wnd.cols;jj++)
 					{
 						HIS* hh=his_wnd.at<HIS*>(ii,jj);
-						hh->release();
+					//	hh->release();
+						delete hh;
 					}
 				}
 				his_wnd.release();
@@ -136,7 +138,7 @@ Mat multiscaleExp(string filepath,float step )
 	
 	double maxSz=maxWndSz.width*maxWndSz.height;
 	double minSz = wndSize.width*wndSize.height;
-	resizeImg(img,maxSz,minSz);
+	Rect realRect=resizeImg(img,maxSz,minSz,true);
 	/*
 	//double t=(double)imgOrg.rows*imgOrg.cols;
 	float resizeScale=t>maxSz?sqrt(maxSz/t):1.;
@@ -179,6 +181,7 @@ Mat multiscaleExp(string filepath,float step )
 	addStep.width=cellSize.width*1.;
 	addStep.height=cellSize.height*1.;
 	float divStep =sqrt(((maxSz)/(img.rows*img.cols)));
+	divStep=divStep<1?1:divStep;
 //	divStep=divStep<1.?1:divStep;
 	addStep.width =round(addStep.width /divStep);
 	addStep.height =round(addStep.height /divStep);
@@ -186,10 +189,12 @@ Mat multiscaleExp(string filepath,float step )
 	if(addStep.height<1) addStep.height=1;
 	printf("addstep %d divstep %f\n",addStep.width,divStep);
 	ofstream outtmp;
-	for (int h=tmp.height*cellSize.height/2;h<img.rows-wndSize.height/2;h+=addStep.height)
+	//for (int h=tmp.height*cellSize.height/2;h<img.rows-wndSize.height/2;h+=addStep.height)
+	for (int h=realRect.y;h<=realRect.y+realRect.height;h+=addStep.height)
 	{
 		
-		for (int w=tmp.width*cellSize.width/2;w<img.cols-wndSize.width/2;w+=addStep.width)
+	//	for (int w=tmp.width*cellSize.width/2;w<img.cols-wndSize.width/2;w+=addStep.width)
+		for (int w=realRect.x;w<realRect.x+realRect.width;w+=addStep.width)
 		{
 			startP.x= w;
 			startP.y = h;
@@ -236,7 +241,8 @@ Mat multiscaleExp(string filepath,float step )
 			//	}
 				Mat R = (*his)* (*weight ) - b;
 				double v = R.at<double>(0,0);
-				his->release();
+			//	his->release();
+				
 				R.release();
 			//	v>0.068
 				if(v>0.){
@@ -338,17 +344,19 @@ Rect getRect(int x,int y, float scale)
 	return result;
 
 }
-void drawRect2Img(Mat & img, string rectFile,float minValue)
+void drawRect2Img(Mat & img, string rectFile,float minValue,Rect realRect,bool isMeanshift)
 {
 	ifstream ffile;
 	ffile.open (rectFile.c_str());
 	string tmp;
-
-
+	Rect rects[1000];
+	int n_rect=0;
 	if (ffile.is_open())
 	{
+		
 		while (! ffile.eof() )
 		{
+			
 			getline (ffile,tmp);
 			std::vector<std::string> strs;
 			char* s = (char*)(tmp.c_str());
@@ -359,12 +367,110 @@ void drawRect2Img(Mat & img, string rectFile,float minValue)
 			if(atof(strs[3].c_str())<minValue)
 				continue;
 			Rect r=getRect((int)atof(strs[0].c_str()),(int)atof(strs[1].c_str()),exp(atof(strs[2].c_str())));
-			printf("%d %d %d %d\n",r.x,r.y,r.width,r.height);
-			rectangle(img,r,Scalar(0,256,0),2);
+			if(r.x<realRect.x){
+				int t = realRect.x-r.x;
+				r.x=realRect.x;
+				r.width -=t;
+			}
+			if(r.x+r.width>realRect.x+realRect.width)
+			{
+				if(r.x>realRect.x+realRect.width)
+				{
+					int tt=r.x-realRect.x+realRect.width;
+					r.x=realRect.x+realRect.width;
+					r.width-=tt;
+				}
+				int t =r.x+r.width- realRect.x-realRect.width;
+			//	r.x=realRect.x+realRect.width;
+				r.width -=t;
+			}
+			if(r.y<realRect.y)
+			{
+				int t = realRect.y-r.y;
+				r.y=realRect.y;
+				r.height -=t;
+			}
+			if(r.y+r.height>realRect.y+realRect.height)
+			{
+				if(r.y>realRect.y+realRect.height)
+				{
+					int tt=r.y-realRect.y+realRect.height;
+					r.y=realRect.y+realRect.height;
+					r.height-=tt;
+				}
+				int t =r.y+r.height- realRect.y-realRect.height;
+				//	r.x=realRect.x+realRect.width;
+				r.height -=t;
+			}
+			if(isMeanshift)
+				rects[n_rect++]=r;
+		//	printf("%d %d %d %d\n",r.x,r.y,r.width,r.height);
+			if(!isMeanshift)
+				rectangle(img,r,Scalar(0,256,0),2);
+
 		}
 		ffile.close();
 	}else
 		printf("Cannot open file %s\n",rectFile.c_str());
-	
+	if(!isMeanshift)
+		return;
+	for (int i=0;i<n_rect-1;i++)
+	{
+		for (int j=i+1;j<n_rect;j++)
+		{
+			int maxX1= rects[i].x>rects[j].x?rects[i].x:rects[j].x;
+			int maxY1= rects[i].y>rects[j].y?rects[i].y:rects[j].y;
 
+			int minX1= rects[i].x<rects[j].x?rects[i].x:rects[j].x;
+			int minY1= rects[i].y<rects[j].y?rects[i].y:rects[j].y;
+			Point p1=Point(maxX1,maxY1);
+			if(!rects[i].contains(p1)|| !rects[j].contains(p1))
+				continue;
+			int minX2= rects[i].x+rects[i].width<rects[j].x+rects[j].width?rects[i].x+rects[i].width:rects[j].x+rects[j].width;
+			int minY2= rects[i].y+rects[i].height<rects[j].y+rects[j].height?rects[i].y+rects[i].height:rects[j].y+rects[j].height;
+
+			int maxX2= rects[i].x+rects[i].width>rects[j].x+rects[j].width?rects[i].x+rects[i].width:rects[j].x+rects[j].width;
+			int maxY2= rects[i].y+rects[i].height>rects[j].y+rects[j].height?rects[i].y+rects[i].height:rects[j].y+rects[j].height;
+			Point p2(minX2,minY2);
+
+			Rect cutR(p1,p2);
+			Rect* minR = rects[i].area()<rects[j].area()?&rects[i]:&rects[j];
+			Rect* maxR;
+			if(minR==&rects[i])
+				maxR=&rects[j];
+			else maxR=&rects[i];
+			double r1 =(double)cutR.area()/minR->area();
+//			double r2 =(double)cutR.area()/rects[i].area();
+			if(r1>0.85)
+			{
+				*minR=Rect(0,0,0,0);
+				*maxR=Rect(Point(minX1,minY1),Point(maxX2,maxY2));
+			}/*else if(r2>0.85)
+			{
+				rects[i]=Rect(0,0,0,0);
+				rects[j]=Rect(Point(minX1,minY1),Point(maxX2,maxY2));
+				break;
+			}*/
+			else{
+				Point m1(maxR->x+maxR->width/2,maxR->y+maxR->height/2);
+				Point m2(minR->x+minR->width/2,minR->y+minR->height/2);
+				int dx =abs( m1.x-m2.x);
+				int dy=abs(m1.y=m2.y);
+				
+				float a =180.0* atan(1.*dx/dy)/M_PI;
+
+				if(a<13&&r1>0.15){
+					*minR=Rect(0,0,0,0);
+					*maxR=Rect(Point(minX1,minY1),Point(maxX2,maxY2));
+					printf("ATAN %d %d %f\n",dx,dy,a);
+				}
+			}
+
+		}
+	}
+	for (int i=0;i<n_rect;i++)
+	{
+		rectangle(img,rects[i],Scalar(0,256,0),2);
+	
+	}
 }
