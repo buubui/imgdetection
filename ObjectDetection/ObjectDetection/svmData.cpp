@@ -225,8 +225,11 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 					//	for (int t=0;;t++)
 					//	{
 
-					if( (cellSz.width*tmp.width>img.cols - slideWnd.x) || (cellSz.height*tmp.height>img.rows - slideWnd.y) )
+					if( (cellSz.width*tmp.width>img.cols - slideWnd.x) || (cellSz.height*tmp.height>img.rows - slideWnd.y) 
+					||	max(cellSz.width*tmp.width,cellSz.height*tmp.height)>0.75*max(img.cols,img.rows ) 
+						)
 					{
+						
 						//	printf("SAI %d %d. %s (%d,%d, %d, %d)\n",j,i+1,filename.c_str(),slideWnd.x,slideWnd.y,slideWnd.width,slideWnd.height);
 						cellSz = cellSize;
 						wndSz = wndSize;
@@ -255,7 +258,7 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 							slideWnd.x=0;
 							slideWnd.y=0;
 						}
-						rand();
+						float r=rand();
 					}
 					cellSz = cellSize;
 					wndSz = wndSize;
@@ -264,7 +267,8 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 					j++;
 					continueScale = false;
 				}
-				printf("%d %d. %s (%d,%d, %d, %d)\n",j,i+1,filename.c_str(),slideWnd.x,slideWnd.y,slideWnd.width,slideWnd.height);
+				if((i+1)%300==0)
+					printf("%d %d. %s (%d,%d, %d, %d)\n",j,i+1,filename.c_str(),slideWnd.x,slideWnd.y,slideWnd.width,slideWnd.height);
 				Mat img_slideWnd=img(slideWnd);
 				//	imshow(filename,img);
 				//		Mat* imFils = imFilter(img_slideWnd);
@@ -304,7 +308,7 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 			G.release();
 			imFils[0].release();
 			imFils[1].release();
-
+			
 
 		}
 		myfile.close();
