@@ -49,7 +49,19 @@ void takefalseImg(string ffile)
 int main(array<System::String ^> ^args)
 {
 	loadConfig();
-//	svmGenerateData2("input/testPos.txt","input/testNeg.txt",1,3);
+ /************************************************************************/
+ /*                  Generating data for SVM                             */
+ /************************************************************************/
+	//clock_t t1,t2;
+	//t1 = clock();	
+	//svmGenerateData2("input/trainPos2.txt","input/trainNeg.txt",1,15);
+	//t2 = clock();
+	//printf("Running time: %f (mins)\n",(float)(t2-t1)/(60*CLOCKS_PER_SEC));
+	
+/************************************************************************/
+/*                         Load  GUI                                    */
+/************************************************************************/
+
 	// Enabling Windows XP visual effects before any controls are created
 	Application::EnableVisualStyles();
 	Application::SetCompatibleTextRenderingDefault(false); 

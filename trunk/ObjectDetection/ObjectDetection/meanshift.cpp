@@ -95,7 +95,8 @@ void		meanShift( double data[], int p, int n, double radius, double rate,
 								  }
 							  }
 			//				  mexPrintf( "\b\b\b\b\b\b\b\b%f", (float)(iter+1)/maxIter ); mexEvalString("drawnow;");
-							  memcpy( meansCur, meansNxt, p*n*sizeof(double) ); if(!delta) break;
+							  memcpy( meansCur, meansNxt, p*n*sizeof(double) ); 
+							  if(!delta) break;
 						  }
 			//			  mexPrintf( "\n" );
 

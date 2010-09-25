@@ -207,7 +207,7 @@ namespace ObjectDetection {
 			// 
 			this->cbBox1->Dock = System::Windows::Forms::DockStyle::Fill;
 			this->cbBox1->FormattingEnabled = true;
-			this->cbBox1->Items->AddRange(gcnew cli::array< System::Object^  >(3) {L"Origin Image", L"Detected Image", L"Detected & Mean-shifted image"});
+			this->cbBox1->Items->AddRange(gcnew cli::array< System::Object^  >(3) {L"Original Image", L"Detected Image", L"Detected & Mean-shifted image"});
 			this->cbBox1->Location = System::Drawing::Point(3, 3);
 			this->cbBox1->Name = L"cbBox1";
 			this->cbBox1->Size = System::Drawing::Size(311, 21);
@@ -218,7 +218,7 @@ namespace ObjectDetection {
 			// 
 			this->cbBox2->Dock = System::Windows::Forms::DockStyle::Fill;
 			this->cbBox2->FormattingEnabled = true;
-			this->cbBox2->Items->AddRange(gcnew cli::array< System::Object^  >(3) {L"Origin Image", L"Detected Image", L"Detected & Mean-shifted image"});
+			this->cbBox2->Items->AddRange(gcnew cli::array< System::Object^  >(3) {L"Original Image", L"Detected Image", L"Detected & Mean-shifted image"});
 			this->cbBox2->Location = System::Drawing::Point(320, 3);
 			this->cbBox2->Name = L"cbBox2";
 			this->cbBox2->Size = System::Drawing::Size(311, 21);

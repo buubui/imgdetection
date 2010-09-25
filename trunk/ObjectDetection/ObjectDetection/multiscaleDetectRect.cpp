@@ -147,8 +147,14 @@ Mat multiscaleExp(string filepath,float step )
 	imgOrg.release();*/
 	std::vector<std::string> strs;
 	char* s = (char*)(filepath.c_str());
-	boost::split(strs,s , boost::is_any_of(".\\"));
-	string filename ="output/"+ strs[strs.size()-2]+"_multiscale.txt";
+	boost::split(strs,s , boost::is_any_of("/\\"));
+
+	string fname = strs[strs.size()-1];
+	int dot=fname.rfind('.',fname.size()-1);
+
+	fname=fname.substr(0,dot);
+	cout<<"FILENAME:"<<fname<<endl;
+	string filename ="output/"+ fname+"_multiscale.txt";
 	
 	stringstream outstr;
 	
@@ -416,8 +422,12 @@ void drawRect2Img(Mat & img, string rectFile,float minValue,Rect realRect,bool i
 		return;
 	for (int i=0;i<n_rect-1;i++)
 	{
+		if(rects[i].width==0)
+			continue;
 		for (int j=i+1;j<n_rect;j++)
 		{
+			if(rects[j].width==0)
+				continue;
 			int maxX1= rects[i].x>rects[j].x?rects[i].x:rects[j].x;
 			int maxY1= rects[i].y>rects[j].y?rects[i].y:rects[j].y;
 
@@ -441,10 +451,12 @@ void drawRect2Img(Mat & img, string rectFile,float minValue,Rect realRect,bool i
 			else maxR=&rects[i];
 			double r1 =(double)cutR.area()/minR->area();
 //			double r2 =(double)cutR.area()/rects[i].area();
-			if(r1>0.85)
+			if(r1>0.8)
 			{
-				*minR=Rect(0,0,0,0);
-				*maxR=Rect(Point(minX1,minY1),Point(maxX2,maxY2));
+				rects[j]=Rect(0,0,0,0);
+				rects[i]=Rect(Point(minX1,minY1),Point(maxX2,maxY2));
+				j=i;
+				continue;
 			}/*else if(r2>0.85)
 			{
 				rects[i]=Rect(0,0,0,0);
@@ -462,7 +474,7 @@ void drawRect2Img(Mat & img, string rectFile,float minValue,Rect realRect,bool i
 				if(a<13&&r1>0.15){
 					*minR=Rect(0,0,0,0);
 					*maxR=Rect(Point(minX1,minY1),Point(maxX2,maxY2));
-					printf("ATAN %d %d %f\n",dx,dy,a);
+				//	printf("ATAN %d %d %f\n",dx,dy,a);
 				}
 			}
 
