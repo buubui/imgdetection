@@ -131,7 +131,7 @@ void multiscale(Mat img,float step )
 	imshow("result",result);
 }
 
-Mat multiscaleExp(string filepath,float step )
+Mat multiscaleExp(string filepath,float step,Size addStep)
 {
 	Mat img = imread(filepath);
 //	Mat img;
@@ -183,9 +183,9 @@ Mat multiscaleExp(string filepath,float step )
 	double max=0;
 	Mat img_slideWnd, his_wnd;
 	Mat* his=NULL;
-	Size addStep;//=Size(2,2);
-	addStep.width=cellSize.width*1.;
-	addStep.height=cellSize.height*1.;
+//	Size addStep;//=Size(2,2);
+//	addStep.width=cellSize.width*1.;
+//	addStep.height=cellSize.height*1.;
 	float divStep =sqrt(((maxSz)/(img.rows*img.cols)));
 	divStep=divStep<1?1:divStep;
 //	divStep=divStep<1.?1:divStep;
@@ -193,6 +193,9 @@ Mat multiscaleExp(string filepath,float step )
 	addStep.height =round(addStep.height /divStep);
 	if(addStep.width<1) addStep.width=1;
 	if(addStep.height<1) addStep.height=1;
+
+//	addStep=Size(1,1);
+
 	printf("addstep %d divstep %f\n",addStep.width,divStep);
 	ofstream outtmp;
 	//for (int h=tmp.height*cellSize.height/2;h<img.rows-wndSize.height/2;h+=addStep.height)

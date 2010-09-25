@@ -243,6 +243,8 @@ bool meanshiftFromFile(string fname,double minValue,double radius,int minCsize,d
 	out.close();
 	return true;
 }
+
+
 /* see meanShift.m for usage info */
 //void		mexFunction( int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[] ) {
 //	double radius, rate, *data, *labels, *means; int p, n, maxIter; bool blur;
@@ -275,3 +277,210 @@ bool meanshiftFromFile(string fname,double minValue,double radius,int minCsize,d
 //	int t = (int)p;
 //	arr.Add(t);
 //};
+
+Mat powDiagMat(Mat m ,double p)
+{
+	Mat ret = m.clone();
+	for (int i=0;i<m.rows;i++)
+	{
+		ret.at<double>(i,i)= pow(ret.at<double>(i,i),p);
+	}
+	return ret;
+}
+double tw(double w, double c){
+	double ret = w>=c?w-c:0;
+	return ret;
+}
+double mahalanobis(Mat y, Mat yi,Mat H){
+	Mat ret(1,1,CV_64F);
+	ret=(y-yi).t()*powDiagMat(H,-1)*(y-yi);
+	return ret.at<double>(0,0);
+}
+double wi(int i,Mat y,Mat* data,int n,Mat* Hs,double c){
+	double detH= determinant(Hs[i]);
+	double m =0;
+	for (int t=0;t<n;t++)
+	{
+		m += pow(determinant(Hs[i]),-0.5) * tw(data[i].at<double>(3,0),c) *exp(- mahalanobis(y(Rect(0,0,1,3)),data[i](Rect(0,0,1,3)),Hs[i])/2 );
+	}
+	double t=pow(determinant(Hs[i]),-0.5) * tw(data[i].at<double>(3,0),c) * exp(- mahalanobis(y(Rect(0,0,1,3)),data[i](Rect(0,0,1,3)),Hs[i])/2);
+	return t/m;
+}
+Mat HhInv(Mat y, Mat* data,Mat*Hs,int n, double c ){
+	Mat r= Mat::zeros(3,3,CV_64F);
+	for (int i=0;i<n;i++)
+	{
+		r+=  powDiagMat(Hs[i],-1) *wi(i,y,data,n,Hs,c);
+	}
+	return r;
+}
+void	newMeanShift( Mat* data, int p, int n,int sigma_x,int sigma_y,double sigma_s,
+					  int maxIter ,double c) 
+{
+	/*Mat* data= new Mat(4,1,CV_64F);
+	for (int i=0;i<n;i++)
+	{
+		for (int j=0;j<4;j++)
+		{
+			data[i].at<double>(j,0) = _data[i*p+j];
+		}
+	}
+	*/
+		
+
+	Mat* Hs = new Mat[n];
+	for (int i=0;i<n;i++)
+	{
+		Hs[i]=Mat::zeros(3,3,CV_64F);
+		Hs[i].at<double>(0,0) = pow(exp(data[i].at<double>(2,0))* sigma_x,2);
+		Hs[i].at<double>(1,1) =pow(exp(data[i].at<double>(2,0))* sigma_y,2);
+		Hs[i].at<double>(2,2) = sigma_s*sigma_s;
+
+	}
+	for(int t=0;t<maxIter;t++)
+		for (int m=0;m<n;m++)
+		{
+			Mat ym=Mat::zeros(3,1,CV_64F);
+			for (int i=0;i<n;i++)
+			{
+				ym +=wi(i,data[m],data,n,Hs,c)* powDiagMat(Hs[i],-1)*data[i](Rect(0,0,1,3));
+			}
+			ym= powDiagMat(HhInv(data[m],data,Hs,n,c),-1) * ym;
+		//	data[m]=ym;
+			ym.copyTo(data[m](Rect(0,0,1,3)));
+		//	Mat d = cv::dis
+			
+		}
+		
+
+}
+
+void	newMeanShift2( Mat* data,int  p, int n, Mat*& means, int& n_mean,double c ) 
+{
+	double label[5];
+//	double m[4000];
+	Mat* tmp= new Mat[n];
+	for (int i=0;i<n;i++)
+	{
+		tmp[i]= Mat::zeros(p+1,1,CV_64F);
+	}
+	
+	newMeanShift(data,p,n,8,16,log(1.3),10,c);
+
+	n_mean=0;
+	//	for (int i=0;i<p;i++)
+	//	{
+	//		currP[i]=0.;
+	//	}
+	//	int currN=0;
+	bool founded=false;
+	for (int i=0;i<n;i++)
+	{
+		founded=false;
+		for (int j=0;j<n_mean;j++)
+		{
+			double t1=tmp[j].at<double>(0,0)-round(data[i].at<double>(0,0));
+			double t2=tmp[j].at<double>(1,0)-round(data[i].at<double>(1,0));
+			if(-(c-1)<=t1&& t1<=(c-1) && -(c-1)<= t2&& t2<=(c-1))
+			{
+				for (int k=2;k<p;k++)
+				{
+					tmp[j].at<double>(k,0) +=data[i].at<double>(k,0);
+				}
+				tmp[j].at<double>(p,0)++;
+				founded=true;
+				break;
+			}
+
+		}
+		if(founded==false)
+		{
+			tmp[n_mean].at<double>(0,0) =round(data[i].at<double>(0,0));
+			tmp[n_mean].at<double>(1,0) =round(data[i].at<double>(1,0));
+			for (int k=2;k<p;k++)
+			{
+				tmp[n_mean].at<double>(k,0) =data[i].at<double>(k,0);
+			}
+			tmp[n_mean].at<double>(p,0) =1;
+			n_mean++;
+		}
+
+	}
+
+	means=new Mat[n_mean];
+	for (int i=0;i<n_mean;i++)
+	{
+		means[i]=tmp[i].clone();
+	//	means[i*(p+1)+0]=tmp[i*(p+1)+0];
+	//	means[i*(p+1)+1]=tmp[i*(p+1)+1];
+		for (int j=2;j<p;j++)
+		{
+			means[i].at<double>(j,0)=means[i].at<double>(j,0)/means[i].at<double>(p,0);
+		}
+	//	means[i*(p+1)+p]=tmp[i*(p+1)+p];
+
+	}
+
+};
+bool newMeanshiftFromFile(string fname,double c ,int minCsize,Mat* &means,int& n_mean ,int& p_mean)
+{
+	ifstream in;
+
+	in.open(fname.c_str());
+	if(!in.is_open())
+		return false;
+	string tmp;
+	int p=0,n=0;
+	Mat data[4000];
+	while(1){
+		getline (in,tmp);
+		std::vector<std::string> strs;
+		char* s = (char*)(tmp.c_str());
+		boost::split(strs,s , boost::is_any_of(","));
+
+		if(p==0){
+			p=strs.size();
+			p_mean=p+1;
+		}
+		if (strs.size()<3||strs.size()<p)
+			break;
+		if(atof(strs[p-1].c_str())<c)
+			continue;
+		data[n]=Mat::zeros(p,1,CV_64F);
+		for (int i=0;i<p;i++)
+		{
+			data[n].at<double>(i,0) = atof(strs[i].c_str());
+		}
+		n++;
+
+	}
+	in.close();
+//	meanShift2(data,p,n,radius,means,n_mean);
+	newMeanShift2(data,p,n,means,n_mean,c);
+	ofstream out;
+	//	std::vector<std::string> strs1;
+	//	char* s1 = (char*)(fname.c_str());
+	//	boost::split(strs1,s1 , boost::is_ is_any_of("multiscale.txt"));
+	string outfname=fname;
+	boost::replace_last(outfname, "multiscale", "meanshift");
+	//	string outfname=strs1[0]+"_meanshift.txt";
+	cout<<outfname<<endl;
+	out.open(outfname.c_str());
+	if(out.is_open()){
+		for (int i=0;i<n_mean;i++)
+		{
+			if(means[i].at<double>(p_mean-1,0)<c)
+				continue;
+			for (int j=0;j<p_mean;j++)
+			{
+				out<<means[i].at<double>(j,0);
+				if(j<p_mean-1)
+					out<<", ";
+				else
+					out<<endl;
+			}
+		}
+	}
+	out.close();
+	return true;
+}

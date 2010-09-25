@@ -57,17 +57,24 @@ int main(array<System::String ^> ^args)
 	//svmGenerateData2("input/trainPos2.txt","input/trainNeg.txt",1,15);
 	//t2 = clock();
 	//printf("Running time: %f (mins)\n",(float)(t2-t1)/(60*CLOCKS_PER_SEC));
-	
+
+	/************************************************************************/
+	/*                      Test new mean shift                             */
+	/************************************************************************/
+	Mat* means;
+	int n_mean;
+	int p_mean;
+	newMeanshiftFromFile("output/crop001501b_multiscale_2.txt",1.2,1,means,n_mean,p_mean);
 /************************************************************************/
 /*                         Load  GUI                                    */
 /************************************************************************/
 
 	// Enabling Windows XP visual effects before any controls are created
-	Application::EnableVisualStyles();
-	Application::SetCompatibleTextRenderingDefault(false); 
+	//Application::EnableVisualStyles();
+	//Application::SetCompatibleTextRenderingDefault(false); 
 
-	// Create the main window and run it
-	Application::Run(gcnew MainWindow());
+	//// Create the main window and run it
+	//Application::Run(gcnew MainWindow());
 	return 0;
 }
 
