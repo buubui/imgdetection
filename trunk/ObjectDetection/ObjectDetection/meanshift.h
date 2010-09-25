@@ -28,3 +28,12 @@ struct M_Point{
 };
 //M_Point* getPoint(int i, ArrayList arr);
 //void addPoint(M_Point* p,ArrayList arr);
+Mat powDiagMat(Mat m ,double p);
+double tw(double w, double c);
+double wi(int i,Mat y,Mat* data,int n,Mat* Hs,double c);
+Mat HhInv(Mat y, Mat* data,Mat*Hs,int n, double c );
+void	newMeanShift( Mat* data, int p, int n,int sigma_x,int sigma_y,double sigma_s,
+					 int maxIter ,double c) ;
+void	newMeanShift2( Mat* data,int  p, int n, Mat*& means, int& n_mean,double c ) ;
+bool newMeanshiftFromFile(string fname,double c ,int minCsize,Mat* &means,int& n_mean ,int& p_mean);
+double mahalanobis(Mat y, Mat yi,Mat H);

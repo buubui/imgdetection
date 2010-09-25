@@ -9,4 +9,4 @@ WindowSize
 128
 MaxWindowSize
 500
-400
+500

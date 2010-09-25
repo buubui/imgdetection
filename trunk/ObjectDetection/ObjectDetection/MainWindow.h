@@ -77,6 +77,11 @@ namespace ObjectDetection {
 	private: System::Windows::Forms::TextBox^  txtRadius;
 	private: System::Windows::Forms::TextBox^  txtMinCSize;
 	private: System::Windows::Forms::CheckBox^  cbMergeRect;
+	private: System::Windows::Forms::TextBox^  txtAddStepW;
+
+	private: System::Windows::Forms::Label^  label5;
+	private: System::Windows::Forms::TextBox^  txtAddStepH;
+
 
 
 
@@ -115,6 +120,9 @@ namespace ObjectDetection {
 			this->txtRadius = (gcnew System::Windows::Forms::TextBox());
 			this->txtMinCSize = (gcnew System::Windows::Forms::TextBox());
 			this->cbMergeRect = (gcnew System::Windows::Forms::CheckBox());
+			this->txtAddStepW = (gcnew System::Windows::Forms::TextBox());
+			this->label5 = (gcnew System::Windows::Forms::Label());
+			this->txtAddStepH = (gcnew System::Windows::Forms::TextBox());
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->imgBox1))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->imgBox2))->BeginInit();
 			this->tableLayoutPanel1->SuspendLayout();
@@ -125,16 +133,16 @@ namespace ObjectDetection {
 			this->imgBox1->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
 			this->imgBox1->Cursor = System::Windows::Forms::Cursors::Cross;
 			this->imgBox1->Dock = System::Windows::Forms::DockStyle::Fill;
-			this->imgBox1->Location = System::Drawing::Point(3, 29);
+			this->imgBox1->Location = System::Drawing::Point(3, 30);
 			this->imgBox1->Name = L"imgBox1";
-			this->imgBox1->Size = System::Drawing::Size(311, 294);
+			this->imgBox1->Size = System::Drawing::Size(402, 304);
 			this->imgBox1->TabIndex = 0;
 			this->imgBox1->TabStop = false;
 			// 
 			// btnOpen
 			// 
 			this->btnOpen->Anchor = System::Windows::Forms::AnchorStyles::Bottom;
-			this->btnOpen->Location = System::Drawing::Point(200, 368);
+			this->btnOpen->Location = System::Drawing::Point(291, 379);
 			this->btnOpen->Name = L"btnOpen";
 			this->btnOpen->Size = System::Drawing::Size(75, 23);
 			this->btnOpen->TabIndex = 2;
@@ -145,7 +153,7 @@ namespace ObjectDetection {
 			// btnDetect
 			// 
 			this->btnDetect->Anchor = System::Windows::Forms::AnchorStyles::Bottom;
-			this->btnDetect->Location = System::Drawing::Point(281, 368);
+			this->btnDetect->Location = System::Drawing::Point(372, 379);
 			this->btnDetect->Name = L"btnDetect";
 			this->btnDetect->Size = System::Drawing::Size(75, 23);
 			this->btnDetect->TabIndex = 3;
@@ -156,7 +164,7 @@ namespace ObjectDetection {
 			// btnRefresh
 			// 
 			this->btnRefresh->Anchor = System::Windows::Forms::AnchorStyles::Bottom;
-			this->btnRefresh->Location = System::Drawing::Point(362, 368);
+			this->btnRefresh->Location = System::Drawing::Point(453, 379);
 			this->btnRefresh->Name = L"btnRefresh";
 			this->btnRefresh->Size = System::Drawing::Size(75, 23);
 			this->btnRefresh->TabIndex = 4;
@@ -169,9 +177,9 @@ namespace ObjectDetection {
 			this->imgBox2->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
 			this->imgBox2->Cursor = System::Windows::Forms::Cursors::Cross;
 			this->imgBox2->Dock = System::Windows::Forms::DockStyle::Fill;
-			this->imgBox2->Location = System::Drawing::Point(320, 29);
+			this->imgBox2->Location = System::Drawing::Point(411, 30);
 			this->imgBox2->Name = L"imgBox2";
-			this->imgBox2->Size = System::Drawing::Size(311, 294);
+			this->imgBox2->Size = System::Drawing::Size(403, 304);
 			this->imgBox2->TabIndex = 0;
 			this->imgBox2->TabStop = false;
 			// 
@@ -200,7 +208,7 @@ namespace ObjectDetection {
 			this->tableLayoutPanel1->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Percent, 91.94915F)));
 			this->tableLayoutPanel1->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Absolute, 20)));
 			this->tableLayoutPanel1->RowStyles->Add((gcnew System::Windows::Forms::RowStyle(System::Windows::Forms::SizeType::Absolute, 20)));
-			this->tableLayoutPanel1->Size = System::Drawing::Size(634, 326);
+			this->tableLayoutPanel1->Size = System::Drawing::Size(817, 337);
 			this->tableLayoutPanel1->TabIndex = 6;
 			// 
 			// cbBox1
@@ -210,7 +218,7 @@ namespace ObjectDetection {
 			this->cbBox1->Items->AddRange(gcnew cli::array< System::Object^  >(3) {L"Original Image", L"Detected Image", L"Detected & Mean-shifted image"});
 			this->cbBox1->Location = System::Drawing::Point(3, 3);
 			this->cbBox1->Name = L"cbBox1";
-			this->cbBox1->Size = System::Drawing::Size(311, 21);
+			this->cbBox1->Size = System::Drawing::Size(402, 21);
 			this->cbBox1->TabIndex = 1;
 			this->cbBox1->SelectedIndexChanged += gcnew System::EventHandler(this, &MainWindow::cbBox1_SelectedIndexChanged);
 			// 
@@ -219,9 +227,9 @@ namespace ObjectDetection {
 			this->cbBox2->Dock = System::Windows::Forms::DockStyle::Fill;
 			this->cbBox2->FormattingEnabled = true;
 			this->cbBox2->Items->AddRange(gcnew cli::array< System::Object^  >(3) {L"Original Image", L"Detected Image", L"Detected & Mean-shifted image"});
-			this->cbBox2->Location = System::Drawing::Point(320, 3);
+			this->cbBox2->Location = System::Drawing::Point(411, 3);
 			this->cbBox2->Name = L"cbBox2";
-			this->cbBox2->Size = System::Drawing::Size(311, 21);
+			this->cbBox2->Size = System::Drawing::Size(403, 21);
 			this->cbBox2->TabIndex = 2;
 			this->cbBox2->SelectedIndexChanged += gcnew System::EventHandler(this, &MainWindow::cbBox2_SelectedIndexChanged);
 			// 
@@ -246,7 +254,7 @@ namespace ObjectDetection {
 			// 
 			this->label2->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Right));
 			this->label2->AutoSize = true;
-			this->label2->Location = System::Drawing::Point(521, 15);
+			this->label2->Location = System::Drawing::Point(704, 15);
 			this->label2->Name = L"label2";
 			this->label2->Size = System::Drawing::Size(59, 13);
 			this->label2->TabIndex = 9;
@@ -255,7 +263,7 @@ namespace ObjectDetection {
 			// label3
 			// 
 			this->label3->AutoSize = true;
-			this->label3->Location = System::Drawing::Point(137, 13);
+			this->label3->Location = System::Drawing::Point(259, 13);
 			this->label3->Name = L"label3";
 			this->label3->Size = System::Drawing::Size(55, 13);
 			this->label3->TabIndex = 11;
@@ -265,7 +273,7 @@ namespace ObjectDetection {
 			// 
 			this->label4->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Right));
 			this->label4->AutoSize = true;
-			this->label4->Location = System::Drawing::Point(354, 13);
+			this->label4->Location = System::Drawing::Point(537, 13);
 			this->label4->Name = L"label4";
 			this->label4->Size = System::Drawing::Size(102, 13);
 			this->label4->TabIndex = 13;
@@ -273,7 +281,7 @@ namespace ObjectDetection {
 			// 
 			// txtMinB
 			// 
-			this->txtMinB->Location = System::Drawing::Point(201, 10);
+			this->txtMinB->Location = System::Drawing::Point(320, 10);
 			this->txtMinB->Name = L"txtMinB";
 			this->txtMinB->Size = System::Drawing::Size(42, 20);
 			this->txtMinB->TabIndex = 14;
@@ -282,7 +290,7 @@ namespace ObjectDetection {
 			// txtRadius
 			// 
 			this->txtRadius->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Right));
-			this->txtRadius->Location = System::Drawing::Point(462, 10);
+			this->txtRadius->Location = System::Drawing::Point(645, 10);
 			this->txtRadius->Name = L"txtRadius";
 			this->txtRadius->Size = System::Drawing::Size(42, 20);
 			this->txtRadius->TabIndex = 15;
@@ -291,7 +299,7 @@ namespace ObjectDetection {
 			// txtMinCSize
 			// 
 			this->txtMinCSize->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Top | System::Windows::Forms::AnchorStyles::Right));
-			this->txtMinCSize->Location = System::Drawing::Point(586, 10);
+			this->txtMinCSize->Location = System::Drawing::Point(769, 10);
 			this->txtMinCSize->Name = L"txtMinCSize";
 			this->txtMinCSize->Size = System::Drawing::Size(48, 20);
 			this->txtMinCSize->TabIndex = 16;
@@ -303,7 +311,7 @@ namespace ObjectDetection {
 			this->cbMergeRect->AutoSize = true;
 			this->cbMergeRect->Checked = true;
 			this->cbMergeRect->CheckState = System::Windows::Forms::CheckState::Checked;
-			this->cbMergeRect->Location = System::Drawing::Point(274, 11);
+			this->cbMergeRect->Location = System::Drawing::Point(365, 11);
 			this->cbMergeRect->Name = L"cbMergeRect";
 			this->cbMergeRect->Size = System::Drawing::Size(77, 17);
 			this->cbMergeRect->TabIndex = 17;
@@ -311,11 +319,39 @@ namespace ObjectDetection {
 			this->cbMergeRect->UseVisualStyleBackColor = true;
 			this->cbMergeRect->CheckedChanged += gcnew System::EventHandler(this, &MainWindow::cbMergeRect_CheckedChanged);
 			// 
+			// txtAddStepW
+			// 
+			this->txtAddStepW->Location = System::Drawing::Point(188, 10);
+			this->txtAddStepW->Name = L"txtAddStepW";
+			this->txtAddStepW->Size = System::Drawing::Size(20, 20);
+			this->txtAddStepW->TabIndex = 19;
+			this->txtAddStepW->Text = L"8";
+			// 
+			// label5
+			// 
+			this->label5->AutoSize = true;
+			this->label5->Location = System::Drawing::Point(133, 13);
+			this->label5->Name = L"label5";
+			this->label5->Size = System::Drawing::Size(49, 13);
+			this->label5->TabIndex = 18;
+			this->label5->Text = L"Add step";
+			// 
+			// txtAddStepH
+			// 
+			this->txtAddStepH->Location = System::Drawing::Point(210, 10);
+			this->txtAddStepH->Name = L"txtAddStepH";
+			this->txtAddStepH->Size = System::Drawing::Size(20, 20);
+			this->txtAddStepH->TabIndex = 20;
+			this->txtAddStepH->Text = L"8";
+			// 
 			// MainWindow
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			this->ClientSize = System::Drawing::Size(646, 403);
+			this->ClientSize = System::Drawing::Size(829, 414);
+			this->Controls->Add(this->txtAddStepH);
+			this->Controls->Add(this->txtAddStepW);
+			this->Controls->Add(this->label5);
 			this->Controls->Add(this->cbMergeRect);
 			this->Controls->Add(this->txtMinCSize);
 			this->Controls->Add(this->txtRadius);
@@ -441,7 +477,11 @@ private: System::Void btnDetect_Click(System::Object^  sender, System::EventArgs
 			 float minV = atof(msclr::interop::marshal_as<std::string>(txtMinB->Text).c_str());
 			 float radius= atof(msclr::interop::marshal_as<std::string>(txtRadius->Text).c_str());
 			 int minCsize= atoi(msclr::interop::marshal_as<std::string>(txtMinCSize->Text).c_str());
-			 detection(path,name,ext,scaleStep,minV,radius,minCsize,false,mergeRect);	
+			 
+			 int addStepW= atoi(msclr::interop::marshal_as<std::string>(txtAddStepW->Text).c_str());
+			 int addStepH= atoi(msclr::interop::marshal_as<std::string>(txtAddStepH->Text).c_str());
+
+			 detection(path,name,ext,scaleStep,cv::Size(addStepW,addStepH),minV,radius,minCsize,false,mergeRect);	
 			 cbBox1->SelectedIndex=1;
 			 cbBox2->SelectedIndex=2;
 			cbBox1_SelectedIndexChanged(sender,e);
@@ -469,7 +509,10 @@ private: System::Void btnRefresh_Click(System::Object^  sender, System::EventArg
 			 float radius= atof(msclr::interop::marshal_as<std::string>(txtRadius->Text).c_str());
 			 int minCsize= atoi(msclr::interop::marshal_as<std::string>(txtMinCSize->Text).c_str());
 			 printf("%f %f %f %d",scaleStep,minV,radius,minCsize);
-			 detection(path,name,ext,scaleStep,minV,radius,minCsize,true,mergeRect);	
+			 int addStepW= atoi(msclr::interop::marshal_as<std::string>(txtAddStepW->Text).c_str());
+			 int addStepH= atoi(msclr::interop::marshal_as<std::string>(txtAddStepH->Text).c_str());
+
+			 detection(path,name,ext,scaleStep,cv::Size(addStepW,addStepH),minV,radius,minCsize,false,mergeRect);	
 			 cbBox1->SelectedIndex=1;
 			 cbBox2->SelectedIndex=2;
 			 cbBox1_SelectedIndexChanged(sender,e);
