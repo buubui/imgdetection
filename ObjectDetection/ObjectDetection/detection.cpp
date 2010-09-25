@@ -30,15 +30,17 @@ bool detection(string path,string fname, string ext,float scaleStep,Size addStep
 		multiscale.release();
 		
 		int n_mean,p_mean;
-		double*means;
-		meanshiftFromFile("output/"+fname+"_multiscale.txt",minB,radius,minCsize,means,n_mean,p_mean);
+	//	double*means;
+	//	meanshiftFromFile("output/"+fname+"_multiscale.txt",minB,radius,minCsize,means,n_mean,p_mean);
+		Mat* means;
+		newMeanshiftFromFile("output/"+fname+"_multiscale.txt",0.,1,means,n_mean,p_mean);
 		
-		for (int i=0;i<n_mean*p_mean;i++)
+	/*	for (int i=0;i<n_mean*p_mean;i++)
 		{
 			cout<<means[i]<<", ";
 			if(i>0&&i%p_mean==p_mean-1)
 				cout<<endl;
-		}
+		}*/
 		drawRect2Img(img,"output/"+fname+"_meanshift.txt",0.,realRect,mergeRect);
 		if(!imwrite("output/"+fname+"_meanshift.png",img(realRect),vector<int>(CV_IMWRITE_PNG_COMPRESSION,4)))
 		{

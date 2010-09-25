@@ -37,3 +37,4 @@ void	newMeanShift( Mat* data, int p, int n,int sigma_x,int sigma_y,double sigma_
 void	newMeanShift2( Mat* data,int  p, int n, Mat*& means, int& n_mean,double c ) ;
 bool newMeanshiftFromFile(string fname,double c ,int minCsize,Mat* &means,int& n_mean ,int& p_mean);
 double mahalanobis(Mat y, Mat yi,Mat H);
+double wi_tu(int i,Mat y,Mat* data,int n,Mat* Hs,double c);

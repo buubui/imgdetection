@@ -512,7 +512,7 @@ private: System::Void btnRefresh_Click(System::Object^  sender, System::EventArg
 			 int addStepW= atoi(msclr::interop::marshal_as<std::string>(txtAddStepW->Text).c_str());
 			 int addStepH= atoi(msclr::interop::marshal_as<std::string>(txtAddStepH->Text).c_str());
 
-			 detection(path,name,ext,scaleStep,cv::Size(addStepW,addStepH),minV,radius,minCsize,false,mergeRect);	
+			 detection(path,name,ext,scaleStep,cv::Size(addStepW,addStepH),minV,radius,minCsize,true,mergeRect);	
 			 cbBox1->SelectedIndex=1;
 			 cbBox2->SelectedIndex=2;
 			 cbBox1_SelectedIndexChanged(sender,e);
