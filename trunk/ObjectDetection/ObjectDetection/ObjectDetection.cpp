@@ -61,20 +61,20 @@ int main(array<System::String ^> ^args)
 	/************************************************************************/
 	/*                      Test new mean shift                             */
 	/************************************************************************/
-	Mat* means;
-	int n_mean;
-	int p_mean;
-	newMeanshiftFromFile("output/crop001501b_multiscale_2.txt",1.2,1,means,n_mean,p_mean);
+	//Mat* means;
+	//int n_mean;
+	//int p_mean;
+	//newMeanshiftFromFile("output/crop001501b_multiscale_2.txt",0.,1,means,n_mean,p_mean);
 /************************************************************************/
 /*                         Load  GUI                                    */
 /************************************************************************/
 
 	// Enabling Windows XP visual effects before any controls are created
-	//Application::EnableVisualStyles();
-	//Application::SetCompatibleTextRenderingDefault(false); 
+	Application::EnableVisualStyles();
+	Application::SetCompatibleTextRenderingDefault(false); 
 
-	//// Create the main window and run it
-	//Application::Run(gcnew MainWindow());
+	// Create the main window and run it
+	Application::Run(gcnew MainWindow());
 	return 0;
 }
 

@@ -296,15 +296,19 @@ double mahalanobis(Mat y, Mat yi,Mat H){
 	ret=(y-yi).t()*powDiagMat(H,-1)*(y-yi);
 	return ret.at<double>(0,0);
 }
+double wi_tu(int i,Mat y,Mat* data,int n,Mat* Hs,double c){
+	double tu=pow(determinant(Hs[i]),-0.5) * tw(data[i].at<double>(3,0),c) * exp(- mahalanobis(y(Rect(0,0,1,3)),data[i](Rect(0,0,1,3)),Hs[i])/2);
+	return tu;
+}
 double wi(int i,Mat y,Mat* data,int n,Mat* Hs,double c){
 	double detH= determinant(Hs[i]);
-	double m =0;
+	double mau =0;
 	for (int t=0;t<n;t++)
 	{
-		m += pow(determinant(Hs[i]),-0.5) * tw(data[i].at<double>(3,0),c) *exp(- mahalanobis(y(Rect(0,0,1,3)),data[i](Rect(0,0,1,3)),Hs[i])/2 );
+		mau += pow(determinant(Hs[t]),-0.5) * tw(data[t].at<double>(3,0),c) *exp(- mahalanobis(y(Rect(0,0,1,3)),data[t](Rect(0,0,1,3)),Hs[t])/2 );
 	}
-	double t=pow(determinant(Hs[i]),-0.5) * tw(data[i].at<double>(3,0),c) * exp(- mahalanobis(y(Rect(0,0,1,3)),data[i](Rect(0,0,1,3)),Hs[i])/2);
-	return t/m;
+	double tu=pow(determinant(Hs[i]),-0.5) * tw(data[i].at<double>(3,0),c) * exp(- mahalanobis(y(Rect(0,0,1,3)),data[i](Rect(0,0,1,3)),Hs[i])/2);
+	return tu/mau;
 }
 Mat HhInv(Mat y, Mat* data,Mat*Hs,int n, double c ){
 	Mat r= Mat::zeros(3,3,CV_64F);
@@ -314,6 +318,7 @@ Mat HhInv(Mat y, Mat* data,Mat*Hs,int n, double c ){
 	}
 	return r;
 }
+//void computeAll(double* wi, d)
 void	newMeanShift( Mat* data, int p, int n,int sigma_x,int sigma_y,double sigma_s,
 					  int maxIter ,double c) 
 {
@@ -326,28 +331,58 @@ void	newMeanShift( Mat* data, int p, int n,int sigma_x,int sigma_y,double sigma_
 		}
 	}
 	*/
-		
-
+	bool* marked= new bool[n];	
+	int done=0;
 	Mat* Hs = new Mat[n];
+	
 	for (int i=0;i<n;i++)
 	{
 		Hs[i]=Mat::zeros(3,3,CV_64F);
 		Hs[i].at<double>(0,0) = pow(exp(data[i].at<double>(2,0))* sigma_x,2);
 		Hs[i].at<double>(1,1) =pow(exp(data[i].at<double>(2,0))* sigma_y,2);
 		Hs[i].at<double>(2,2) = sigma_s*sigma_s;
-
+		marked[i]=false;
+	}
+	double* Ws= new double[n+1];
+	Ws[n]=0;
+	for (int i=0;i<n;i++)
+	{
+		Ws[i] = wi_tu(i,data[i],data,n,Hs,c);
+		Ws[n] +=Ws[i];
 	}
 	for(int t=0;t<maxIter;t++)
 		for (int m=0;m<n;m++)
 		{
+			if(done==n)
+				return;
+			if(marked[m]) continue;
 			Mat ym=Mat::zeros(3,1,CV_64F);
+			Mat hhInv= Mat::zeros(3,3,CV_64F);
+				
 			for (int i=0;i<n;i++)
 			{
-				ym +=wi(i,data[m],data,n,Hs,c)* powDiagMat(Hs[i],-1)*data[i](Rect(0,0,1,3));
+			//	double w =wi(i,data[m],data,n,Hs,c);
+				double w= Ws[i]/Ws[n];
+				ym +=w* powDiagMat(Hs[i],-1)*data[i](Rect(0,0,1,3));
+				hhInv+=  powDiagMat(Hs[i],-1) *w;
 			}
-			ym= powDiagMat(HhInv(data[m],data,Hs,n,c),-1) * ym;
+		//	ym= powDiagMat(HhInv(data[m],data,Hs,n,c),-1) * ym;
+			ym= powDiagMat(hhInv,-1) * ym;
 		//	data[m]=ym;
+			Mat tmp=ym-data[m](Rect(0,0,1,3));
+			double _max = max(max(tmp.at<double>(0,0),tmp.at<double>(1,0)),tmp.at<double>(2,0));
+			double _min = min(min(tmp.at<double>(0,0),tmp.at<double>(1,0)),tmp.at<double>(2,0));
+			hhInv.release();
+			if(_max<=0.001&&_min>=-0.001){
+				marked[m]=true;
+				done++;
+				continue;
+			}
 			ym.copyTo(data[m](Rect(0,0,1,3)));
+			double wm_old=Ws[m];
+			Ws[m] = wi_tu(m,data[m],data,n,Hs,c);
+			Ws[n] +=Ws[m]-wm_old;
+
 		//	Mat d = cv::dis
 			
 		}
@@ -365,8 +400,13 @@ void	newMeanShift2( Mat* data,int  p, int n, Mat*& means, int& n_mean,double c )
 		tmp[i]= Mat::zeros(p+1,1,CV_64F);
 	}
 	
-	newMeanShift(data,p,n,8,16,log(1.3),10,c);
-
+	newMeanShift(data,p,n,8,16,log(1.3),100,c);
+	for (int i=0;i<n;i++)
+	{
+		for(int j=0;j<p;j++)
+			cout <<data[i].at<double>(j,0)<<" ";
+		cout<<endl;
+	}
 	n_mean=0;
 	//	for (int i=0;i<p;i++)
 	//	{
@@ -381,7 +421,7 @@ void	newMeanShift2( Mat* data,int  p, int n, Mat*& means, int& n_mean,double c )
 		{
 			double t1=tmp[j].at<double>(0,0)-round(data[i].at<double>(0,0));
 			double t2=tmp[j].at<double>(1,0)-round(data[i].at<double>(1,0));
-			if(-(c-1)<=t1&& t1<=(c-1) && -(c-1)<= t2&& t2<=(c-1))
+			if(-(2)<=t1&& t1<=(2) && -(2)<= t2&& t2<=(2))
 			{
 				for (int k=2;k<p;k++)
 				{
