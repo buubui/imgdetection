@@ -139,12 +139,12 @@ Mat calcHisOfCellsInWnd(Mat hog_pixels,Rect wnd, Size cellSize, int n_bins)
 
 
 
-Mat calcHisOfCellsInWnd2(Mat hog_pixels,Rect wnd, Size cellSize, int n_bins)
+void calcHisOfCellsInWnd2(Mat hog_pixels,Rect wnd, Size cellSize, int n_bins,Mat& H)
 {
 	int c = (int)(wnd.width/cellSize.width);
 	int r = (int)(wnd.height/cellSize.height);
-
-	Mat H(r,c,DataType<HIS*>::type);
+	if(H.rows==0)
+		H=Mat::zeros(r,c,DataType<HIS*>::type);
 	int currX =wnd.x;
 	int currY=wnd.y;
 
@@ -153,8 +153,10 @@ Mat calcHisOfCellsInWnd2(Mat hog_pixels,Rect wnd, Size cellSize, int n_bins)
 		for (int j=0;j<c;j++)
 
 		{
-			H.at<HIS*>(i,j) = new Mat();
+			if(H.at<HIS*>(i,j)==NULL)
+				H.at<HIS*>(i,j) = new Mat();
 			*(H.at<HIS*>(i,j))=Mat::zeros(1,n_bins,CV_64F);
+			
 			/*Mat A;
 			A=(Mat::zeros(1,n_bins,CV_64F));;
 			H.at<HIS*>(i,j)= &A;*/
@@ -166,7 +168,7 @@ Mat calcHisOfCellsInWnd2(Mat hog_pixels,Rect wnd, Size cellSize, int n_bins)
 			printf("ZEROS %f \n",H.at<HIS*>(i,j)->at<double>(0,0));*/
 		}
 	}
-
+	double a =180./n_bins;
 	for (int i=0;i<r;i++)
 	{
 		currX=0;
@@ -174,7 +176,7 @@ Mat calcHisOfCellsInWnd2(Mat hog_pixels,Rect wnd, Size cellSize, int n_bins)
 
 		{
 			Rect rect(currX,currY,cellSize.width,cellSize.height);
-			double a =180./n_bins;
+			
 			if(H.at<HIS*>(i,j)==NULL){
 				/*Mat A;
 				A=(Mat::zeros(1,n_bins,CV_64F));;
@@ -329,7 +331,7 @@ Mat calcHisOfCellsInWnd2(Mat hog_pixels,Rect wnd, Size cellSize, int n_bins)
 		}
 		currY+=cellSize.height;
 	}
-	return H;	
+	return ;	
 
 
 };
@@ -437,7 +439,7 @@ Mat im2double(const Mat& m)
 
 
 }
-HIS* calcHistOfBlockInWnd(const Mat& mat, Rect p)
+void calcHistOfBlockInWnd(const Mat& mat, Rect p,HIS& hist)
 {
 	int n = mat.at<HIS*>(0,0)->cols;
 	int w = p.width;
@@ -447,8 +449,10 @@ HIS* calcHistOfBlockInWnd(const Mat& mat, Rect p)
 	/*Mat A;
 	A=(Mat::zeros(1,w*h*n,CV_64F));;
 	HIS* hist = &A;*/
-	HIS* hist = new Mat();
-	*hist = Mat::zeros(1,w*h*n,CV_64F);
+//	if(hist.rows==0)
+//		hist = new Mat();
+	if(hist.rows==0)
+		hist = Mat::zeros(1,w*h*n,CV_64F);
 	int s =0;
 	for (int i=0;i<h;i++)
 	{
@@ -458,7 +462,7 @@ HIS* calcHistOfBlockInWnd(const Mat& mat, Rect p)
 		//	{
 		//		hist->at<double>(0,s) = mat.at<HIS*>(x+i,j+y)->at<double>(0,e);
 				HIS* h=mat.at<HIS*>(x+i,j+y);
-				h->copyTo((*hist)(Rect(s,0,h->cols,1)));
+				h->copyTo((hist)(Rect(s,0,h->cols,1)));
 				s+=h->cols;
 		//	}
 			/*for (int e =0; e<n;e++)
@@ -476,10 +480,10 @@ HIS* calcHistOfBlockInWnd(const Mat& mat, Rect p)
 		printf("%f \n ",hist->vector_weight[i]);
 	}*/
 
-	return hist;
+	return ;
 }
 
-HIS* calcHistOfWnd(const Mat& mat, const Size& blockSize, Vec2i overlap, int norm_c)
+void calcHistOfWnd(const Mat& mat, const Size& blockSize, Vec2i overlap, int norm_c,HIS& H)
 {
 	int n = mat.at<HIS*>(0,0)->cols;
 	int n_block_w = floor( 1.*(mat.cols - overlap[0])/(blockSize.width - overlap[0]));
@@ -488,29 +492,31 @@ HIS* calcHistOfWnd(const Mat& mat, const Size& blockSize, Vec2i overlap, int nor
 	/*Mat A;
 	A=(Mat::zeros(1,n_block*blockSize.width*blockSize.height*n,CV_64F));;
 	HIS* H= &A;*/
-	HIS* H = new Mat();
-	*H=Mat::zeros(1,n_block*blockSize.width*blockSize.height*n,CV_64F);
+//	HIS* H = new Mat();
+	if(H.rows==0)
+		H=Mat::zeros(1,n_block*blockSize.width*blockSize.height*n,CV_64F);
 
 	int x=0,y=0;
 	int s=0;
+	HIS h_b;
 	for (int i=0; i < n_block_w;i++)
 	{
 		x=0;
 		for (int j = 0 ; j<n_block_h;j++)
 		{
-			HIS* h_b = calcHistOfBlockInWnd(mat,Rect(x,y,blockSize.width,blockSize.height));
-			NormalizeBlock(*h_b,norm_c);
+			calcHistOfBlockInWnd(mat,Rect(x,y,blockSize.width,blockSize.height),h_b);
+			NormalizeBlock(h_b,norm_c);
 
 
 		//	for (int e=0;e<n*blockSize.width*blockSize.height;e++)
 		//	{
 		//		H->at<double>(0,s)=h_b->at<double>(0,e);
-				h_b->copyTo((*H)(Rect(s,0,h_b->cols,1)));
-				s+=h_b->cols;
+				h_b.copyTo((H)(Rect(s,0,h_b.cols,1)));
+				s+=h_b.cols;
 		//	}
 			x+= blockSize.width -overlap[0];
 		//	h_b->release();
-			delete h_b;
+			
 
 
 
@@ -525,11 +531,10 @@ HIS* calcHistOfWnd(const Mat& mat, const Size& blockSize, Vec2i overlap, int nor
 			delete h_b;*/
 		}
 		y+=blockSize.height - overlap[1];
-		
-		
+			
 	}
-	
-	return H;
+	 h_b.release();
+	return ;
 
 
 }

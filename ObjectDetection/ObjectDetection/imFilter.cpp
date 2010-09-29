@@ -35,11 +35,12 @@ using namespace System::Collections;
 //
 //
 
-Mat* imFilter(const Mat& img){
+Mat* imFilter(const Mat& img,bool equalize){
 	Mat* arrFils = new Mat[2];
 	Mat img_gray;
 	cvtColor(img,img_gray,CV_BGR2GRAY);
-	equalizeHist(img_gray,img_gray);
+	if(equalize)
+		equalizeHist(img_gray,img_gray);
 	
 
 	

@@ -54,7 +54,7 @@ int main(array<System::String ^> ^args)
  /************************************************************************/
 	//clock_t t1,t2;
 	//t1 = clock();	
-	//svmGenerateData2("input/trainPos2.txt","input/trainNeg.txt",1,15);
+//	svmGenerateData2("input/testPos.txt","input/testNeg.txt",1,5);
 	//t2 = clock();
 	//printf("Running time: %f (mins)\n",(float)(t2-t1)/(60*CLOCKS_PER_SEC));
 

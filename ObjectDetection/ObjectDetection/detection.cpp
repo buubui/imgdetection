@@ -30,10 +30,10 @@ bool detection(string path,string fname, string ext,float scaleStep,Size addStep
 		multiscale.release();
 		
 		int n_mean,p_mean;
-	//	double*means;
-	//	meanshiftFromFile("output/"+fname+"_multiscale.txt",minB,radius,minCsize,means,n_mean,p_mean);
-		Mat* means;
-		newMeanshiftFromFile("output/"+fname+"_multiscale.txt",0.,1,means,n_mean,p_mean);
+		double*means;
+		meanshiftFromFile("output/"+fname+"_multiscale.txt",minB,radius,minCsize,means,n_mean,p_mean);
+	//	Mat* means;
+	//	newMeanshiftFromFile("output/"+fname+"_multiscale.txt",minB,minCsize,means,n_mean,p_mean);
 		
 	/*	for (int i=0;i<n_mean*p_mean;i++)
 		{
