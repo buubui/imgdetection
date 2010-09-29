@@ -22,12 +22,13 @@ void multiscale(Mat img,float step )
 	Mat * weight;
 	double b;
 	getWeight("w.txt",weight,b);
-	Mat* imFils = imFilter(img);
+	Mat* imFils = imFilter(img,true);
 	Mat G = calcGradientOfPixels(imFils[0],imFils[1]);
 	Rect MaxWnd(0,0,wndSize.width,wndSize.height);
 	double max=0;
 	Mat img_slideWnd, his_wnd;
-	Mat* his=NULL;
+	HIS h_w;
+	
 	for (int h=0;h<img.rows;h+=30)
 	{
 		//printf("%d\n",h);
@@ -51,23 +52,25 @@ void multiscale(Mat img,float step )
 				img_slideWnd=img(slideWnd);
 
 
-				his_wnd = calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9);
-				HIS* h_w = calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2);
-				if(!his){
+			//	his_wnd = calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9);
+				calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9,his_wnd);
+			//	HIS* h_w = calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2);
+				calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2,h_w);
+			//	if(!his){
 					/*Mat A;
 					A=(Mat::zeros(1,h_w->cols,CV_64F));;
 					his= &A;*/
 			//		his=new Mat(1,h_w->cols,CV_64F);
-					his = new Mat();
-					*his=Mat::zeros(1,h_w->cols,CV_64F);
-				}
+			/*		his = new Mat();
+					*his=Mat::zeros(1,h_w.cols,CV_64F);
+				}*/
 				//printf("%d",h_w->n_bins);
 				/*for (int i=0;i<h_w->cols;i++)
 				{
 					his->at<double>(0,i)=h_w->at<double>(0,i);
 				}*/
-				his = h_w;
-				Mat R = (*his)* (*weight ) - b;
+			
+				Mat R = (h_w)* (*weight ) - b;
 				double v = R.at<double>(0,0);
 				cout<<v<<endl;
 				if(v>0){
@@ -88,21 +91,21 @@ void multiscale(Mat img,float step )
 
 			//	delete h_w;
 			//	his->release();
-				delete his;
+				
 
 
 				//		imFils[0].release();
 				//		imFils[1].release();
-				for (int ii=0;ii<his_wnd.rows;ii++)
-				{
-					for (int jj=0;jj<his_wnd.cols;jj++)
-					{
-						HIS* hh=his_wnd.at<HIS*>(ii,jj);
-					//	hh->release();
-						delete hh;
-					}
-				}
-				his_wnd.release();
+				//for (int ii=0;ii<his_wnd.rows;ii++)
+				//{
+				//	for (int jj=0;jj<his_wnd.cols;jj++)
+				//	{
+				//		HIS* hh=his_wnd.at<HIS*>(ii,jj);
+				//	//	hh->release();
+				//		delete hh;
+				//	}
+				//}
+				//his_wnd.release();
 				//		G.release();
 				R.release();
 
@@ -125,6 +128,17 @@ void multiscale(Mat img,float step )
 	}
 	imFils[0].release();
 	imFils[1].release();
+	for (int ii=0;ii<his_wnd.rows;ii++)
+	{
+		for (int jj=0;jj<his_wnd.cols;jj++)
+		{
+			HIS* hh=his_wnd.at<HIS*>(ii,jj);
+			//	hh->release();
+			delete hh;
+		}
+	}
+	his_wnd.release();
+	h_w.release();
 	G.release();
 
 	//	imshow("max",img(MaxWnd));
@@ -177,12 +191,19 @@ Mat multiscaleExp(string filepath,float step,Size addStep)
 	Mat * weight;
 	double b;
 	getWeight("w.txt",weight,b);
-	Mat* imFils = imFilter(img);
+	Mat* imFils = imFilter(img,true);
 	Mat G = calcGradientOfPixels(imFils[0],imFils[1]);
 	Rect MaxWnd(0,0,wndSize.width,wndSize.height);
 	double max=0;
 	Mat img_slideWnd, his_wnd;
-	Mat* his=NULL;
+	HIS h_w;
+//	Mat img2=img.clone();
+	Mat img_gray;
+	cvtColor(img,img_gray,CV_BGR2GRAY);
+//	equalizeHist(img_gray,img_gray);
+	Mat img2;
+	img_gray.convertTo(img2,CV_64FC1,1./255);
+	img_gray.release();
 //	Size addStep;//=Size(2,2);
 //	addStep.width=cellSize.width*1.;
 //	addStep.height=cellSize.height*1.;
@@ -199,113 +220,216 @@ Mat multiscaleExp(string filepath,float step,Size addStep)
 	printf("addstep %d divstep %f\n",addStep.width,divStep);
 	ofstream outtmp;
 	//for (int h=tmp.height*cellSize.height/2;h<img.rows-wndSize.height/2;h+=addStep.height)
-	for (int h=realRect.y;h<=realRect.y+realRect.height;h+=addStep.height)
-	{
-		
-	//	for (int w=tmp.width*cellSize.width/2;w<img.cols-wndSize.width/2;w+=addStep.width)
-		for (int w=realRect.x;w<realRect.x+realRect.width;w+=addStep.width)
+	int colFound1=0,colFound2=0;
+	int addH=addStep.height;
+	int addW=addStep.width;
+//	double sizeLim=std::max((double)wndSize.width*wndSize.height,(double)realRect.height/3*realRect.width/3);
+	double sizeLim=(double)wndSize.width*wndSize.height*4;
+	Mat* imFils2=imFilter(img,false);
+	Mat wEdges=Mat::zeros(realRect.height-2,2,DataType<int>::type);
+/************************************************************************/
+/*                    Fill into wEdges                                 */
+/************************************************************************/
+	for (int hh=realRect.y+2;hh<realRect.y+realRect.height-2;hh+=addH){
+		int ih=hh-realRect.y-2;
+		wEdges.at<int>(ih,0)=realRect.x;
+		wEdges.at<int>(ih,1)=realRect.x+realRect.width;
+		for (int ww=realRect.x+2;ww<realRect.x+realRect.width-2;ww++)
 		{
-			startP.x= w;
-			startP.y = h;
-			scale =1.;
+			int t= ww-realRect.x-2;
+			if(wEdges.at<int>(ih,0)==realRect.x){
+			//		Gradient g1 =G.at<Gradient>(Point(ww,hh));
+			//		double v=g1[1];
+				double x = imFils2[0].at<double>(hh,ww);
+				double y = imFils2[1].at<double>(hh,ww);
+				double v=sqrt(x*x+y*y);
+				if(v>=0.08 ){
+					//	if(g1[1]>=0.2){
+					if(wEdges.at<int>(ih,0)<=wEdges.at<int>(ih,1))
+						wEdges.at<int>(ih,0)=ww;
+				}else
+					img2.at<double>(hh,ww)=0.;
 
-			slideWnd= getRect(startP.x,startP.y,scale);
-		//	cout<<"AAAAA "<<slideWnd.x<<", "<<slideWnd.y<<", "<<slideWnd.width<<", "<<slideWnd.height<<endl;
-		//	slideWnd.x = startP.x;
-		//	slideWnd.y = startP.y;
+			}
+			if(wEdges.at<int>(ih,1)==realRect.x+realRect.width){
+		//			Gradient g2 =G.at<Gradient>(Point(ww,realRect.y+realRect.height-2-t));
+		//			double v = g2[1];
+				//		printf("%d %f %d\n",realRect.y+realRect.height-t,g2[1],t);
+				double x = imFils2[0].at<double>(hh,realRect.x+realRect.width-2-t);
+				double y = imFils2[1].at<double>(hh,realRect.x+realRect.width-2-t);
+				double v=sqrt(x*x+y*y);
+				if(v>=0.08 ){
+					//if(g2[1]>=0.2){
+
+					if(realRect.x+realRect.width-2-t>=wEdges.at<int>(ih,0))
+						wEdges.at<int>(ih,1)=realRect.x+realRect.width-2-t;
+				}else
+					img2.at<double>(hh,realRect.x+realRect.width-1-t)=0.;
+			}
+			if( wEdges.at<int>(ih,0)!=realRect.x&&
+				wEdges.at<int>(ih,1)!=realRect.x+realRect.width)
+			{
+				//		printf("DONE %d   %d\n",firstEdge,lastEdge);
+				break;
+			}
+		}
+		if( wEdges.at<int>(ih,0)==realRect.x&&
+			wEdges.at<int>(ih,1)==realRect.x+realRect.width)
+		{
+			wEdges.at<int>(ih,0)= wEdges.at<int>(ih,1)=realRect.x+2;
+		}
+					printf("%d: %d -> %d, %d : %d %d\n",hh,wEdges.at<int>(ih,0),wEdges.at<int>(ih,1),realRect.x,realRect.x+realRect.width,ih);
+	}
+//////////////////////////////////////////////////////////////////////////
+	for (int w=realRect.x+2;w<realRect.x+realRect.width-2;w+=addW)
+	{
+		int lastfound=0;
+		int firstEdge=realRect.y;
+		int lastEdge=realRect.y+realRect.height;
+		//////////////////////////////////////////////////////////////////////////
+		for (int hh=realRect.y+2;hh<realRect.y+realRect.height-2;hh+=1)
+		{
+			int t= hh-realRect.y-2;
+			if(firstEdge==realRect.y){
+				//	Gradient g1 =G.at<Gradient>(Point(w,hh));
+				//	double v = g1[1];
+				double x = imFils2[0].at<double>(hh,w);
+				double y = imFils2[1].at<double>(hh,w);
+				double v=sqrt(x*x+y*y);
+				if(v>=0.08){
+			//	if(g1[1]>=0.2){
+					if(firstEdge<=lastEdge)
+						firstEdge=hh;
+				}else 
+					img2.at<double>(hh,w)=0.;
+
+			}
+			if(lastEdge==realRect.y+realRect.height){
+				//	Gradient g2 =G.at<Gradient>(Point(w,realRect.y+realRect.height-2-t));
+				//	double v = g2[1];
+				//		printf("%d %f %d\n",realRect.y+realRect.height-t,g2[1],t);
+				double x = imFils2[0].at<double>(realRect.y+realRect.height-2-t,w);
+				double y = imFils2[1].at<double>(realRect.y+realRect.height-2-t,w);
+				double v=sqrt(x*x+y*y);
+				if(v>=0.08){
+				//if(g2[1]>=0.2){
+
+					if(realRect.y+realRect.height-t>=firstEdge)
+						lastEdge=realRect.y+realRect.height-2-t;
+				}else 
+					img2.at<double>(realRect.y+realRect.height-2-t,w)=0.;
+			}
+			if(firstEdge!=realRect.y&&lastEdge!=realRect.y+realRect.height)
+			{
+				//		printf("DONE %d   %d\n",firstEdge,lastEdge);
+				break;
+			}
+		}
+		if(firstEdge==realRect.y&&lastEdge==realRect.y+realRect.height)
+		{
+			firstEdge=lastEdge=realRect.y+2;
+		}
+		//////////////////////////////////////////////////////////////////////////
+		int oldH=addH;
+		addH=addStep.height;
+		addW=addStep.width;
+		startP.x= w;
+		if(!colFound2){
+				double t=std::abs(lastEdge-firstEdge);
+				t= (t/wndSize.height);
+				sizeLim=min((double)wndSize.width*wndSize.height*4,t*t*wndSize.width*wndSize.height*2*2);
+		
+			}
+	//	printf("%d: %d %d: %d %d\n",startP.x,addW,addH,colFound1,colFound2);
+		colFound1=colFound2;
+		colFound2=0;
+	//	sizeLim=(double)wndSize.width*wndSize.height*4;
+	//	for (int w=tmp.width*cellSize.width/2;w<img.cols-wndSize.width/2;w+=addStep.width)
+		int firstH=realRect.y+2;
+
+		//////////////////////////////////////////////////////////////////////////
+		for (int h=realRect.y+2;h<=realRect.y+realRect.height-2;h+=addH)
+		
+	//	for (int h=firstEdge;h<=lastEdge;h+=addH)
+		{
+			int ih=h-realRect.y-2;
+			if(firstEdge-h>addH){
+				int ht=(firstEdge-h)/addH;
+				h+=ht*addH;
+				firstH=h;
+			}
+			if(h>lastEdge)
+				break;
 			
+			if(w<wEdges.at<int>(ih,0)||w>wEdges.at<int>(ih,1)){
+				continue;
+			}
+			startP.y = h;	
+	
+	//		Gradient g =G.at<Gradient>(Point(startP.x,startP.y));
+
+		//	if(colFound2==0 &&g[1]<=0.001){
+			//	printf("skip %d %d\n",startP.x,startP.y);
+			//	img2.at<double>(startP.y,startP.x)=0.;
+	//			continue;
+		//	}
+			scale =1.;
+			slideWnd= getRect(startP.x,startP.y,scale);
 			cellSz.width = cellSize.width;
 			cellSz.height = cellSize.height;
-
 			wndSz.width =slideWnd.width;
 			wndSz.height =slideWnd.height;
-		//	wndSz.width = wndSize.width;
-		//	wndSz.height = wndSize.height;
-		//	slideWnd.width =wndSz.width;
-		//	slideWnd.height =wndSz.height;
-
-			while( slideWnd.x>=0 && slideWnd.y>=0 && slideWnd.x+slideWnd.width<=img.cols && slideWnd.y+slideWnd.height<=img.rows)
+			while( slideWnd.x>=0 && slideWnd.y>=0 && slideWnd.x+slideWnd.width<=img.cols && 
+				slideWnd.y+slideWnd.height<=img.rows && slideWnd.width* slideWnd.height<=sizeLim)
 			{
-
-
 				img_slideWnd=img(slideWnd);
 
+				calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9,his_wnd);
+				calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2,h_w);
 
-				his_wnd = calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9);
-				HIS* h_w = calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2);
-//				if(!his)
-//					his=new Mat(1,h_w->n_bins,CV_64F);
-				his = h_w;
-			//	cout<<his->cols<<endl;
-				
-			//	his = his_wnd.at<HIS*>(0,0);
-				//printf("%d",h_w->n_bins);
-				/*for (int i=0;i<h_w->n_bins;i++)
-				{
-					his->at<double>(0,i)=h_w->vector_weight[i];
-				}*/
-			//	for (int ttt=0;ttt<his->cols;ttt++)
-			//	{
-				//	printf("\n HIS %d %f, ",his->cols,his->at<double>(0,0));
-			//	}
-				Mat R = (*his)* (*weight ) - b;
+				Mat R = (h_w)* (*weight ) - b;
 				double v = R.at<double>(0,0);
-			//	his->release();
+			
 				
 				R.release();
 			//	v>0.068
 				if(v>0.){
-					//					printf(" (%d,%d) (%dx%d) %f %f\n",startP.x,startP.y, wndSz.width,wndSz.height,scale, v);
-					printf("%d, %d, %f, %f\n",startP.x,startP.y,wndSz.width/baseWidth,v);
+					printf("%d, %d, %f, %f, (%d, %d), (%d, %d), %d\n",startP.x,startP.y,wndSz.width/baseWidth,v,firstEdge,lastEdge,wEdges.at<int>(ih,0),wEdges.at<int>(ih,1),ih);
 					outstr<<startP.x<<", "<<startP.y<<", "<<log(wndSz.width/baseWidth)<<", "<<v<<endl;
-				//	rectangle(result,slideWnd,Scalar(0,256,0),2);
-				//	stringstream outStr;
-				//	outStr<<v;
-				//	putText(result,outStr.str(),Point(slideWnd.x,slideWnd.y-3),FONT_HERSHEY_COMPLEX_SMALL,0.5,Scalar(0,256,0));
-					/*stringstream outputfile;
-					outputfile <<"img "<<startP.x<<" "<<startP.y<<" "<<wndSz.width<<" "<<wndSz.height;*/
-					//	imshow(outputfile.str(),img_slideWnd);
-					//	if(v>max){
-					//		max=v;
-					//		MaxWnd = slideWnd;
-					//	}
+					lastfound=h;
+						if(!colFound2)
+							colFound1=colFound2;
+						colFound2++;
+						double t=std::max(lastEdge,firstEdge)-std::min(lastEdge,firstEdge);
+						t= (t/wndSize.height);
+						float largeSzLim=t*t*wndSize.width*wndSize.height*1.5*1.5;
+						if(sizeLim<largeSzLim){
+							sizeLim=largeSzLim;
+							if(h>realRect.y){
+								if(firstEdge>realRect.y+2){
+									h-=min(3*addH,h-firstH+addH);
+								}
+								break;
+							}
+						}
+						addH=addStep.height;
 				}
-
-				delete h_w;
-
-
-				//		imFils[0].release();
-				//		imFils[1].release();
-				for (int ii=0;ii<his_wnd.rows;ii++)
-				{
-					for (int jj=0;jj<his_wnd.cols;jj++)
-					{
-						HIS* hh=his_wnd.at<HIS*>(ii,jj);
-						delete hh;
-					}
-				}
-			//	delete his_wnd;
-				his_wnd.release();
-				//		G.release();
-			//	R.release();
-
 				i++;
-				//scale =  pow(step,i);
 				scale = scale * step;
-				cellSz.width = ceil( scale* cellSize.width);
-				cellSz.height = ceil( scale* cellSize.height);
-				scale = (float)cellSz.width/cellSize.width;
+				float w=scale* cellSize.width;
+				float h=scale* cellSize.height;
+				if(round(w)==cellSz.width && round(h)==cellSz.height)
+				{
+					cellSz.width = ceil( w);
+					cellSz.height = ceil( h);
+					scale = (float)cellSz.width/cellSize.width;
+				}else{
+					cellSz.width = round( w);
+					cellSz.height = round( h);
+				}
 				slideWnd= getRect(startP.x,startP.y,scale);
 				wndSz.width =slideWnd.width;
 				wndSz.height =slideWnd.height;
-			//	wndSz.width = cellSz.width * tmp.width;
-			//	wndSz.height = cellSz.height * tmp.height;
-				
-			//	slideWnd.width =wndSz.width;
-			//	slideWnd.height =wndSz.height;
-				
-
-		//		cout<<slideWnd.x<<", "<<slideWnd.y<<", "<<slideWnd.width<<", "<<slideWnd.height<<endl;
 			}
 
 
@@ -313,6 +437,19 @@ Mat multiscaleExp(string filepath,float step,Size addStep)
 	}
 	imFils[0].release();
 	imFils[1].release();
+	imFils2[0].release();
+	imFils2[1].release();
+	for (int ii=0;ii<his_wnd.rows;ii++)
+	{
+		for (int jj=0;jj<his_wnd.cols;jj++)
+		{
+			HIS* hh=his_wnd.at<HIS*>(ii,jj);
+			delete hh;
+		}
+	}
+	//	delete his_wnd;
+	his_wnd.release();
+	h_w.release();
 	G.release();
 	ofstream out;
 	out.open(filename.c_str());
@@ -323,6 +460,8 @@ Mat multiscaleExp(string filepath,float step,Size addStep)
 	
 	//	imshow("max",img(MaxWnd));
 //	imshow("result",result);
+	imshow("dasd",img2);
+	img2.release();
 	return result;
 }
 

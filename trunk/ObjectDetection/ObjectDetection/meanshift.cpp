@@ -363,11 +363,13 @@ void	newMeanShift( Mat* data, int p, int n,int sigma_x,int sigma_y,double sigma_
 			{
 			//	double w =wi(i,data[m],data,n,Hs,c);
 				double w= Ws[i]/Ws[n];
-				ym +=w* powDiagMat(Hs[i],-1)*data[i](Rect(0,0,1,3));
-				hhInv+=  powDiagMat(Hs[i],-1) *w;
+				Mat hiInv=powDiagMat(Hs[i],-1);
+				ym +=w* hiInv * data[i](Rect(0,0,1,3));
+				hhInv+=  hiInv *w;
 			}
 		//	ym= powDiagMat(HhInv(data[m],data,Hs,n,c),-1) * ym;
 			ym= powDiagMat(hhInv,-1) * ym;
+			hhInv.release();
 		//	data[m]=ym;
 			Mat tmp=ym-data[m](Rect(0,0,1,3));
 			double _max = max(max(tmp.at<double>(0,0),tmp.at<double>(1,0)),tmp.at<double>(2,0));
@@ -379,6 +381,7 @@ void	newMeanShift( Mat* data, int p, int n,int sigma_x,int sigma_y,double sigma_
 				continue;
 			}
 			ym.copyTo(data[m](Rect(0,0,1,3)));
+			ym.release();
 			double wm_old=Ws[m];
 			Ws[m] = wi_tu(m,data[m],data,n,Hs,c);
 			Ws[n] +=Ws[m]-wm_old;
@@ -400,7 +403,7 @@ void	newMeanShift2( Mat* data,int  p, int n, Mat*& means, int& n_mean,double c )
 		tmp[i]= Mat::zeros(p+1,1,CV_64F);
 	}
 	
-	newMeanShift(data,p,n,8,16,log(1.3),100,c);
+	newMeanShift(data,p,n,4,14,log(1.6),100,c);
 	for (int i=0;i<n;i++)
 	{
 		for(int j=0;j<p;j++)
@@ -458,8 +461,9 @@ void	newMeanShift2( Mat* data,int  p, int n, Mat*& means, int& n_mean,double c )
 			means[i].at<double>(j,0)=means[i].at<double>(j,0)/means[i].at<double>(p,0);
 		}
 	//	means[i*(p+1)+p]=tmp[i*(p+1)+p];
-
+		
 	}
+
 
 };
 bool newMeanshiftFromFile(string fname,double c ,int minCsize,Mat* &means,int& n_mean ,int& p_mean)

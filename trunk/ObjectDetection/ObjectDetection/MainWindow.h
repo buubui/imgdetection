@@ -487,7 +487,7 @@ private: System::Void btnDetect_Click(System::Object^  sender, System::EventArgs
 			cbBox1_SelectedIndexChanged(sender,e);
 			 cbBox2_SelectedIndexChanged(sender,e);
 			 t2 = clock();
-			 printf("Running time: %f",(float)(t2-t1)/(60*CLOCKS_PER_SEC));
+			 printf("Running time: %f (secs)",(float)(t2-t1)/(CLOCKS_PER_SEC));
 			// MessageBox::Show("Detection is finished!");
 
 		 }

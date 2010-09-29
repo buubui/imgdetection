@@ -44,10 +44,10 @@ void NormalizeBlock(Mat& m, int c);
 //void NormalizeBlock(HIS* h, int c);
 Mat im2double(const Mat& m);
 //HIS* calcHistOfBlockInWnd(Mat mat, Rect p);
-HIS* calcHistOfBlockInWnd(const Mat& mat, Rect p);
+void calcHistOfBlockInWnd(const Mat& mat, Rect p,HIS& hist);
 //HIS* calcHistOfWnd(Mat mat, Size blockSize, Vec2i overlap, int norm_c);
-HIS* calcHistOfWnd(const Mat& mat, const Size& blockSize, Vec2i overlap, int norm_c);
-Mat calcHisOfCellsInWnd2(Mat hog_pixels,Rect wnd, Size cellSize, int n_bins);
+void calcHistOfWnd(const Mat& mat, const Size& blockSize, Vec2i overlap, int norm_c,HIS& H);
+void calcHisOfCellsInWnd2(Mat hog_pixels,Rect wnd, Size cellSize, int n_bins,Mat& H);
 void setHisOfCell(Gradient hog_pixcell, HIS* Hcell,Size cellSize);
 
 #endif
