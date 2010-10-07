@@ -14,6 +14,7 @@ using namespace ObjectDetection;
 #include "glbVars.h"
 #include "meanshift.h"
 #include <list>
+
 void takefalseImg(string ffile)
 {
 	ifstream in1,in2;
@@ -52,11 +53,11 @@ int main(array<System::String ^> ^args)
  /************************************************************************/
  /*                  Generating data for SVM                             */
  /************************************************************************/
-	//clock_t t1,t2;
-	//t1 = clock();	
-//	svmGenerateData2("input/testPos.txt","input/testNeg.txt",1,5);
-	//t2 = clock();
-	//printf("Running time: %f (mins)\n",(float)(t2-t1)/(60*CLOCKS_PER_SEC));
+	/*clock_t t1,t2;
+	t1 = clock();	
+	svmGenerateData2("input/testPos.txt","input/testNeg.txt",1,5);
+	t2 = clock();
+	printf("Running time: %f (mins)\n",(float)(t2-t1)/(60*CLOCKS_PER_SEC));*/
 
 	/************************************************************************/
 	/*                      Test new mean shift                             */
@@ -65,6 +66,60 @@ int main(array<System::String ^> ^args)
 	//int n_mean;
 	//int p_mean;
 	//newMeanshiftFromFile("output/crop001501b_multiscale_2.txt",0.,1,means,n_mean,p_mean);
+
+	/************************************************************************/
+	/*                Test XML                       */
+	/************************************************************************/
+//	XmlDocument ^ doc = gcnew XmlDocument;
+//
+//	doc->Load("input/file.xml");
+////	XmlTextReader^ reader= gcnew XmlTextReader("input/test.xml");
+////	cout<<msclr::interop::marshal_as<std::string>(reader->);
+//	XmlNodeList^ nl= doc->GetElementsByTagName("object");
+//	XmlNodeList^ att=nl->Item(0)->ChildNodes->Item(4)->ChildNodes;
+//	for (int i=0;i<att->Count;i++)
+//	{
+//		Console::WriteLine(att->Item(i)->InnerText);
+//	}
+	/*System::String^ annpath="D:\\Lectures\\Luan_van\\DATASET\\VOC\\VOCdevkit\\VOC2010\\Annotations\\";
+	Rect* rects;
+	int n_rect;
+	VOCAnnRects("input/2007_000032.xml","person",rects,n_rect);
+	for (int i=0;i<n_rect;i++)
+	{
+		printf("%d %d %d %d\n",rects[i].x,rects[i].y,rects[i].width,rects[i].height);
+	}
+	
+	string filelist="D:\\Lectures\\Luan_van\\DATASET\\VOC\\VOCdevkit\\VOC2010\\ImageSets\\Main\\tvmonitor_val.txt";
+	VOCSvmGenerateData2(annpath,"D:\\Lectures\\Luan_van\\DATASET\\VOC\\VOCdevkit\\VOC2010\\JPEGImages\\",".jpg","tvmonitor",filelist,1,1);*/
+	//ifstream inputFile;
+	//printf("%s\n",posfilelist.c_str());
+	//inputFile.open (posfilelist.c_str());
+	////inputNegFile.open (negfilelist.c_str());
+	//string filepath,filename;
+	//Rect slideWnd(0,0,wndSize.width,wndSize.height);
+	//float scale=1.,step=1.2;
+	//string tmp;
+	//std::vector<std::string> strs;
+	//while (!inputFile.eof())
+	//{
+	//	getline (inputFile,tmp);
+	//	
+	//	char* s = (char*)(tmp.c_str());
+	//	boost::split(strs,s , boost::is_any_of(" "));
+	//	if (strs.size()>2){
+	//		int _i=atoi(strs[strs.size()-1].c_str());
+	//		if(_i!=-1)
+	//		{
+	//			VOCAnnRects(annpath+gcnew System::String(strs[0].c_str())+gcnew System::String(".xml"),"person",rects,n_rect);
+
+	//			printf("%s: %d \n",strs[0].c_str(),n_rect);
+	//		}
+	//	}
+
+	//}
+
+
 /************************************************************************/
 /*                         Load  GUI                                    */
 /************************************************************************/
@@ -90,9 +145,9 @@ int main(array<System::String ^> ^args)
 //	string ext=".png";
 //	Mat imgOrg = imread(path+fname+ext);
 //	Mat img;
-//	double maxSz=500*400.;
-//	double minSz = wndSize.width*wndSize.height;
-//	double t=(double)imgOrg.rows*imgOrg.cols;
+//	float maxSz=500*400.;
+//	float minSz = wndSize.width*wndSize.height;
+//	float t=(float)imgOrg.rows*imgOrg.cols;
 //	float resizeScale=t>maxSz?sqrt(maxSz/t):1.;
 //	resizeScale=t<minSz?sqrt(minSz/t):resizeScale;
 //	resize(imgOrg,img,Size(imgOrg.cols*resizeScale,imgOrg.rows*resizeScale),resizeScale,resizeScale);
@@ -102,7 +157,7 @@ int main(array<System::String ^> ^args)
 //
 //
 //	int n_mean,p_mean;
-//	double*means;
+//	float*means;
 //	meanshiftFromFile("output/"+fname+"_multiscale.txt",100,8,means,n_mean,p_mean);
 //	
 //	for (int i=0;i<n_mean*p_mean;i++)
@@ -125,7 +180,7 @@ int main(array<System::String ^> ^args)
 ////	
 ////		
 ////	HIS* h_w = calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2);
-//////	double* vv = &(h_w->vector_weight[0]);
+//////	float* vv = &(h_w->vector_weight[0]);
 //////	cout<<*vv<<endl;
 //////	delete[] h_w->vector_weight;
 //////	cout<<*vv<<endl;
@@ -289,8 +344,8 @@ int main(array<System::String ^> ^args)
 //	//	}*/
 //	//	/*int n =9;
 //	//	Vec<int,5> a;
-//	//	double * b = new double[10];
-//	//	double c[10];
+//	//	float * b = new float[10];
+//	//	float c[10];
 //	//	printf("size %d",sizeof(c));*/
 //	//	//G.release();
 //	//	
@@ -313,7 +368,7 @@ int main(array<System::String ^> ^args)
 //			//	printf("%f",a.val[1]);
 //			}
 //		stop = clock();
-//		printf("%f", (double)(stop - start)/CLOCKS_PER_SEC);
+//		printf("%f", (float)(stop - start)/CLOCKS_PER_SEC);
 //
 //	return 0;
 //}

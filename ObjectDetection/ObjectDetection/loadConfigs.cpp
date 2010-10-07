@@ -40,7 +40,7 @@ void loadConfig()
 }
 
 
-void getWeight(string filename,Mat* &weight, double& b){
+void getWeight(string filename,Mat* &weight, float& b){
 	ifstream fi;
 	fi.open (filename.c_str());
 	string tmp;
@@ -49,12 +49,12 @@ void getWeight(string filename,Mat* &weight, double& b){
 	{
 		getline (fi,tmp);
 		n = atoi(tmp.c_str());
-		weight = new Mat(n,1,CV_64F);
+		weight = new Mat(n,1,DataType<float>::type);
 		for (int i=0;i<n;i++)
 		{
 			getline (fi,tmp);
 
-			weight->at<double>(i,0)=atof(tmp.c_str());
+			weight->at<float>(i,0)=atof(tmp.c_str());
 		}
 		getline (fi,tmp);
 

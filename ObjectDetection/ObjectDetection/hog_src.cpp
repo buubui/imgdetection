@@ -24,13 +24,13 @@ IplImage** integrals, int normalization) {
 
 for (int i = 0; i < 9 ; i++){
 
-float a =((double*)(integrals[i]->imageData + (cell.y)
+float a =((float*)(integrals[i]->imageData + (cell.y)
 * (integrals[i]->widthStep)))[cell.x];
-float b = ((double*) (integrals[i]->imageData + (cell.y + cell.height)
+float b = ((float*) (integrals[i]->imageData + (cell.y + cell.height)
 * (integrals[i]->widthStep)))[cell.x + cell.width];
-float c = ((double*) (integrals[i]->imageData + (cell.y)
+float c = ((float*) (integrals[i]->imageData + (cell.y)
 * (integrals[i]->widthStep)))[cell.x + cell.width];
-float d = ((double*) (integrals[i]->imageData + (cell.y + cell.height)
+float d = ((float*) (integrals[i]->imageData + (cell.y + cell.height)
 * (integrals[i]->widthStep)))[cell.x];
 
 ((float*) hog_cell->data.fl)[i] = (a + b) - (c + d);

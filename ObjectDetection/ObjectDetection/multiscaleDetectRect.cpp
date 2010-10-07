@@ -6,7 +6,7 @@ void multiscale(Mat img,float step )
 {
 	Mat result = img.clone();
 	Point startP(0,0);
-	double scale =0.;
+	float scale =0.;
 	Size cellSz,wndSz; 
 	Size tmp;
 
@@ -20,12 +20,12 @@ void multiscale(Mat img,float step )
 	Rect slideWnd(0,0,wndSize.width,wndSize.height);
 	int i =0;
 	Mat * weight;
-	double b;
+	float b;
 	getWeight("w.txt",weight,b);
 	Mat* imFils = imFilter(img,true);
 	Mat G = calcGradientOfPixels(imFils[0],imFils[1]);
 	Rect MaxWnd(0,0,wndSize.width,wndSize.height);
-	double max=0;
+	float max=0;
 	Mat img_slideWnd, his_wnd;
 	HIS h_w;
 	
@@ -58,20 +58,20 @@ void multiscale(Mat img,float step )
 				calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2,h_w);
 			//	if(!his){
 					/*Mat A;
-					A=(Mat::zeros(1,h_w->cols,CV_64F));;
+					A=(Mat::zeros(1,h_w->cols,DataType<float>::type));;
 					his= &A;*/
-			//		his=new Mat(1,h_w->cols,CV_64F);
+			//		his=new Mat(1,h_w->cols,DataType<float>::type);
 			/*		his = new Mat();
-					*his=Mat::zeros(1,h_w.cols,CV_64F);
+					*his=Mat::zeros(1,h_w.cols,DataType<float>::type);
 				}*/
 				//printf("%d",h_w->n_bins);
 				/*for (int i=0;i<h_w->cols;i++)
 				{
-					his->at<double>(0,i)=h_w->at<double>(0,i);
+					his->at<float>(0,i)=h_w->at<float>(0,i);
 				}*/
 			
 				Mat R = (h_w)* (*weight ) - b;
-				double v = R.at<double>(0,0);
+				float v = R.at<float>(0,0);
 				cout<<v<<endl;
 				if(v>0){
 					//					printf(" (%d,%d) (%dx%d) %f %f\n",startP.x,startP.y, wndSz.width,wndSz.height,scale, v);
@@ -150,11 +150,11 @@ Mat multiscaleExp(string filepath,float step,Size addStep)
 	Mat img = imread(filepath);
 //	Mat img;
 	
-	double maxSz=maxWndSz.width*maxWndSz.height;
-	double minSz = wndSize.width*wndSize.height;
+	float maxSz=maxWndSz.width*maxWndSz.height;
+	float minSz = wndSize.width*wndSize.height;
 	Rect realRect=resizeImg(img,maxSz,minSz,true);
 	/*
-	//double t=(double)imgOrg.rows*imgOrg.cols;
+	//float t=(float)imgOrg.rows*imgOrg.cols;
 	float resizeScale=t>maxSz?sqrt(maxSz/t):1.;
 	resizeScale=t<minSz?sqrt(minSz/t):resizeScale;
 	resize(imgOrg,img,Size(imgOrg.cols*resizeScale,imgOrg.rows*resizeScale),resizeScale,resizeScale);
@@ -175,7 +175,7 @@ Mat multiscaleExp(string filepath,float step,Size addStep)
 
 	Mat result = img.clone();
 	Point startP(0,0);
-	double scale =1.;
+	float scale =1.;
 	Size cellSz,wndSz; 
 	Size tmp;
 
@@ -189,12 +189,12 @@ Mat multiscaleExp(string filepath,float step,Size addStep)
 	Rect slideWnd(0,0,wndSize.width,wndSize.height);
 	int i =0;
 	Mat * weight;
-	double b;
+	float b;
 	getWeight("w.txt",weight,b);
 	Mat* imFils = imFilter(img,true);
 	Mat G = calcGradientOfPixels(imFils[0],imFils[1]);
 	Rect MaxWnd(0,0,wndSize.width,wndSize.height);
-	double max=0;
+	float max=0;
 	Mat img_slideWnd, his_wnd;
 	HIS h_w;
 //	Mat img2=img.clone();
@@ -202,7 +202,7 @@ Mat multiscaleExp(string filepath,float step,Size addStep)
 	cvtColor(img,img_gray,CV_BGR2GRAY);
 //	equalizeHist(img_gray,img_gray);
 	Mat img2;
-	img_gray.convertTo(img2,CV_64FC1,1./255);
+	img_gray.convertTo(img2,DataType<float>::type,1./255);
 	img_gray.release();
 //	Size addStep;//=Size(2,2);
 //	addStep.width=cellSize.width*1.;
@@ -223,8 +223,8 @@ Mat multiscaleExp(string filepath,float step,Size addStep)
 	int colFound1=0,colFound2=0;
 	int addH=addStep.height;
 	int addW=addStep.width;
-//	double sizeLim=std::max((double)wndSize.width*wndSize.height,(double)realRect.height/3*realRect.width/3);
-	double sizeLim=(double)wndSize.width*wndSize.height*4;
+//	float sizeLim=std::max((float)wndSize.width*wndSize.height,(float)realRect.height/3*realRect.width/3);
+	float sizeLim=(float)wndSize.width*wndSize.height*4;
 	Mat* imFils2=imFilter(img,false);
 	Mat wEdges=Mat::zeros(realRect.height-2,2,DataType<int>::type);
 /************************************************************************/
@@ -239,32 +239,32 @@ Mat multiscaleExp(string filepath,float step,Size addStep)
 			int t= ww-realRect.x-2;
 			if(wEdges.at<int>(ih,0)==realRect.x){
 			//		Gradient g1 =G.at<Gradient>(Point(ww,hh));
-			//		double v=g1[1];
-				double x = imFils2[0].at<double>(hh,ww);
-				double y = imFils2[1].at<double>(hh,ww);
-				double v=sqrt(x*x+y*y);
+			//		float v=g1[1];
+				float x = imFils2[0].at<float>(hh,ww);
+				float y = imFils2[1].at<float>(hh,ww);
+				float v=sqrt(x*x+y*y);
 				if(v>=0.08 ){
 					//	if(g1[1]>=0.2){
 					if(wEdges.at<int>(ih,0)<=wEdges.at<int>(ih,1))
 						wEdges.at<int>(ih,0)=ww;
 				}else
-					img2.at<double>(hh,ww)=0.;
+					img2.at<float>(hh,ww)=0.;
 
 			}
 			if(wEdges.at<int>(ih,1)==realRect.x+realRect.width){
 		//			Gradient g2 =G.at<Gradient>(Point(ww,realRect.y+realRect.height-2-t));
-		//			double v = g2[1];
+		//			float v = g2[1];
 				//		printf("%d %f %d\n",realRect.y+realRect.height-t,g2[1],t);
-				double x = imFils2[0].at<double>(hh,realRect.x+realRect.width-2-t);
-				double y = imFils2[1].at<double>(hh,realRect.x+realRect.width-2-t);
-				double v=sqrt(x*x+y*y);
+				float x = imFils2[0].at<float>(hh,realRect.x+realRect.width-2-t);
+				float y = imFils2[1].at<float>(hh,realRect.x+realRect.width-2-t);
+				float v=sqrt(x*x+y*y);
 				if(v>=0.08 ){
 					//if(g2[1]>=0.2){
 
 					if(realRect.x+realRect.width-2-t>=wEdges.at<int>(ih,0))
 						wEdges.at<int>(ih,1)=realRect.x+realRect.width-2-t;
 				}else
-					img2.at<double>(hh,realRect.x+realRect.width-1-t)=0.;
+					img2.at<float>(hh,realRect.x+realRect.width-1-t)=0.;
 			}
 			if( wEdges.at<int>(ih,0)!=realRect.x&&
 				wEdges.at<int>(ih,1)!=realRect.x+realRect.width)
@@ -292,32 +292,32 @@ Mat multiscaleExp(string filepath,float step,Size addStep)
 			int t= hh-realRect.y-2;
 			if(firstEdge==realRect.y){
 				//	Gradient g1 =G.at<Gradient>(Point(w,hh));
-				//	double v = g1[1];
-				double x = imFils2[0].at<double>(hh,w);
-				double y = imFils2[1].at<double>(hh,w);
-				double v=sqrt(x*x+y*y);
+				//	float v = g1[1];
+				float x = imFils2[0].at<float>(hh,w);
+				float y = imFils2[1].at<float>(hh,w);
+				float v=sqrt(x*x+y*y);
 				if(v>=0.08){
 			//	if(g1[1]>=0.2){
 					if(firstEdge<=lastEdge)
 						firstEdge=hh;
 				}else 
-					img2.at<double>(hh,w)=0.;
+					img2.at<float>(hh,w)=0.;
 
 			}
 			if(lastEdge==realRect.y+realRect.height){
 				//	Gradient g2 =G.at<Gradient>(Point(w,realRect.y+realRect.height-2-t));
-				//	double v = g2[1];
+				//	float v = g2[1];
 				//		printf("%d %f %d\n",realRect.y+realRect.height-t,g2[1],t);
-				double x = imFils2[0].at<double>(realRect.y+realRect.height-2-t,w);
-				double y = imFils2[1].at<double>(realRect.y+realRect.height-2-t,w);
-				double v=sqrt(x*x+y*y);
+				float x = imFils2[0].at<float>(realRect.y+realRect.height-2-t,w);
+				float y = imFils2[1].at<float>(realRect.y+realRect.height-2-t,w);
+				float v=sqrt(x*x+y*y);
 				if(v>=0.08){
 				//if(g2[1]>=0.2){
 
 					if(realRect.y+realRect.height-t>=firstEdge)
 						lastEdge=realRect.y+realRect.height-2-t;
 				}else 
-					img2.at<double>(realRect.y+realRect.height-2-t,w)=0.;
+					img2.at<float>(realRect.y+realRect.height-2-t,w)=0.;
 			}
 			if(firstEdge!=realRect.y&&lastEdge!=realRect.y+realRect.height)
 			{
@@ -335,15 +335,15 @@ Mat multiscaleExp(string filepath,float step,Size addStep)
 		addW=addStep.width;
 		startP.x= w;
 		if(!colFound2){
-				double t=std::abs(lastEdge-firstEdge);
+				float t=std::abs(lastEdge-firstEdge);
 				t= (t/wndSize.height);
-				sizeLim=min((double)wndSize.width*wndSize.height*4,t*t*wndSize.width*wndSize.height*2*2);
+				sizeLim=min((float)wndSize.width*wndSize.height*4,t*t*wndSize.width*wndSize.height*2*2);
 		
 			}
 	//	printf("%d: %d %d: %d %d\n",startP.x,addW,addH,colFound1,colFound2);
 		colFound1=colFound2;
 		colFound2=0;
-	//	sizeLim=(double)wndSize.width*wndSize.height*4;
+	//	sizeLim=(float)wndSize.width*wndSize.height*4;
 	//	for (int w=tmp.width*cellSize.width/2;w<img.cols-wndSize.width/2;w+=addStep.width)
 		int firstH=realRect.y+2;
 
@@ -370,7 +370,7 @@ Mat multiscaleExp(string filepath,float step,Size addStep)
 
 		//	if(colFound2==0 &&g[1]<=0.001){
 			//	printf("skip %d %d\n",startP.x,startP.y);
-			//	img2.at<double>(startP.y,startP.x)=0.;
+			//	img2.at<float>(startP.y,startP.x)=0.;
 	//			continue;
 		//	}
 			scale =1.;
@@ -383,16 +383,19 @@ Mat multiscaleExp(string filepath,float step,Size addStep)
 				slideWnd.y+slideWnd.height<=img.rows && slideWnd.width* slideWnd.height<=sizeLim)
 			{
 				img_slideWnd=img(slideWnd);
-
+				
 				calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9,his_wnd);
+			//	calcHisOfCellsInWnd(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9,his_wnd);
+			//	if(his_wnd.rows==0)
 				calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2,h_w);
 
 				Mat R = (h_w)* (*weight ) - b;
-				double v = R.at<double>(0,0);
-			
+				float v = R.at<float>(0,0);
+				
 				
 				R.release();
 			//	v>0.068
+			//	float v=1;
 				if(v>0.){
 					printf("%d, %d, %f, %f, (%d, %d), (%d, %d), %d\n",startP.x,startP.y,wndSz.width/baseWidth,v,firstEdge,lastEdge,wEdges.at<int>(ih,0),wEdges.at<int>(ih,1),ih);
 					outstr<<startP.x<<", "<<startP.y<<", "<<log(wndSz.width/baseWidth)<<", "<<v<<endl;
@@ -400,7 +403,7 @@ Mat multiscaleExp(string filepath,float step,Size addStep)
 						if(!colFound2)
 							colFound1=colFound2;
 						colFound2++;
-						double t=std::max(lastEdge,firstEdge)-std::min(lastEdge,firstEdge);
+						float t=std::max(lastEdge,firstEdge)-std::min(lastEdge,firstEdge);
 						t= (t/wndSize.height);
 						float largeSzLim=t*t*wndSize.width*wndSize.height*1.5*1.5;
 						if(sizeLim<largeSzLim){
@@ -591,8 +594,8 @@ void drawRect2Img(Mat & img, string rectFile,float minValue,Rect realRect,bool i
 			if(minR==&rects[i])
 				maxR=&rects[j];
 			else maxR=&rects[i];
-			double r1 =(double)cutR.area()/minR->area();
-//			double r2 =(double)cutR.area()/rects[i].area();
+			float r1 =(float)cutR.area()/minR->area();
+//			float r2 =(float)cutR.area()/rects[i].area();
 			if(r1>0.8)
 			{
 				rects[j]=Rect(0,0,0,0);
