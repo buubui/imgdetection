@@ -5,7 +5,7 @@
 
 #pragma once
 #define M_PI	3.141592654
-#define M_e		0.363231742
+#define M_e		0.01
 #include "cxcore.h"
 #include "cxtypes.h"
 #include "cv.h"
@@ -29,4 +29,5 @@ using namespace System::Collections;
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include "detection.h"
-
+#include <msclr\marshal_cppstd.h>
+//#include <pugixml.hpp>

@@ -6,7 +6,7 @@ using namespace System::Collections;
 using namespace System::Windows::Forms;
 using namespace System::Data;
 using namespace System::Drawing;
-#include <msclr\marshal_cppstd.h>
+
 #include "detection.h"
 #include <time.h>
 
@@ -434,7 +434,7 @@ private: System::Void cbBox1_SelectedIndexChanged(System::Object^  sender, Syste
 			// this->imgBox1->Image =Image::FromFile(imgpath);
 				 
 			 Image^ img = imgBox1->Image;
-			 if((double)img->Height*img->Width> (double)imgBox1->Width*imgBox1->Height)
+			 if((float)img->Height*img->Width> (float)imgBox1->Width*imgBox1->Height)
 			 {
 				this->imgBox1->SizeMode=  System::Windows::Forms::PictureBoxSizeMode::Zoom;
 			 }else
@@ -461,7 +461,7 @@ private: System::Void cbBox2_SelectedIndexChanged(System::Object^  sender, Syste
 
 			// this->imgBox2->Image =Image::FromFile(imgpath);
 			 Image^ img = imgBox2->Image;
-			 if((double)img->Height*img->Width> (double)imgBox2->Width*imgBox2->Height)
+			 if((float)img->Height*img->Width> (float)imgBox2->Width*imgBox2->Height)
 			 {
 				 this->imgBox2->SizeMode=  System::Windows::Forms::PictureBoxSizeMode::Zoom;
 			 }else

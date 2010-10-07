@@ -17,9 +17,9 @@
 * radius^2==radius2 centered on [1xp] vector x. data is [nxp]. mean
 * contains [1xp] result and return is number of points used for calc.
 *************************************************************************/
-int			meanVec( double *x, double *data, int p, int n, double radius2,
-					double *mean ) {
-						int i, j; double dist; int cnt=0, m=0;
+int			meanVec( float *x, float *data, int p, int n, float radius2,
+					float *mean ) {
+						int i, j; float dist; int cnt=0, m=0;
 						for( j=0; j<p; j++ ) mean[j]=0;
 						for( i=0; i<n; i++ ) {
 							dist = 0.0;
@@ -36,8 +36,8 @@ int			meanVec( double *x, double *data, int p, int n, double radius2,
 }
 
 /* Squared euclidean distance between two vectors. */
-double		dist( double *A, double *B, int n ) {
-	double d=0.0; int i;
+float		dist( float *A, float *B, int n ) {
+	float d=0.0; int i;
 	for(i=0; i<n; i++) d+=(A[i]-B[i]) * (A[i]-B[i]);
 	return d;
 }
@@ -53,29 +53,29 @@ double		dist( double *A, double *B, int n ) {
 * labels			- labels for each cluster
 * means				- output (final clusters)
 *************************************************************************/
-void		meanShift( double data[], int p, int n, double radius, double rate,
-					  int maxIter, bool blur, double labels[], double* means ) {
-						  double radius2;		/* radius^2 */
+void		meanShift( float data[], int p, int n, float radius, float rate,
+					  int maxIter, bool blur, float labels[], float* means ) {
+						  float radius2;		/* radius^2 */
 						  int iter;			/* number of iterations */
-						  double *mean;		/* mean vector */
+						  float *mean;		/* mean vector */
 						  int i, j, o, m;		/* looping and temporary variables */
 						  int delta = 1;		/* indicator if change occurred between iterations */
 						  int *deltas;		/* indicator if change occurred between iterations per point */
-						  double *meansCur;	/* calculated means for current iter */
-						  double *meansNxt;	/* calculated means for next iter */
-						  double *data1;		/* If blur data1 points to meansCur else it points to data */
+						  float *meansCur;	/* calculated means for current iter */
+						  float *meansNxt;	/* calculated means for next iter */
+						  float *data1;		/* If blur data1 points to meansCur else it points to data */
 						  int *consolidated;	/* Needed in the assignment of cluster labels */
 						  int nLabels = 1;	/* Needed in the assignment of cluster labels */
 
 						  /* initialization */
-						  meansCur = (double*) malloc( sizeof(double)*p*n );
-						  meansNxt = (double*) malloc( sizeof(double)*p*n );
-						  mean = (double*) malloc( sizeof(double)*p );
+						  meansCur = (float*) malloc( sizeof(float)*p*n );
+						  meansNxt = (float*) malloc( sizeof(float)*p*n );
+						  mean = (float*) malloc( sizeof(float)*p );
 						  consolidated = (int*) malloc( sizeof(int)*n );
 						  deltas = (int*) malloc( sizeof(int)*n );
 						  for(i=0; i<n; i++) deltas[i] = 1;
 						  radius2 = radius * radius;
-						  meansCur = (double*) memcpy(meansCur, data, p*n*sizeof(double) );
+						  meansCur = (float*) memcpy(meansCur, data, p*n*sizeof(float) );
 						  if( blur ) data1=meansCur; else data1=data;
 
 						  /* main loop */
@@ -95,7 +95,7 @@ void		meanShift( double data[], int p, int n, double radius, double rate,
 								  }
 							  }
 			//				  mexPrintf( "\b\b\b\b\b\b\b\b%f", (float)(iter+1)/maxIter ); mexEvalString("drawnow;");
-							  memcpy( meansCur, meansNxt, p*n*sizeof(double) ); 
+							  memcpy( meansCur, meansNxt, p*n*sizeof(float) ); 
 							  if(!delta) break;
 						  }
 			//			  mexPrintf( "\n" );
@@ -110,26 +110,26 @@ void		meanShift( double data[], int p, int n, double radius, double rate,
 							  }
 							  nLabels++;
 						  }
-						  nLabels--; memcpy( means, meansCur, p*n*sizeof(double) );
+						  nLabels--; memcpy( means, meansCur, p*n*sizeof(float) );
 
 						  /* free memory */
 						  free(meansNxt); free(meansCur); free(mean); free(consolidated); free(deltas);
 }
-double round(double d)
+float round(float d)
 {
-	double t = d -floor(d);
+	float t = d -floor(d);
 	if(t<0.5)
 		return floor(d);
 	else
 		return ceil(d);
 };
-void	meanShift2( double data[], int p, int n, double radius, double* &means,int& n_mean ) 
+void	meanShift2( float data[], int p, int n, float radius, float* &means,int& n_mean ) 
 {
-	double label[5];
-	double m[4000];
-	double tmp[5000];
+	float label[5];
+	float m[4000];
+	float tmp[5000];
 	meanShift(data,p,n,radius,0.2,100,0,label,m);
-//	double* currP=new double[p];
+//	float* currP=new float[p];
 	n_mean=0;
 //	for (int i=0;i<p;i++)
 //	{
@@ -169,7 +169,7 @@ void	meanShift2( double data[], int p, int n, double radius, double* &means,int&
 		
 	}
 		
-	means=new double[n_mean*(p+1)];
+	means=new float[n_mean*(p+1)];
 	for (int i=0;i<n_mean;i++)
 	{
 		means[i*(p+1)+0]=tmp[i*(p+1)+0];
@@ -183,7 +183,7 @@ void	meanShift2( double data[], int p, int n, double radius, double* &means,int&
 	}
 	
 };
-bool meanshiftFromFile(string fname,double minValue,double radius,int minCsize,double* &means,int& n_mean ,int& p_mean)
+bool meanshiftFromFile(string fname,float minValue,float radius,int minCsize,float* &means,int& n_mean ,int& p_mean)
 {
 	ifstream in;
 	
@@ -192,7 +192,7 @@ bool meanshiftFromFile(string fname,double minValue,double radius,int minCsize,d
 		return false;
 	string tmp;
 	int p=0,n=0;
-	double data[4000];
+	float data[4000];
 	while(1){
 		getline (in,tmp);
 		std::vector<std::string> strs;
@@ -247,7 +247,7 @@ bool meanshiftFromFile(string fname,double minValue,double radius,int minCsize,d
 
 /* see meanShift.m for usage info */
 //void		mexFunction( int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[] ) {
-//	double radius, rate, *data, *labels, *means; int p, n, maxIter; bool blur;
+//	float radius, rate, *data, *labels, *means; int p, n, maxIter; bool blur;
 //
 //	/* Check inputs */
 //	if(nrhs < 4) mexErrMsgTxt("At least four input arguments required.");
@@ -262,8 +262,8 @@ bool meanshiftFromFile(string fname,double minValue,double radius,int minCsize,d
 //	p=mxGetM(prhs[0]); n=mxGetN(prhs[0]);
 //
 //	/* Create outputs */
-//	plhs[0] = mxCreateNumericMatrix(n, 1, mxDOUBLE_CLASS, mxREAL);
-//	plhs[1] = mxCreateNumericMatrix(p, n, mxDOUBLE_CLASS, mxREAL);
+//	plhs[0] = mxCreateNumericMatrix(n, 1, mxfloat_CLASS, mxREAL);
+//	plhs[1] = mxCreateNumericMatrix(p, n, mxfloat_CLASS, mxREAL);
 //	labels=mxGetPr(plhs[0]); means=mxGetPr(plhs[1]);
 //
 //	/* Do the actual computations in a subroutine */
@@ -278,56 +278,56 @@ bool meanshiftFromFile(string fname,double minValue,double radius,int minCsize,d
 //	arr.Add(t);
 //};
 
-Mat powDiagMat(Mat m ,double p)
+Mat powDiagMat(Mat m ,float p)
 {
 	Mat ret = m.clone();
 	for (int i=0;i<m.rows;i++)
 	{
-		ret.at<double>(i,i)= pow(ret.at<double>(i,i),p);
+		ret.at<float>(i,i)= pow(ret.at<float>(i,i),p);
 	}
 	return ret;
 }
-double tw(double w, double c){
-	double ret = w>=c?w-c:0;
+float tw(float w, float c){
+	float ret = w>=c?w-c:0;
 	return ret;
 }
-double mahalanobis(Mat y, Mat yi,Mat H){
-	Mat ret(1,1,CV_64F);
+float mahalanobis(Mat y, Mat yi,Mat H){
+	Mat ret(1,1,DataType<float>::type);
 	ret=(y-yi).t()*powDiagMat(H,-1)*(y-yi);
-	return ret.at<double>(0,0);
+	return ret.at<float>(0,0);
 }
-double wi_tu(int i,Mat y,Mat* data,int n,Mat* Hs,double c){
-	double tu=pow(determinant(Hs[i]),-0.5) * tw(data[i].at<double>(3,0),c) * exp(- mahalanobis(y(Rect(0,0,1,3)),data[i](Rect(0,0,1,3)),Hs[i])/2);
+float wi_tu(int i,Mat y,Mat* data,int n,Mat* Hs,float c){
+	float tu=pow(determinant(Hs[i]),-0.5) * tw(data[i].at<float>(3,0),c) * exp(- mahalanobis(y(Rect(0,0,1,3)),data[i](Rect(0,0,1,3)),Hs[i])/2);
 	return tu;
 }
-double wi(int i,Mat y,Mat* data,int n,Mat* Hs,double c){
-	double detH= determinant(Hs[i]);
-	double mau =0;
+float wi(int i,Mat y,Mat* data,int n,Mat* Hs,float c){
+	float detH= determinant(Hs[i]);
+	float mau =0;
 	for (int t=0;t<n;t++)
 	{
-		mau += pow(determinant(Hs[t]),-0.5) * tw(data[t].at<double>(3,0),c) *exp(- mahalanobis(y(Rect(0,0,1,3)),data[t](Rect(0,0,1,3)),Hs[t])/2 );
+		mau += pow(determinant(Hs[t]),-0.5) * tw(data[t].at<float>(3,0),c) *exp(- mahalanobis(y(Rect(0,0,1,3)),data[t](Rect(0,0,1,3)),Hs[t])/2 );
 	}
-	double tu=pow(determinant(Hs[i]),-0.5) * tw(data[i].at<double>(3,0),c) * exp(- mahalanobis(y(Rect(0,0,1,3)),data[i](Rect(0,0,1,3)),Hs[i])/2);
+	float tu=pow(determinant(Hs[i]),-0.5) * tw(data[i].at<float>(3,0),c) * exp(- mahalanobis(y(Rect(0,0,1,3)),data[i](Rect(0,0,1,3)),Hs[i])/2);
 	return tu/mau;
 }
-Mat HhInv(Mat y, Mat* data,Mat*Hs,int n, double c ){
-	Mat r= Mat::zeros(3,3,CV_64F);
+Mat HhInv(Mat y, Mat* data,Mat*Hs,int n, float c ){
+	Mat r= Mat::zeros(3,3,DataType<float>::type);
 	for (int i=0;i<n;i++)
 	{
 		r+=  powDiagMat(Hs[i],-1) *wi(i,y,data,n,Hs,c);
 	}
 	return r;
 }
-//void computeAll(double* wi, d)
-void	newMeanShift( Mat* data, int p, int n,int sigma_x,int sigma_y,double sigma_s,
-					  int maxIter ,double c) 
+//void computeAll(float* wi, d)
+void	newMeanShift( Mat* data, int p, int n,int sigma_x,int sigma_y,float sigma_s,
+					  int maxIter ,float c) 
 {
-	/*Mat* data= new Mat(4,1,CV_64F);
+	/*Mat* data= new Mat(4,1,DataType<float>::type);
 	for (int i=0;i<n;i++)
 	{
 		for (int j=0;j<4;j++)
 		{
-			data[i].at<double>(j,0) = _data[i*p+j];
+			data[i].at<float>(j,0) = _data[i*p+j];
 		}
 	}
 	*/
@@ -337,13 +337,13 @@ void	newMeanShift( Mat* data, int p, int n,int sigma_x,int sigma_y,double sigma_
 	
 	for (int i=0;i<n;i++)
 	{
-		Hs[i]=Mat::zeros(3,3,CV_64F);
-		Hs[i].at<double>(0,0) = pow(exp(data[i].at<double>(2,0))* sigma_x,2);
-		Hs[i].at<double>(1,1) =pow(exp(data[i].at<double>(2,0))* sigma_y,2);
-		Hs[i].at<double>(2,2) = sigma_s*sigma_s;
+		Hs[i]=Mat::zeros(3,3,DataType<float>::type);
+		Hs[i].at<float>(0,0) = pow(exp(data[i].at<float>(2,0))* sigma_x,2);
+		Hs[i].at<float>(1,1) =pow(exp(data[i].at<float>(2,0))* sigma_y,2);
+		Hs[i].at<float>(2,2) = sigma_s*sigma_s;
 		marked[i]=false;
 	}
-	double* Ws= new double[n+1];
+	float* Ws= new float[n+1];
 	Ws[n]=0;
 	for (int i=0;i<n;i++)
 	{
@@ -356,13 +356,13 @@ void	newMeanShift( Mat* data, int p, int n,int sigma_x,int sigma_y,double sigma_
 			if(done==n)
 				return;
 			if(marked[m]) continue;
-			Mat ym=Mat::zeros(3,1,CV_64F);
-			Mat hhInv= Mat::zeros(3,3,CV_64F);
+			Mat ym=Mat::zeros(3,1,DataType<float>::type);
+			Mat hhInv= Mat::zeros(3,3,DataType<float>::type);
 				
 			for (int i=0;i<n;i++)
 			{
-			//	double w =wi(i,data[m],data,n,Hs,c);
-				double w= Ws[i]/Ws[n];
+			//	float w =wi(i,data[m],data,n,Hs,c);
+				float w= Ws[i]/Ws[n];
 				Mat hiInv=powDiagMat(Hs[i],-1);
 				ym +=w* hiInv * data[i](Rect(0,0,1,3));
 				hhInv+=  hiInv *w;
@@ -372,8 +372,8 @@ void	newMeanShift( Mat* data, int p, int n,int sigma_x,int sigma_y,double sigma_
 			hhInv.release();
 		//	data[m]=ym;
 			Mat tmp=ym-data[m](Rect(0,0,1,3));
-			double _max = max(max(tmp.at<double>(0,0),tmp.at<double>(1,0)),tmp.at<double>(2,0));
-			double _min = min(min(tmp.at<double>(0,0),tmp.at<double>(1,0)),tmp.at<double>(2,0));
+			float _max = max(max(tmp.at<float>(0,0),tmp.at<float>(1,0)),tmp.at<float>(2,0));
+			float _min = min(min(tmp.at<float>(0,0),tmp.at<float>(1,0)),tmp.at<float>(2,0));
 			hhInv.release();
 			if(_max<=0.001&&_min>=-0.001){
 				marked[m]=true;
@@ -382,7 +382,7 @@ void	newMeanShift( Mat* data, int p, int n,int sigma_x,int sigma_y,double sigma_
 			}
 			ym.copyTo(data[m](Rect(0,0,1,3)));
 			ym.release();
-			double wm_old=Ws[m];
+			float wm_old=Ws[m];
 			Ws[m] = wi_tu(m,data[m],data,n,Hs,c);
 			Ws[n] +=Ws[m]-wm_old;
 
@@ -393,21 +393,21 @@ void	newMeanShift( Mat* data, int p, int n,int sigma_x,int sigma_y,double sigma_
 
 }
 
-void	newMeanShift2( Mat* data,int  p, int n, Mat*& means, int& n_mean,double c ) 
+void	newMeanShift2( Mat* data,int  p, int n, Mat*& means, int& n_mean,float c ) 
 {
-	double label[5];
-//	double m[4000];
+	float label[5];
+//	float m[4000];
 	Mat* tmp= new Mat[n];
 	for (int i=0;i<n;i++)
 	{
-		tmp[i]= Mat::zeros(p+1,1,CV_64F);
+		tmp[i]= Mat::zeros(p+1,1,DataType<float>::type);
 	}
 	
 	newMeanShift(data,p,n,4,14,log(1.6),100,c);
 	for (int i=0;i<n;i++)
 	{
 		for(int j=0;j<p;j++)
-			cout <<data[i].at<double>(j,0)<<" ";
+			cout <<data[i].at<float>(j,0)<<" ";
 		cout<<endl;
 	}
 	n_mean=0;
@@ -422,15 +422,15 @@ void	newMeanShift2( Mat* data,int  p, int n, Mat*& means, int& n_mean,double c )
 		founded=false;
 		for (int j=0;j<n_mean;j++)
 		{
-			double t1=tmp[j].at<double>(0,0)-round(data[i].at<double>(0,0));
-			double t2=tmp[j].at<double>(1,0)-round(data[i].at<double>(1,0));
+			float t1=tmp[j].at<float>(0,0)-round(data[i].at<float>(0,0));
+			float t2=tmp[j].at<float>(1,0)-round(data[i].at<float>(1,0));
 			if(-(2)<=t1&& t1<=(2) && -(2)<= t2&& t2<=(2))
 			{
 				for (int k=2;k<p;k++)
 				{
-					tmp[j].at<double>(k,0) +=data[i].at<double>(k,0);
+					tmp[j].at<float>(k,0) +=data[i].at<float>(k,0);
 				}
-				tmp[j].at<double>(p,0)++;
+				tmp[j].at<float>(p,0)++;
 				founded=true;
 				break;
 			}
@@ -438,13 +438,13 @@ void	newMeanShift2( Mat* data,int  p, int n, Mat*& means, int& n_mean,double c )
 		}
 		if(founded==false)
 		{
-			tmp[n_mean].at<double>(0,0) =round(data[i].at<double>(0,0));
-			tmp[n_mean].at<double>(1,0) =round(data[i].at<double>(1,0));
+			tmp[n_mean].at<float>(0,0) =round(data[i].at<float>(0,0));
+			tmp[n_mean].at<float>(1,0) =round(data[i].at<float>(1,0));
 			for (int k=2;k<p;k++)
 			{
-				tmp[n_mean].at<double>(k,0) =data[i].at<double>(k,0);
+				tmp[n_mean].at<float>(k,0) =data[i].at<float>(k,0);
 			}
-			tmp[n_mean].at<double>(p,0) =1;
+			tmp[n_mean].at<float>(p,0) =1;
 			n_mean++;
 		}
 
@@ -458,7 +458,7 @@ void	newMeanShift2( Mat* data,int  p, int n, Mat*& means, int& n_mean,double c )
 	//	means[i*(p+1)+1]=tmp[i*(p+1)+1];
 		for (int j=2;j<p;j++)
 		{
-			means[i].at<double>(j,0)=means[i].at<double>(j,0)/means[i].at<double>(p,0);
+			means[i].at<float>(j,0)=means[i].at<float>(j,0)/means[i].at<float>(p,0);
 		}
 	//	means[i*(p+1)+p]=tmp[i*(p+1)+p];
 		
@@ -466,7 +466,7 @@ void	newMeanShift2( Mat* data,int  p, int n, Mat*& means, int& n_mean,double c )
 
 
 };
-bool newMeanshiftFromFile(string fname,double c ,int minCsize,Mat* &means,int& n_mean ,int& p_mean)
+bool newMeanshiftFromFile(string fname,float c ,int minCsize,Mat* &means,int& n_mean ,int& p_mean)
 {
 	ifstream in;
 
@@ -490,10 +490,10 @@ bool newMeanshiftFromFile(string fname,double c ,int minCsize,Mat* &means,int& n
 			break;
 		if(atof(strs[p-1].c_str())<c)
 			continue;
-		data[n]=Mat::zeros(p,1,CV_64F);
+		data[n]=Mat::zeros(p,1,DataType<float>::type);
 		for (int i=0;i<p;i++)
 		{
-			data[n].at<double>(i,0) = atof(strs[i].c_str());
+			data[n].at<float>(i,0) = atof(strs[i].c_str());
 		}
 		n++;
 
@@ -513,11 +513,11 @@ bool newMeanshiftFromFile(string fname,double c ,int minCsize,Mat* &means,int& n
 	if(out.is_open()){
 		for (int i=0;i<n_mean;i++)
 		{
-			if(means[i].at<double>(p_mean-1,0)<c)
+			if(means[i].at<float>(p_mean-1,0)<c)
 				continue;
 			for (int j=0;j<p_mean;j++)
 			{
-				out<<means[i].at<double>(j,0);
+				out<<means[i].at<float>(j,0);
 				if(j<p_mean-1)
 					out<<", ";
 				else

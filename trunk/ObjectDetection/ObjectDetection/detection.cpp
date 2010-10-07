@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "meanshift.h"
 extern Size cellSize,blockSize,wndSize,maxWndSz;
-bool detection(string path,string fname, string ext,float scaleStep,Size addStep,float minB,double radius,int minCsize, bool justMeanshift,bool mergeRect)
+bool detection(string path,string fname, string ext,float scaleStep,Size addStep,float minB,float radius,int minCsize, bool justMeanshift,bool mergeRect)
 {
 	if(path[path.size()-1]!='\\')
 		path=path+"\\";
@@ -10,11 +10,11 @@ bool detection(string path,string fname, string ext,float scaleStep,Size addStep
 		cout<<path<<fname<<ext<<endl;
 		printf("%f %f %f %d\n",scaleStep,minB,radius,minCsize);
 	//	Mat img;
-		double maxSz=maxWndSz.width*maxWndSz.height;
-		double minSz = wndSize.width*wndSize.height;
+		float maxSz=maxWndSz.width*maxWndSz.height;
+		float minSz = wndSize.width*wndSize.height;
 		Rect realRect=resizeImg(img,maxSz,minSz,true);
 		/*
-		double t=(double)imgOrg.rows*imgOrg.cols;
+		float t=(float)imgOrg.rows*imgOrg.cols;
 		float resizeScale=t>maxSz?sqrt(maxSz/t):1.;
 		resizeScale=t<minSz?sqrt(minSz/t):resizeScale;
 		resize(imgOrg,img,Size(imgOrg.cols*resizeScale,imgOrg.rows*resizeScale),resizeScale,resizeScale);
@@ -30,7 +30,7 @@ bool detection(string path,string fname, string ext,float scaleStep,Size addStep
 		multiscale.release();
 		
 		int n_mean,p_mean;
-		double*means;
+		float*means;
 		meanshiftFromFile("output/"+fname+"_multiscale.txt",minB,radius,minCsize,means,n_mean,p_mean);
 	//	Mat* means;
 	//	newMeanshiftFromFile("output/"+fname+"_multiscale.txt",minB,minCsize,means,n_mean,p_mean);
@@ -53,12 +53,12 @@ bool detection(string path,string fname, string ext,float scaleStep,Size addStep
 	return true;
 };
 
-Rect resizeImg(Mat& img,double maxSz,double minSz,bool addBlank)
+Rect resizeImg(Mat& img,float maxSz,float minSz,bool addBlank)
 {
 	Mat img2;
-//	double maxSz=500*400.;
-//	double minSz = wndSize.width*wndSize.height;
-	double t=(double)img.rows*img.cols;
+//	float maxSz=500*400.;
+//	float minSz = wndSize.width*wndSize.height;
+	float t=(float)img.rows*img.cols;
 	float resizeScale=t>maxSz?sqrt(maxSz/t):1.;
 	resizeScale=t<minSz?sqrt(minSz/t):resizeScale;
 	resize(img,img2,Size(img.cols*resizeScale,img.rows*resizeScale),resizeScale,resizeScale);

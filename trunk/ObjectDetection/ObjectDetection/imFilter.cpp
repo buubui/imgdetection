@@ -45,20 +45,20 @@ Mat* imFilter(const Mat& img,bool equalize){
 
 	
 	
-	//convert image from uchar(0->255) to double (0->1)
-	//Mat imdouble= im2double(img_gray);
-	Mat imdouble;
-	img_gray.convertTo(imdouble,CV_64FC1,1./255);
+	//convert image from uchar(0->255) to float (0->1)
+	//Mat imfloat= im2float(img_gray);
+	Mat imfloat;
+	img_gray.convertTo(imfloat,DataType<float>::type,1./255);
 	img_gray.release();
 
 	
 	float v[]={-1,0,1};
 	Mat Dx (1,3,CV_32F,v);
 	Mat dst,dst2;
-	filter2D(imdouble,dst,imdouble.depth(),Dx);
+	filter2D(imfloat,dst,imfloat.depth(),Dx);
 	//filter2D(img_gray,dst,img_gray.depth(),Dx);
 	arrFils[0] = dst;
-	filter2D(imdouble,dst2,imdouble.depth(),Dx.t());
+	filter2D(imfloat,dst2,imfloat.depth(),Dx.t());
 	//filter2D(img_gray,dst2,img_gray.depth(),Dx.t());
 	arrFils[1] = dst2;
 	
@@ -66,7 +66,7 @@ Mat* imFilter(const Mat& img,bool equalize){
 	{
 		for (int j=0;j<30;j++)
 		{
-			printf("%f ; ",arrFils[0].at<double>(i,j));
+			printf("%f ; ",arrFils[0].at<float>(i,j));
 		}
 	}*/
 

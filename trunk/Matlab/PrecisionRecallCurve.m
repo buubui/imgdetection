@@ -21,4 +21,5 @@ for i=1:nTh
     val(i,2) = tp/recPos;
 end
 plot(val(:,2),val(:,1));
+%axis([0.9 1 0.7 1]);
 end
