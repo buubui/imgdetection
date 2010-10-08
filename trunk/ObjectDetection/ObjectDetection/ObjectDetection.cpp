@@ -81,17 +81,13 @@ int main(array<System::String ^> ^args)
 //	{
 //		Console::WriteLine(att->Item(i)->InnerText);
 //	}
-	/*System::String^ annpath="D:\\Lectures\\Luan_van\\DATASET\\VOC\\VOCdevkit\\VOC2010\\Annotations\\";
+	System::String^ annpath="D:\\My Documents\\VOC2009\\Annotations\\";
 	Rect* rects;
 	int n_rect;
-	VOCAnnRects("input/2007_000032.xml","person",rects,n_rect);
-	for (int i=0;i<n_rect;i++)
-	{
-		printf("%d %d %d %d\n",rects[i].x,rects[i].y,rects[i].width,rects[i].height);
-	}
-	
-	string filelist="D:\\Lectures\\Luan_van\\DATASET\\VOC\\VOCdevkit\\VOC2010\\ImageSets\\Main\\tvmonitor_val.txt";
-	VOCSvmGenerateData2(annpath,"D:\\Lectures\\Luan_van\\DATASET\\VOC\\VOCdevkit\\VOC2010\\JPEGImages\\",".jpg","tvmonitor",filelist,1,1);*/
+//	VOCAnnRects("D:\\My Documents\\VOC2009\\Annotations\\2009_005311.xml","person",rects,n_rect);
+//	cout<<n_rect<<endl;
+	string filelist="D:\\My Documents\\VOC2009\\ImageSets\\Main\\person_train - Copy.txt";
+	VOCSvmGenerateData2(annpath,"D:\\My Documents\\VOC2009\\JPEGImages\\",".jpg","person",filelist,1,1);
 	//ifstream inputFile;
 	//printf("%s\n",posfilelist.c_str());
 	//inputFile.open (posfilelist.c_str());
@@ -124,12 +120,12 @@ int main(array<System::String ^> ^args)
 /*                         Load  GUI                                    */
 /************************************************************************/
 
-	// Enabling Windows XP visual effects before any controls are created
-	Application::EnableVisualStyles();
-	Application::SetCompatibleTextRenderingDefault(false); 
+	//// Enabling Windows XP visual effects before any controls are created
+	//Application::EnableVisualStyles();
+	//Application::SetCompatibleTextRenderingDefault(false); 
 
-	// Create the main window and run it
-	Application::Run(gcnew MainWindow());
+	//// Create the main window and run it
+	//Application::Run(gcnew MainWindow());
 	return 0;
 }
 

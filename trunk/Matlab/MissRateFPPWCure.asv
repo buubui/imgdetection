@@ -1,0 +1,21 @@
+function val = MissRateFPPWCure(M, numpos, thr)
+n = size(M,1);
+nTh = size(thr,2);
+fp = 0;
+tp = 0;
+for i=1:nTh
+    %calc fp
+    for j=numpos+1:n
+        if M(j,1)>= thr(1,i)
+            fp = fp + 1;
+        end
+    end
+    % calc tp
+    for j=1:numpos
+        if M(j,1) >= thr(1,i)
+            tp = tp + 1;
+        end
+    end
+    
+end
+end
