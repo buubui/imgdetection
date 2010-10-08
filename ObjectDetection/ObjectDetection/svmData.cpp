@@ -136,7 +136,7 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 	inputFile.open (posfilelist.c_str());
 	//inputNegFile.open (negfilelist.c_str());
 	string filepath,filename;
-	int randTime=randTimePos;
+	int randTime = randTimePos;
 	string pos ="+1";
 	string posStr = pos.compare("+1")==0?"Pos":"Neg";
 	Rect slideWnd(0,0,wndSize.width,wndSize.height);
@@ -144,18 +144,20 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 	if (inputFile.is_open())
 	{
 		getline (inputFile,filepath);
-		ofstream myfile,myfile2;
+		ofstream myfile2;
+		//ofstream myfile;
 		//	SYSTEMTIME st;
 		//	GetSystemTime(&st);
 		time_t curr;
 		tm local;
 		time(&curr); // get current time_t value
 		local=*(localtime(&curr)); // dereference and assign
-		stringstream outputfile,outputfile2; 
+	//	stringstream outputfile;
+		stringstream outputfile2; 
 
-		outputfile<<"output/his"<<"_winSvm_"<<local.tm_year+1900<<"_"<<local.tm_mon<<"_"<<local.tm_mday<<"_"<<local.tm_hour<<"_"<<local.tm_min<<".txt" ;
-		outputfile2<<"output/his"<<"_svmLight_"<<local.tm_year+1900<<"_"<<local.tm_mon<<"_"<<local.tm_mday<<"_"<<local.tm_hour<<"_"<<local.tm_min<<".txt" ;
-		myfile.open(outputfile.str().c_str());
+	//	outputfile<<"output/his_"<<"test"<<"_winSvm_"<<local.tm_year+1900<<"_"<<local.tm_mon<<"_"<<local.tm_mday<<"_"<<local.tm_hour<<"_"<<local.tm_min<<".txt" ;
+		outputfile2<<"output/his_test"<<"_svmLight_"<<local.tm_year+1900<<"_"<<local.tm_mon<<"_"<<local.tm_mday<<"_"<<local.tm_hour<<"_"<<local.tm_min<<".txt" ;
+	//	myfile.open(outputfile.str().c_str());
 		myfile2.open(outputfile2.str().c_str());
 		Size cellSz,wndSz,tmp;
 		tmp.width = wndSize.width / cellSize.width;
@@ -200,14 +202,16 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 			for (int j =0;j<randTime;)
 			{
 				
-				if(randTime>1){
+				if(randTime>1)
+				{
 				
 					if (!continueScale)
 					{
 						int rnd;
 						int sizeW = img.cols - wndSize.width;
 						int sizeH = img.rows - wndSize.height;
-						switch(j){
+						switch(j)
+						{
 							case 0: startP.x=img.cols/2;startP.y=img.rows/2;break;
 							case 1: startP.x=wndSize.width/2+ sizeW/4;startP.y=wndSize.height/2+sizeH/4;break;
 							case 2: startP.x=wndSize.width/2+ 3*sizeW/4;startP.y=wndSize.height/2+sizeH/4;break;
@@ -233,7 +237,9 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 						slideWnd=getRect(startP.x,startP.y,scale);
 						wndSz.width=slideWnd.width;
 						wndSz.height=slideWnd.height;
-					}else{
+					}
+					else
+					{
 					//	cellSz.width+=2;
 					//	cellSz.height+=2;
 
@@ -283,7 +289,8 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 
 				}else{
 					scale=1.;
-					if(pos.compare("+1")==0){
+					if(pos.compare("+1")==0)
+					{
 						if(img.rows > slideWnd.height)
 						{
 						slideWnd.x = (img.rows - slideWnd.height)/2;
@@ -318,11 +325,11 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 				{
 					//	printf("%f ; ",h_w->vector_weight[i]);
 					float v =h_w.at<float>(0,i); 
-					myfile << v<<"\t";
+			//		myfile << v<<"\t";
 					if(v!=0)
 						myfile2 << i+1<<":"<<v<<"\t";
 				}
-				myfile << pos<<"\n";
+			//	myfile << pos<<"\n";
 				myfile2 <<"\t #"<<filename<<"\t ("<<slideWnd.x<<", "<<slideWnd.y<<", "<<slideWnd.width<<", "<<slideWnd.height<<")\n";
 				//	delete[] h_w->vector_weight;
 				// h_w->release();
@@ -358,7 +365,7 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 		}
 		his_wnd.release();
 		h_w.release();
-		myfile.close();
+	//	myfile.close();
 		myfile2.close();
 	}
 	inputFile.close();
@@ -401,11 +408,28 @@ void VOCAnnRects(System::String^ XmlFileName,System::String^ objName,Rect* &rect
 			{
 				XmlNodeList^ boundNl=objNl->Item(j)->ChildNodes;
 				//	Console::WriteLine(nl->Item(i)->ChildNodes->Item(4)->InnerText);
-
-				rects[n_rect].x=atoi(msclr::interop::marshal_as<std::string>(boundNl->Item(0)->InnerText).c_str());
-				rects[n_rect].y=atoi(msclr::interop::marshal_as<std::string>(boundNl->Item(1)->InnerText).c_str());
-				rects[n_rect].width=atoi(msclr::interop::marshal_as<std::string>(boundNl->Item(2)->InnerText).c_str())-rects[n_rect].x;
-				rects[n_rect].height=atoi(msclr::interop::marshal_as<std::string>(boundNl->Item(3)->InnerText).c_str())-rects[n_rect].y;
+				int xmin,xmax,ymin,ymax;
+				for (int t=0;t<boundNl->Count;t++)
+				{
+					if(boundNl->Item(t)->Name=="xmin")
+						 xmin =atoi(msclr::interop::marshal_as<std::string>(boundNl->Item(t)->InnerText).c_str());
+					else if(boundNl->Item(t)->Name=="xmax")
+						xmax=atoi(msclr::interop::marshal_as<std::string>(boundNl->Item(t)->InnerText).c_str());
+					else if(boundNl->Item(t)->Name=="ymin")
+						ymin=atoi(msclr::interop::marshal_as<std::string>(boundNl->Item(t)->InnerText).c_str());
+					else if(boundNl->Item(t)->Name=="ymax")
+						ymax=atoi(msclr::interop::marshal_as<std::string>(boundNl->Item(t)->InnerText).c_str());
+				
+					//	xmin=atoi(msclr::interop::marshal_as<std::string>(boundNl->Item(t)->InnerText).c_str());
+				}
+			
+				rects[n_rect].x= xmin;
+				rects[n_rect].y=ymin;
+				rects[n_rect].width = xmax-xmin;
+				rects[n_rect].height = ymax-ymin;
+				cout<<rects[n_rect].x<<","<<rects[n_rect].y<<","<<rects[n_rect].width<<","<<rects[n_rect].height<<endl;
+			//	rects[n_rect].width=atoi(msclr::interop::marshal_as<std::string>(boundNl->Item(2)->InnerText).c_str())-rects[n_rect].x;
+			//	rects[n_rect].height=atoi(msclr::interop::marshal_as<std::string>(boundNl->Item(3)->InnerText).c_str())-rects[n_rect].y;
 
 				n_rect++;
 				break;
