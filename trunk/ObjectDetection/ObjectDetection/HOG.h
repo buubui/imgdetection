@@ -51,4 +51,5 @@ void calcHisOfCellsInWnd2(Mat hog_pixels,Rect wnd, Size cellSize, int n_bins,Mat
 void setHisOfCell(const Gradient& hog_pixcell, HIS* Hcell,Size cellSize);
 inline void setHisOfCells(const Gradient& hog_pixcell, HIS** Hcells,float* R,int n_cells,Size cellSize);
 void calcHisOfCellsInWnd2new(const Mat& hog_pixels,Rect wnd, Size cellSize, int n_bins,Mat& H);
+void GaussianBlurBlock(Mat& h);
 #endif

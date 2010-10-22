@@ -140,7 +140,7 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 	string pos ="+1";
 	string posStr = pos.compare("+1")==0?"Pos":"Neg";
 	Rect slideWnd(0,0,wndSize.width,wndSize.height);
-	float scale=1.,step=1.2;
+	float scale=1.,step=1.2;          // change step.
 	if (inputFile.is_open())
 	{
 		getline (inputFile,filepath);
@@ -160,6 +160,8 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 	//	myfile.open(outputfile.str().c_str());
 		myfile2.open(outputfile2.str().c_str());
 		Size cellSz,wndSz,tmp;
+		cellSz.width = cellSize.width;
+		cellSz.height = cellSize.height;
 		tmp.width = wndSize.width / cellSize.width;
 		tmp.height = wndSize.height / cellSize.height;
 		Mat his_wnd ;
@@ -212,16 +214,17 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 						int sizeH = img.rows - wndSize.height;
 						switch(j)
 						{
-							case 0: startP.x=img.cols/2;startP.y=img.rows/2;break;
-							case 1: startP.x=wndSize.width/2+ sizeW/4;startP.y=wndSize.height/2+sizeH/4;break;
-							case 2: startP.x=wndSize.width/2+ 3*sizeW/4;startP.y=wndSize.height/2+sizeH/4;break;
-							case 3: startP.x=wndSize.width/2+ sizeW/4;startP.y=wndSize.height/2+3*sizeH/4;break;
-							case 4: startP.x=wndSize.width/2+ 3*sizeW/4;startP.y=wndSize.height/2+3*sizeH/4;break;
-							case 5: startP.x=wndSize.width/2+ sizeW/4;startP.y=wndSize.height/2+sizeH/2;break;
-							case 6: startP.x=wndSize.width/2+ 3*sizeW/4;startP.y=wndSize.height/2+sizeH/2;break;
-							case 7: startP.x=wndSize.width/2+ sizeW/2;startP.y=wndSize.height/2+sizeH/4;break;
-							case 8: startP.x=wndSize.width/2+ sizeW/2;startP.y=wndSize.height/2+3*sizeH/4;break;
+						//	case 0: startP.x=img.cols/2;startP.y=img.rows/2;break;
+						//	case 1: startP.x=wndSize.width/2+ sizeW/4;startP.y=wndSize.height/2+sizeH/4;break;
+						//	case 2: startP.x=wndSize.width/2+ 3*sizeW/4;startP.y=wndSize.height/2+sizeH/4;break;
+						//	case 3: startP.x=wndSize.width/2+ sizeW/4;startP.y=wndSize.height/2+3*sizeH/4;break;
+						//	case 4: startP.x=wndSize.width/2+ 3*sizeW/4;startP.y=wndSize.height/2+3*sizeH/4;break;
+						//	case 5: startP.x=wndSize.width/2+ sizeW/4;startP.y=wndSize.height/2+sizeH/2;break;
+						//	case 6: startP.x=wndSize.width/2+ 3*sizeW/4;startP.y=wndSize.height/2+sizeH/2;break;
+						//	case 7: startP.x=wndSize.width/2+ sizeW/2;startP.y=wndSize.height/2+sizeH/4;break;
+						//	case 8: startP.x=wndSize.width/2+ sizeW/2;startP.y=wndSize.height/2+3*sizeH/4;break;
 							default:
+								srand(time(NULL));
 								rnd = rand()%sizeW;
 								startP.x =wndSize.width/2+rnd;
 								rnd = rand()%sizeH;
@@ -317,7 +320,7 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 //				Mat his_wnd = calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9);
 				calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9,his_wnd);
 		//		HIS* h_w = calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2);
-				calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),3,h_w);
+				calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2,h_w);
 
 
 				myfile2 << pos<<"\t";
@@ -427,7 +430,7 @@ void VOCAnnRects(System::String^ XmlFileName,System::String^ objName,Rect* &rect
 				rects[n_rect].y=ymin;
 				rects[n_rect].width = xmax-xmin;
 				rects[n_rect].height = ymax-ymin;
-				cout<<rects[n_rect].x<<","<<rects[n_rect].y<<","<<rects[n_rect].width<<","<<rects[n_rect].height<<endl;
+			//	cout<<rects[n_rect].x<<","<<rects[n_rect].y<<","<<rects[n_rect].width<<","<<rects[n_rect].height<<endl;
 			//	rects[n_rect].width=atoi(msclr::interop::marshal_as<std::string>(boundNl->Item(2)->InnerText).c_str())-rects[n_rect].x;
 			//	rects[n_rect].height=atoi(msclr::interop::marshal_as<std::string>(boundNl->Item(3)->InnerText).c_str())-rects[n_rect].y;
 

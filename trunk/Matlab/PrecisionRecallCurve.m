@@ -1,4 +1,4 @@
-function val = PrecisionRecallCurve(M, numpos, thr)
+function val = PrecisionRecallCurve(M, numpos, thr, color)
 n = size(M,1);
 nTh = size(thr,2);
 val = zeros(nTh,2);
@@ -20,6 +20,6 @@ for i=1:nTh
     end
     val(i,2) = tp/recPos;
 end
-plot(val(:,2),val(:,1));
+plot(val(:,2),val(:,1),color);
 %axis([0.9 1 0.7 1]);
 end

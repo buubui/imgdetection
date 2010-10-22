@@ -52,7 +52,7 @@ void multiscale(Mat img,float step )
 				img_slideWnd=img(slideWnd);
 
 
-			//	his_wnd = calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9);
+			//	his_wnd = calcHisOfCellsInWnd(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9);
 				calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9,his_wnd);
 			//	HIS* h_w = calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2);
 				calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2,h_w);
