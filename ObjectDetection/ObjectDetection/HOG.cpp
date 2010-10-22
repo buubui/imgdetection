@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "HOG.h"
 #include <cxoperations.hpp>
+extern Size cellSize,blockSize,wndSize,maxWndSz;
 
 //Gradient** calcHOG(const Mat&filx,const Mat&fily)
 //{
@@ -913,7 +914,11 @@ void calcHistOfBlockInWnd(const Mat& mat, Rect p,HIS& hist)
 
 	return ;
 }
-
+void GaussianBlurBlock(Mat& h)
+{
+	double sigma = 0.5 * cellSize.height*blockSize.height;
+	GaussianBlur(h,h,Size(5,5),sigma);
+}
 void calcHistOfWnd(const Mat& mat, const Size& blockSize, Vec2i overlap, int norm_c,HIS& H)
 {
 	int n = mat.at<HIS*>(0,0)->cols;
@@ -930,12 +935,34 @@ void calcHistOfWnd(const Mat& mat, const Size& blockSize, Vec2i overlap, int nor
 	int x=0,y=0;
 	int s=0;
 	HIS h_b;
+	/*ofstream outHisBlock;
+	stringstream name;
+	name <<"output/hisBlock_Gauss.txt";
+	outHisBlock.open(name.str().c_str());*/
 	for (int i=0; i < n_block_w;i++)
 	{
 		x=0;
 		for (int j = 0 ; j<n_block_h;j++)
 		{
 			calcHistOfBlockInWnd(mat,Rect(x,y,blockSize.width,blockSize.height),h_b);
+			Mat temp= h_b.clone();
+			GaussianBlur(temp,h_b,Size(0,0),0.5*cellSize.height*blockSize.height);
+			//GaussianBlurBlock(h_b);
+			//
+			/*Mat temp;
+			temp = h_b.clone();
+			float sigma = 0.5*6*3;
+			GaussianBlur(h_b,temp,Size(3,3),sigma);
+			int r = temp.rows;
+			int c = temp.cols;
+			for(int rr =0; rr<r;rr++)
+				for(int cc=0;cc<c;cc++)
+				{
+					float val = temp.at<float>(rr,cc);
+					outHisBlock<<val<<"\t";
+				}
+			outHisBlock<<"\n";*/
+			//
 			NormalizeBlock(h_b,norm_c);
 
 
@@ -965,6 +992,7 @@ void calcHistOfWnd(const Mat& mat, const Size& blockSize, Vec2i overlap, int nor
 			
 	}
 	 h_b.release();
+//	 outHisBlock.close();
 	return ;
 
 

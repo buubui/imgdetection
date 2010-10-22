@@ -13,6 +13,7 @@ using namespace ObjectDetection;
 #include "ctime"
 #include "glbVars.h"
 #include "meanshift.h"
+#include "HardSample.h"
 #include <list>
 
 void takefalseImg(string ffile)
@@ -50,14 +51,23 @@ void takefalseImg(string ffile)
 int main(array<System::String ^> ^args)
 {
 	loadConfig();
+	/*srand(time(NULL));
+	for (int i=0;i<20;i++)
+	{
+		cout<<rand()%100<<endl;
+	}*/
+	
+//	GenHardSample("input/thu/train.txt","input/thu/index.txt","input/thu/NegHardSample.txt");
  /************************************************************************/
  /*                  Generating data for SVM                             */
  /************************************************************************/
-	/*clock_t t1,t2;
+	clock_t t1,t2;
 	t1 = clock();	
-	svmGenerateData2("input/testPos.txt","input/testNeg.txt",1,5);
+//	svmGenerateData2("input/Train_Pos.txt","input/Train_Neg_P1.txt",1,8);
+	svmGenerateData2("input/Test_Pos.txt","input/Test_Neg.txt",1,8);
+//	svmGenerateData2("input/Train_Pos_Null.txt","input/Train_Neg_Null.txt",1,12);
 	t2 = clock();
-	printf("Running time: %f (mins)\n",(float)(t2-t1)/(60*CLOCKS_PER_SEC));*/
+	printf("Running time: %f (mins)\n",(float)(t2-t1)/(60*CLOCKS_PER_SEC));
 
 	/************************************************************************/
 	/*                      Test new mean shift                             */
@@ -81,13 +91,15 @@ int main(array<System::String ^> ^args)
 //	{
 //		Console::WriteLine(att->Item(i)->InnerText);
 //	}
-	System::String^ annpath="D:\\My Documents\\VOC2009\\Annotations\\";
-	Rect* rects;
-	int n_rect;
-//	VOCAnnRects("D:\\My Documents\\VOC2009\\Annotations\\2009_005311.xml","person",rects,n_rect);
-//	cout<<n_rect<<endl;
-	string filelist="D:\\My Documents\\VOC2009\\ImageSets\\Main\\person_train - Copy.txt";
-	VOCSvmGenerateData2(annpath,"D:\\My Documents\\VOC2009\\JPEGImages\\",".jpg","person",filelist,1,1);
+	//////////////////////////////////VOC//////////////////////////////////////////////////////
+////	System::String^ annpath="D:\\My Documents\\VOC2009\\Annotations\\";
+////	Rect* rects;
+////	int n_rect;
+//////	VOCAnnRects("D:\\My Documents\\VOC2009\\Annotations\\2009_005311.xml","person",rects,n_rect);
+//////	cout<<n_rect<<endl;
+////	string filelist="D:\\My Documents\\VOC2009\\ImageSets\\Main\\person_train - Copy.txt";
+////	VOCSvmGenerateData2(annpath,"D:\\My Documents\\VOC2009\\JPEGImages\\",".jpg","person",filelist,1,1);
+	///////////////////////////////////////////////////////////////////////////////////////////////
 	//ifstream inputFile;
 	//printf("%s\n",posfilelist.c_str());
 	//inputFile.open (posfilelist.c_str());
@@ -120,7 +132,7 @@ int main(array<System::String ^> ^args)
 /*                         Load  GUI                                    */
 /************************************************************************/
 
-	//// Enabling Windows XP visual effects before any controls are created
+	// Enabling Windows XP visual effects before any controls are created
 	//Application::EnableVisualStyles();
 	//Application::SetCompatibleTextRenderingDefault(false); 
 
