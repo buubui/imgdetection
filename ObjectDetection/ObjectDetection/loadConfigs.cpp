@@ -3,6 +3,7 @@ extern Size cellSize,blockSize,wndSize,maxWndSz;
 
 void loadConfig()
 {
+	srand(time(NULL));
 	ifstream conffile;
 	conffile.open ("input/config.txt");
 	string tmp;

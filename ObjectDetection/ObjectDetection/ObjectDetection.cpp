@@ -135,7 +135,12 @@ void takeType(string fnamein,string fnameout,char type)
 [STAThreadAttribute]
 int main(array<System::String ^> ^args)
 {
+	clock_t t1,t2;
+	t1 = clock();	
 	loadConfig();
+	
+	
+	
 //	Mat im = imread("D:\\Lectures\\Luan_van\\DATASET\\VOC\\VOCdevkit\\VOC2010\\JPEGImages\\2007_000480.jpg");
 	/*printf("%d %d %d %d\n",im.cols,im.rows,im.type(),CV_8UC3);
 	Mat * ims = new Mat[3];
@@ -175,14 +180,11 @@ int main(array<System::String ^> ^args)
  /************************************************************************/
  /*                  Generating data for SVM                             */
  /************************************************************************/
-	clock_t t1,t2;
-	t1 = clock();	
+	
 //	svmGenerateData2("input/Train_Pos.txt","input/Train_Neg_P1.txt",1,8);
 //	svmGenerateData2("input/Test_Pos.txt","input/Test_Neg.txt",1,8);
 //	svmGenerateData2("input/a.txt","input/b.txt",1,10);
-	svmGenerateData2("input/trainPos.txt","input/trainNeg.txt",1,2,true);
-	t2 = clock();
-	printf("Running time: %f (mins)\n",(float)(t2-t1)/(60*CLOCKS_PER_SEC));
+//	svmGenerateData2("input/trainPos.txt","input/trainNeg.txt",1,8,true);
 
 	/************************************************************************/
 	/*                      Test new mean shift                             */
@@ -212,7 +214,7 @@ int main(array<System::String ^> ^args)
 	int n_rect;
 	//	VOCAnnRects("D:\\My Documents\\VOC2009\\Annotations\\2009_005311.xml","person",rects,n_rect);
 	//	cout<<n_rect<<endl;
-	string filelist="D:\\Lectures\\Luan_van\\DATASET\\VOC\\VOCdevkit\\VOC2010\\ImageSets\\Main\\bottle_val.txt";
+	string filelist="D:\\Lectures\\Luan_van\\DATASET\\VOC\\VOCdevkit\\VOC2010\\ImageSets\\Main\\bottle_.txt";
 	//	VOCSvmGenerateData2(annpath,"D:\\Lectures\\Luan_van\\DATASET\\VOC\\VOCdevkit\\VOC2010\\JPEGImages\\",".jpg","bottle",filelist,1,2,4.);
 	//	takeType("output/his_svmLight_2010_9_22_19_35.txt","output/pos.txt",'+');
 	//	takeType("output/his_svmLight_2010_9_22_19_35.txt","output/neg.txt",'-');
@@ -255,6 +257,10 @@ int main(array<System::String ^> ^args)
 
 	//// Create the main window and run it
 	//Application::Run(gcnew MainWindow());
+
+
+	t2 = clock();
+	printf("Running time: %f (mins)\n",(float)(t2-t1)/(60*CLOCKS_PER_SEC));
 	return 0;
 }
 
