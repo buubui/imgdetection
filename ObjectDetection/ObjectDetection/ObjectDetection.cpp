@@ -47,10 +47,124 @@ void takefalseImg(string ffile)
 		}
 	}
 }
+void takeHardList(string fileresult,string fileData)
+{
+	ifstream  inResult,inData;
+	stringstream strstreams;
+	//	inList.open(filelist.c_str());
+	inResult.open(fileresult.c_str());
+	inData.open(fileData.c_str());
+	int i=0;
+	string lineResult,lineData;
+	while(!inResult.eof()){
+		//	cout<<i++<<endl;
+		getline(inResult,lineResult);
+		//	getline(inList,lineList);
+		if(lineResult.length()<1)
+			break;
+		getline(inData,lineData);
+		if(lineData[0]=='+'){
+			double d;
+			d=atof(lineResult.c_str());
+			if(d<0)
+				strstreams<<lineData<<endl;
+		}
+		else if(lineData[0]=='-'){
+			double d;
+			d=atof(lineResult.c_str());
+			if(d>0)
+				strstreams<<lineData<<endl;
+		}
+	}
+	inData.close();
+	inResult.close();
+	ofstream outHard;
+	outHard.open("output/hard.txt");
+	outHard<<strstreams.str();
+	outHard.close();
+
+}
+void takeHardEx(string filelist, string filedata){
+	ifstream inList, inData;
+
+	stringstream strstreams;
+	inList.open(filelist.c_str());
+	inData.open(filedata.c_str());
+	int i=0;
+	string lineList,lineData;
+	while(!inList.eof()){
+		getline(inList,lineList);
+		if(lineList.length()<1)
+			break;
+		int line = atoi(lineList.c_str());
+		for (;i<=line;i++)
+		{
+			getline(inData,lineData);
+			if(i==line)
+				strstreams<<lineData<<endl;
+		}
+	}
+	inData.close();
+	inList.close();
+	ofstream outHard;
+	outHard.open("output/hard.txt");
+	outHard<<strstreams.str();
+	outHard.close();
+
+}
+
+void takeType(string fnamein,string fnameout,char type)
+{
+	ifstream  inData;
+	ofstream outData;
+	inData.open(fnamein.c_str());
+	outData.open(fnameout.c_str());
+	string lineData;
+	while(!inData.eof()){
+		getline(inData,lineData);
+		if(lineData.length()<1)
+			break;
+		if(lineData[0]!=type)
+			continue;
+		outData <<lineData<<endl;
+
+	}
+	inData.close();
+	outData.close();
+}
 [STAThreadAttribute]
 int main(array<System::String ^> ^args)
 {
 	loadConfig();
+//	Mat im = imread("D:\\Lectures\\Luan_van\\DATASET\\VOC\\VOCdevkit\\VOC2010\\JPEGImages\\2007_000480.jpg");
+	/*printf("%d %d %d %d\n",im.cols,im.rows,im.type(),CV_8UC3);
+	Mat * ims = new Mat[3];
+	cv::split(im,ims);
+	imshow("1",ims[0]);
+	imshow("2",ims[1]);
+	imshow("3",ims[2]);*/
+	//for (int i=1;i<10000;i++)
+	//{
+	//	Mat* imgfils=imFilterChannels(im,true);
+	//	int n_channels=im.channels();
+	//	Mat G = calcGradientOfPixelsMaxChannel(imgfils,n_channels);
+	//	for (int j=0;j<im.channels();j++)
+	//	{
+	//		imgfils[j].release();
+	//		imgfils[j+1].release();
+	//	}
+	//	G.release();
+	//	delete[] imgfils;
+
+	//}
+	
+	/*imshow("0",imgfils[0]);
+	imshow("1",imgfils[1]);
+	imshow("2",imgfils[2]);
+	imshow("3",imgfils[3]);
+	imshow("4",imgfils[4]);
+	imshow("5",imgfils[5]);
+	waitKey(0);*/
 	/*srand(time(NULL));
 	for (int i=0;i<20;i++)
 	{
@@ -64,8 +178,9 @@ int main(array<System::String ^> ^args)
 	clock_t t1,t2;
 	t1 = clock();	
 //	svmGenerateData2("input/Train_Pos.txt","input/Train_Neg_P1.txt",1,8);
-	svmGenerateData2("input/Test_Pos.txt","input/Test_Neg.txt",1,8);
-//	svmGenerateData2("input/Train_Pos_Null.txt","input/Train_Neg_Null.txt",1,12);
+//	svmGenerateData2("input/Test_Pos.txt","input/Test_Neg.txt",1,8);
+//	svmGenerateData2("input/a.txt","input/b.txt",1,10);
+	svmGenerateData2("input/trainPos.txt","input/trainNeg.txt",1,2,true);
 	t2 = clock();
 	printf("Running time: %f (mins)\n",(float)(t2-t1)/(60*CLOCKS_PER_SEC));
 
@@ -92,13 +207,15 @@ int main(array<System::String ^> ^args)
 //		Console::WriteLine(att->Item(i)->InnerText);
 //	}
 	//////////////////////////////////VOC//////////////////////////////////////////////////////
-////	System::String^ annpath="D:\\My Documents\\VOC2009\\Annotations\\";
-////	Rect* rects;
-////	int n_rect;
-//////	VOCAnnRects("D:\\My Documents\\VOC2009\\Annotations\\2009_005311.xml","person",rects,n_rect);
-//////	cout<<n_rect<<endl;
-////	string filelist="D:\\My Documents\\VOC2009\\ImageSets\\Main\\person_train - Copy.txt";
-////	VOCSvmGenerateData2(annpath,"D:\\My Documents\\VOC2009\\JPEGImages\\",".jpg","person",filelist,1,1);
+	System::String^ annpath="D:\\Lectures\\Luan_van\\DATASET\\VOC\\VOCdevkit\\VOC2010\\Annotations\\";
+	Rect* rects;
+	int n_rect;
+	//	VOCAnnRects("D:\\My Documents\\VOC2009\\Annotations\\2009_005311.xml","person",rects,n_rect);
+	//	cout<<n_rect<<endl;
+	string filelist="D:\\Lectures\\Luan_van\\DATASET\\VOC\\VOCdevkit\\VOC2010\\ImageSets\\Main\\bottle_val.txt";
+	//	VOCSvmGenerateData2(annpath,"D:\\Lectures\\Luan_van\\DATASET\\VOC\\VOCdevkit\\VOC2010\\JPEGImages\\",".jpg","bottle",filelist,1,2,4.);
+	//	takeType("output/his_svmLight_2010_9_22_19_35.txt","output/pos.txt",'+');
+	//	takeType("output/his_svmLight_2010_9_22_19_35.txt","output/neg.txt",'-');
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	//ifstream inputFile;
 	//printf("%s\n",posfilelist.c_str());

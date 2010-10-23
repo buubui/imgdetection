@@ -35,6 +35,7 @@ typedef Mat HIS;
 //calculate HOG of each pixels;
 //Gradient** calcHOG(const Mat&filx,const Mat&fily);
 Mat calcGradientOfPixels(const Mat&filx,const Mat&fily);
+Mat calcGradientOfPixelsMaxChannel(const Mat* imfils , int nchannels);
 //calculate HIstoram of an cell
 HIS* calcHisOfCell(Mat hog_pixels, Rect r, int n_bins);
 //HIS*** calcHisOfCellsInWnd(Gradient** hog_pixels,Size wndSize, Size cellSize, int n_bins);

@@ -42,7 +42,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="D:\My Documents\Study\CS\Soft Computing\Pattern Recognization\Boost C++\boost_1_43_0"
+				AdditionalIncludeDirectories="D:\Lectures\Luan_van\tool\boost_1_43_0;&quot;D:\My Documents\Study\CS\Soft Computing\Pattern Recognization\Boost C++\boost_1_43_0&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"

@@ -69,6 +69,48 @@ Mat calcGradientOfPixels(const Mat&filx,const Mat&fily)
 
 };
 
+Mat calcGradientOfPixelsMaxChannel(const Mat* imfils , int nchannels)
+{
+	int r = imfils[0].rows;
+	int c = imfils[0].cols;
+	Mat G(r,c,DataType<Gradient>::type);
+	//Gradient** h= new Gradient*[r];
+	//for(int i=0;i<r;i++) h[i] = new Gradient[c];
+	
+	for (int i=0;i<r;i++)
+	{
+		for (int j=0;j<c;j++)
+		{
+			int ichannelMax=0;
+			float w=-1;
+			float x=0;
+			float y=0;
+			for (int k=0;k<nchannels;k++)
+			{
+				float x_tmp = imfils[k*2].at<float>(i,j);
+				float y_tmp = imfils[k*2+1].at<float>(i,j);
+				float w_tmp =sqrt( x_tmp*x_tmp+y_tmp*y_tmp);
+				if(w_tmp>w)
+				{
+					w=w_tmp;
+					x=x_tmp;
+					y=y_tmp;
+					ichannelMax=k;
+				}
+			}
+			
+			float a;
+			a  =  atan(y/(x+0.00001))*180/M_PI;
+			a+=a<0?180:0;
+			G.at<Gradient>(i,j)[0] =a;
+			G.at<Gradient>(i,j)[1] =w;
+
+		}
+	}
+	return G;
+
+
+};
 
 //hog_pixcels: weight& angle of pixels in sub-win
 // Rect: toa do cell & size
@@ -893,7 +935,8 @@ void calcHistOfBlockInWnd(const Mat& mat, Rect p,HIS& hist)
 		//	for (int e =0; e<n;e++)
 		//	{
 		//		hist->at<float>(0,s) = mat.at<HIS*>(x+i,j+y)->at<float>(0,e);
-				HIS* h=mat.at<HIS*>(x+i,j+y);
+			//	HIS* h=mat.at<HIS*>(x+i,j+y);
+				HIS* h=mat.at<HIS*>(y+i,j+x);
 				h->copyTo((hist)(Rect(s,0,h->cols,1)));
 				s+=h->cols;
 		//	}
@@ -920,7 +963,7 @@ void GaussianBlurBlock(Mat& h)
 	GaussianBlur(h,h,Size(5,5),sigma);
 }
 void calcHistOfWnd(const Mat& mat, const Size& blockSize, Vec2i overlap, int norm_c,HIS& H)
-{
+{ 
 	int n = mat.at<HIS*>(0,0)->cols;
 	int n_block_w = floor( 1.*(mat.cols - overlap[0])/(blockSize.width - overlap[0]));
 	int n_block_h = floor( 1.*(mat.rows - overlap[1])/(blockSize.height - overlap[1]));
@@ -939,14 +982,14 @@ void calcHistOfWnd(const Mat& mat, const Size& blockSize, Vec2i overlap, int nor
 	stringstream name;
 	name <<"output/hisBlock_Gauss.txt";
 	outHisBlock.open(name.str().c_str());*/
-	for (int i=0; i < n_block_w;i++)
+	for (int i=0; i < n_block_h;i++)
 	{
 		x=0;
-		for (int j = 0 ; j<n_block_h;j++)
+		for (int j = 0 ; j<n_block_w;j++)
 		{
 			calcHistOfBlockInWnd(mat,Rect(x,y,blockSize.width,blockSize.height),h_b);
 			Mat temp= h_b.clone();
-			GaussianBlur(temp,h_b,Size(0,0),0.5*cellSize.height*blockSize.height);
+//			GaussianBlur(temp,h_b,Size(0,0),0.5*cellSize.height*blockSize.height);
 			//GaussianBlurBlock(h_b);
 			//
 			/*Mat temp;
