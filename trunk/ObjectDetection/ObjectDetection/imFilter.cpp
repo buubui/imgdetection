@@ -41,10 +41,6 @@ Mat* imFilter(const Mat& img,bool equalize){
 	cvtColor(img,img_gray,CV_BGR2GRAY);
 	if(equalize)
 		equalizeHist(img_gray,img_gray);
-	
-
-	
-	
 	//convert image from uchar(0->255) to float (0->1)
 	//Mat imfloat= im2float(img_gray);
 	Mat imfloat;
@@ -74,4 +70,57 @@ Mat* imFilter(const Mat& img,bool equalize){
 	return arrFils;
 }
 
+Mat* imFilterChannels(const Mat& img,bool equalize){
+	int n_channels =  img.channels();
+	Mat* arrFils = new Mat[2*n_channels];
+	Mat * imgs = new Mat[n_channels];
+	cv::split(img,imgs);
+//	Mat img_gray;
+//	cvtColor(img,img_gray,CV_BGR2GRAY);
+	if(equalize)
+	{
+		for (int i=0;i<n_channels;i++)
+		{
+			equalizeHist(imgs[i],imgs[i]);	
+		}
+	}
+	float v[]={-1,0,1};
+	Mat Dx (1,3,CV_32F,v);
+	for (int i=0;i<n_channels;i++)
+	{
+		imgs[i].convertTo(imgs[i],DataType<float>::type,1./255);
+	//	Mat dst,dst2;
+		filter2D(imgs[i],arrFils[i*2],imgs[i].depth(),Dx);
+		//filter2D(img_gray,dst,img_gray.depth(),Dx);
+	//	arrFils[i*2] = dst;
+		filter2D(imgs[i],arrFils[i*2+1],imgs[i].depth(),Dx.t());
+		//filter2D(img_gray,dst2,img_gray.depth(),Dx.t());
+	//	arrFils[1] = dst2;
+
+	}
+	//convert image from uchar(0->255) to float (0->1)
+	//Mat imfloat= im2float(img_gray);
+//	Mat imfloat;
+	
+//	img_gray.release();
+
+
+	
+	
+	
+	/*for (int i=0;i<30;i++)
+	{
+	for (int j=0;j<30;j++)
+	{
+	printf("%f ; ",arrFils[0].at<float>(i,j));
+	}
+	}*/
+	for (int i=0;i<n_channels;i++)
+	{
+		imgs[i].release();
+	}
+	delete[] imgs;
+
+	return arrFils;
+}
 
