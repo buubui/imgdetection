@@ -235,7 +235,7 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 						//	case 7: startP.x=wndSize.width/2+ sizeW/2;startP.y=wndSize.height/2+sizeH/4;break;
 						//	case 8: startP.x=wndSize.width/2+ sizeW/2;startP.y=wndSize.height/2+3*sizeH/4;break;
 							default:
-								srand(time(NULL));
+								
 								rnd = rand()%sizeW;
 								startP.x =wndSize.width/2+rnd;
 								rnd = rand()%sizeH;
@@ -870,7 +870,7 @@ void VOCSvmGenerateData2(System::String^ AnnPath,string imgsPath,string fileExt,
 							//			case 7: startP.x=wndSize.width/2+ sizeW/2;startP.y=wndSize.height/2+sizeH/4;break;
 							//			case 8: startP.x=wndSize.width/2+ sizeW/2;startP.y=wndSize.height/2+3*sizeH/4;break;
 							default:
-								srand(time(NULL));
+								
 								rnd = rand()%sizeW;
 								startP.x =wndSize.width/2+rnd;
 								rnd = rand()%sizeH;
