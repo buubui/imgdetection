@@ -52,8 +52,8 @@ void svmGenerateData(string inputfilelist, int pos,int randTime){
 		local=*(localtime(&curr)); // dereference and assign
 		stringstream outputfile,outputfile2; 
 
-		outputfile<<"output/his"<<posStr<<"_winSvm_"<<local.tm_year+1900<<"_"<<local.tm_mon<<"_"<<local.tm_mday<<"_"<<local.tm_hour<<"_"<<local.tm_min<<".txt" ;
-		outputfile2<<"output/his"<<posStr<<"_svmLight_"<<local.tm_year+1900<<"_"<<local.tm_mon<<"_"<<local.tm_mday<<"_"<<local.tm_hour<<"_"<<local.tm_min<<".txt" ;
+		outputfile<<"output/his"<<posStr<<"_winSvm_"<<local.tm_year+1900<<"_"<<local.tm_mon+1<<"_"<<local.tm_mday<<"_"<<local.tm_hour<<"_"<<local.tm_min<<".txt" ;
+		outputfile2<<"output/his"<<posStr<<"_svmLight_"<<local.tm_year+1900<<"_"<<local.tm_mon+1<<"_"<<local.tm_mday<<"_"<<local.tm_hour<<"_"<<local.tm_min<<".txt" ;
 		myfile.open(outputfile.str().c_str());
 		myfile2.open(outputfile2.str().c_str());
 		Mat his_wnd ;
@@ -87,7 +87,7 @@ void svmGenerateData(string inputfilelist, int pos,int randTime){
 				Mat* imFils = imFilter(img_slideWnd,true);
 				Mat G = calcGradientOfPixels(imFils[0],imFils[1]);
 			//	Mat his_wnd = calcHisOfCellsInWnd2(G,Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSize,9);
-				calcHisOfCellsInWnd2(G,Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSize,9,his_wnd );
+				calcHisOfCellsInWnd2(G,Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSize,9,his_wnd ,180.);
 			//	HIS* h_w = calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2);
 				calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2,h_w);
 
@@ -129,7 +129,7 @@ void svmGenerateData(string inputfilelist, int pos,int randTime){
 
 
 
-void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int randTimeNeg,bool useMaxChannel)
+void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int randTimeNeg,bool useMaxChannel,bool useLBB)
 {	
 	ifstream inputFile;
 	printf("%s\n",posfilelist.c_str());
@@ -155,8 +155,8 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 	//	stringstream outputfile;
 		stringstream outputfile2; 
 
-	//	outputfile<<"output/his_"<<"test"<<"_winSvm_"<<local.tm_year+1900<<"_"<<local.tm_mon<<"_"<<local.tm_mday<<"_"<<local.tm_hour<<"_"<<local.tm_min<<".txt" ;
-		outputfile2<<"output/his_test"<<"_svmLight_"<<local.tm_year+1900<<"_"<<local.tm_mon<<"_"<<local.tm_mday<<"_"<<local.tm_hour<<"_"<<local.tm_min<<".txt" ;
+	//	outputfile<<"output/his_"<<"test"<<"_winSvm_"<<local.tm_year+1900<<"_"<<local.tm_mon+1<<"_"<<local.tm_mday<<"_"<<local.tm_hour<<"_"<<local.tm_min<<".txt" ;
+		outputfile2<<"output/his_test"<<"_svmLight_"<<local.tm_year+1900<<"_"<<local.tm_mon+1<<"_"<<local.tm_mday<<"_"<<local.tm_hour<<"_"<<local.tm_min<<".txt" ;
 	//	myfile.open(outputfile.str().c_str());
 		myfile2.open(outputfile2.str().c_str());
 		Size cellSz,wndSz,tmp;
@@ -325,14 +325,26 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 				if((i+1)%300==0)
 					printf("%d %d. %s (%d,%d, %d, %d)\n",j,i+1,filename.c_str(),slideWnd.x,slideWnd.y,slideWnd.width,slideWnd.height);
 				Mat img_slideWnd=img(slideWnd);
+				Mat G1=GaussianBlurBlock(G(slideWnd),Vec2i(1,1));
+				
+				
 				//	imshow(filename,img);
 				//		Mat* imFils = imFilter(img_slideWnd);
 				//		Mat G = calcGradientOfPixels(imFils[0],imFils[1]);
 //				Mat his_wnd = calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9);
-				calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9,his_wnd);
+				int maxD=180.; 
+				int n_bins=9;
+				if(useLBB)
+				{
+					calcLBP(G1,0);
+					maxD=256.;
+					n_bins=8;
+				}
+				calcHisOfCellsInWnd2(G1,Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,n_bins,his_wnd,maxD);
+		//		calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9,his_wnd);
 		//		HIS* h_w = calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2);
 				calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2,h_w);
-
+				G1.release();
 
 				myfile2 << pos<<"\t";
 				for (int i=0;i<h_w.cols;i++)
@@ -493,8 +505,8 @@ void VOCAnnRects(System::String^ XmlFileName,System::String^ objName,Rect* &rect
 //		local=*(localtime(&curr)); // dereference and assign
 //		stringstream outputfile,outputfile2,outfilelist; 
 //
-//		outputfile<<"output/hisfilelist"<<local.tm_year+1900<<"_"<<local.tm_mon<<"_"<<local.tm_mday<<"_"<<local.tm_hour<<"_"<<local.tm_min<<".txt" ;
-//		outputfile2<<"output/his"<<"_svmLight_"<<local.tm_year+1900<<"_"<<local.tm_mon<<"_"<<local.tm_mday<<"_"<<local.tm_hour<<"_"<<local.tm_min<<".txt" ;
+//		outputfile<<"output/hisfilelist"<<local.tm_year+1900<<"_"<<local.tm_mon+1<<"_"<<local.tm_mday<<"_"<<local.tm_hour<<"_"<<local.tm_min<<".txt" ;
+//		outputfile2<<"output/his"<<"_svmLight_"<<local.tm_year+1900<<"_"<<local.tm_mon+1<<"_"<<local.tm_mday<<"_"<<local.tm_hour<<"_"<<local.tm_min<<".txt" ;
 //		myfile.open(outputfile.str().c_str());
 //		myfile2.open(outputfile2.str().c_str());
 //		Size cellSz=cellSize,wndSz=wndSize,tmp;
@@ -757,7 +769,7 @@ void VOCAnnRects(System::String^ XmlFileName,System::String^ objName,Rect* &rect
 //};
 
 
-void VOCSvmGenerateData2(System::String^ AnnPath,string imgsPath,string fileExt,System::String^ objName,string filelist, int randTimePos,int randTimeNeg,double step,bool useMaxChannel)
+void VOCSvmGenerateData2(System::String^ AnnPath,string imgsPath,string fileExt,System::String^ objName,string filelist, int randTimePos,int randTimeNeg,double scale,double step,bool useMaxChannel)
 {
 	ifstream inputFile;
 	printf("%s\n",filelist.c_str());
@@ -770,7 +782,7 @@ void VOCSvmGenerateData2(System::String^ AnnPath,string imgsPath,string fileExt,
 	string pos ="+1";
 	string posStr = pos.compare("+1")==0?"Pos":"Neg";
 	Rect slideWnd(0,0,wndSize.width,wndSize.height);
-	double scale=1.;
+//	double scale=1.;
 	if (inputFile.is_open())
 	{
 		//	getline (inputFile,filepath);
@@ -783,8 +795,8 @@ void VOCSvmGenerateData2(System::String^ AnnPath,string imgsPath,string fileExt,
 		local=*(localtime(&curr)); // dereference and assign
 		stringstream outputfile,outputfile2,outfilelist; 
 
-		outputfile<<"output/hisfilelist"<<local.tm_year+1900<<"_"<<local.tm_mon<<"_"<<local.tm_mday<<"_"<<local.tm_hour<<"_"<<local.tm_min<<".txt" ;
-		outputfile2<<"output/his"<<"_svmLight_"<<local.tm_year+1900<<"_"<<local.tm_mon<<"_"<<local.tm_mday<<"_"<<local.tm_hour<<"_"<<local.tm_min<<".txt" ;
+		outputfile<<"output/hisfilelist"<<local.tm_year+1900<<"_"<<local.tm_mon+1<<"_"<<local.tm_mday<<"_"<<local.tm_hour<<"_"<<local.tm_min<<".txt" ;
+		outputfile2<<"output/his"<<"_svmLight_"<<local.tm_year+1900<<"_"<<local.tm_mon+1<<"_"<<local.tm_mday<<"_"<<local.tm_hour<<"_"<<local.tm_min<<".txt" ;
 		myfile.open(outputfile.str().c_str());
 		myfile2.open(outputfile2.str().c_str());
 		Size cellSz=cellSize,wndSz=wndSize,tmp;
@@ -989,13 +1001,17 @@ void VOCSvmGenerateData2(System::String^ AnnPath,string imgsPath,string fileExt,
 				if((i+1)%300==0)
 					printf("%d %d. %s (%d,%d, %d, %d) %s\n",j,i+1,filename.c_str(),slideWnd.x,slideWnd.y,slideWnd.width,slideWnd.height,pos.c_str());
 				Mat img_slideWnd=img(slideWnd);
+				//Mat G1 = G(slideWnd).clone();
+//				Mat G1=GaussianBlurBlock(G(slideWnd),Vec2i(1,1));
 				//	imshow(filename,img);
 				//		Mat* imFils = imFilter(img_slideWnd);
 				//		Mat G = calcGradientOfPixels(imFils[0],imFils[1]);
 				//				Mat his_wnd = calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9);
-				calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9,his_wnd);
+				calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9,his_wnd,180.);
+			//	calcHisOfCellsInWnd2(G1,Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9,his_wnd);
 				//		HIS* h_w = calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2);
 				calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2,h_w);
+			//	G1.release();
 
 
 				myfile2 << pos<<"\t";

@@ -20,7 +20,6 @@ using namespace cv;
 using namespace System;
 using namespace System::Collections;
 
-
 #include "loadConfigs.h"
 #include "multiscaleDetectRect.h"
 #include "imFilter.h"
@@ -30,4 +29,7 @@ using namespace System::Collections;
 #include <boost/algorithm/string/replace.hpp>
 #include "detection.h"
 #include <msclr\marshal_cppstd.h>
-//#include <pugixml.hpp>
+
+//abc
+
+

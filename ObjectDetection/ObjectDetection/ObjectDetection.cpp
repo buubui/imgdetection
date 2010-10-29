@@ -14,8 +14,9 @@ using namespace ObjectDetection;
 #include "glbVars.h"
 #include "meanshift.h"
 #include "HardSample.h"
-#include <list>
-
+//#include <list>
+//#include "boost\make_shared.hpp"
+//#include <vector>
 void takefalseImg(string ffile)
 {
 	ifstream in1,in2;
@@ -141,27 +142,25 @@ int main(array<System::String ^> ^args)
 	
 	
 	
-//	Mat im = imread("D:\\Lectures\\Luan_van\\DATASET\\VOC\\VOCdevkit\\VOC2010\\JPEGImages\\2007_000480.jpg");
-	/*printf("%d %d %d %d\n",im.cols,im.rows,im.type(),CV_8UC3);
-	Mat * ims = new Mat[3];
-	cv::split(im,ims);
-	imshow("1",ims[0]);
-	imshow("2",ims[1]);
-	imshow("3",ims[2]);*/
-	//for (int i=1;i<10000;i++)
-	//{
-	//	Mat* imgfils=imFilterChannels(im,true);
-	//	int n_channels=im.channels();
-	//	Mat G = calcGradientOfPixelsMaxChannel(imgfils,n_channels);
-	//	for (int j=0;j<im.channels();j++)
-	//	{
-	//		imgfils[j].release();
-	//		imgfils[j+1].release();
-	//	}
-	//	G.release();
-	//	delete[] imgfils;
+	/*Mat im = imread("D:\\Lectures\\Luan_van\\DATASET\\VOC\\VOCdevkit\\VOC2010\\JPEGImages\\2007_000480.jpg");
+		Mat* imgfils=imFilterChannels(im,true);
+		int n_channels=im.channels();
+		Mat G = calcGradientOfPixelsMaxChannel(imgfils,n_channels);
+		Mat T;
+		GaussianBlur(G,T,cv::Size(3,3),0.5*8*3);
+		for (int i=100;i<300;i++)
+		{
+			printf("%f %f %f %f\n",G.at<Gradient>(i,i)[0],G.at<Gradient>(i,i)[1],T.at<Gradient>(i,i)[0],T.at<Gradient>(i,i)[1]);
+		}
+		for (int j=0;j<im.channels();j++)
+		{
+			imgfils[j].release();
+			imgfils[j+1].release();
+		}
+		G.release();
+		delete[] imgfils;*/
 
-	//}
+//	}
 	
 	/*imshow("0",imgfils[0]);
 	imshow("1",imgfils[1]);
@@ -183,8 +182,8 @@ int main(array<System::String ^> ^args)
 	
 //	svmGenerateData2("input/Train_Pos.txt","input/Train_Neg_P1.txt",1,8);
 //	svmGenerateData2("input/Test_Pos.txt","input/Test_Neg.txt",1,8);
-//	svmGenerateData2("input/a.txt","input/b.txt",1,10);
-//	svmGenerateData2("input/trainPos.txt","input/trainNeg.txt",1,8,true);
+	svmGenerateData2("input/a.txt","input/b.txt",1,10,true,true);
+//	svmGenerateData2("input/trainPos.txt","input/trainNeg.txt",1,10,true);
 
 	/************************************************************************/
 	/*                      Test new mean shift                             */
@@ -214,10 +213,10 @@ int main(array<System::String ^> ^args)
 	int n_rect;
 	//	VOCAnnRects("D:\\My Documents\\VOC2009\\Annotations\\2009_005311.xml","person",rects,n_rect);
 	//	cout<<n_rect<<endl;
-	string filelist="D:\\Lectures\\Luan_van\\DATASET\\VOC\\VOCdevkit\\VOC2010\\ImageSets\\Main\\bottle_.txt";
-	//	VOCSvmGenerateData2(annpath,"D:\\Lectures\\Luan_van\\DATASET\\VOC\\VOCdevkit\\VOC2010\\JPEGImages\\",".jpg","bottle",filelist,1,2,4.);
-	//	takeType("output/his_svmLight_2010_9_22_19_35.txt","output/pos.txt",'+');
-	//	takeType("output/his_svmLight_2010_9_22_19_35.txt","output/neg.txt",'-');
+	string filelist="D:\\Lectures\\Luan_van\\DATASET\\VOC\\VOCdevkit\\VOC2010\\ImageSets\\Main\\bottle_train.txt";
+	//	VOCSvmGenerateData2(annpath,"D:\\Lectures\\Luan_van\\DATASET\\VOC\\VOCdevkit\\VOC2010\\JPEGImages\\",".jpg","person",filelist,1,3,3.,8.,true);
+	//	takeType("output/his_svmLight_2010_9_23_23_33.txt","output/pos.txt",'+');
+	//	takeType("output/his_svmLight_2010_9_23_23_33.txt","output/neg.txt",'-');
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	//ifstream inputFile;
 	//printf("%s\n",posfilelist.c_str());
@@ -408,7 +407,7 @@ int main(array<System::String ^> ^args)
 //	//	time(&curr); // get current time_t value
 //	//	local=*(localtime(&curr)); // dereference and assign
 //	//	stringstream outputfile; 
-//	//	outputfile<<"output/hisCell_"<<filename<<"_cell"<<cellSize.width<<"x"<<cellSize.height<<"_block"<<blockSize.width<<"x"<<blockSize.height<<"_"<<local.tm_year+1900<<"_"<<local.tm_mon<<"_"<<local.tm_mday<<"_"<<local.tm_hour<<"_"<<local.tm_min<<".txt" ;
+//	//	outputfile<<"output/hisCell_"<<filename<<"_cell"<<cellSize.width<<"x"<<cellSize.height<<"_block"<<blockSize.width<<"x"<<blockSize.height<<"_"<<local.tm_year+1900<<"_"<<local.tm_mon+1<<"_"<<local.tm_mday<<"_"<<local.tm_hour<<"_"<<local.tm_min<<".txt" ;
 //	//	myfile.open(outputfile.str().c_str());
 //	//	printf("\ncalcHisOfCellsInWnd\n");
 //	//	//myfile <<"[";

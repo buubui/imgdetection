@@ -180,10 +180,74 @@ void calcHisOfCellsInWnd(Mat hog_pixels,Rect wnd, Size cellSize, int n_bins,Mat&
 
 
 };
+int bin2dec(int* arrI,int n)
+{
+	
+	int v = 0;
+	for (int i=n-1;i>=0;i--)
+	{
+		v+= arrI[i]*std::pow(2.,n-1-i);
+	}
+	return v;
+
+}
+void calcLBP(Mat& hog_pixels,float th)
+{
+	int cols = hog_pixels.cols;
+	int rows = hog_pixels.rows;
+	Mat lbb = Mat::zeros(hog_pixels.size(),DataType<int>::type);
+	for (int r=0;r<rows;r++)
+	{
+		
+		for (int c=0;c<cols;c++)
+		{
+			int b[8];
+			for (int t=0;t<8;t++)
+			{
+				b[t]=0;
+			}
+			float centerA=hog_pixels.at<Gradient>(r,c)[0];
+			float compareA=0;
+			if(r-1>0){
+				compareA = hog_pixels.at<Gradient>(r-1,c)[0];b[0]=centerA<compareA+th?1:0;
+				if(c-1>0)
+					compareA = hog_pixels.at<Gradient>(r-1,c-1)[0];b[1]=centerA<compareA+th?1:0;
+				if(c+1<cols)
+					compareA = hog_pixels.at<Gradient>(r-1,c+1)[0];b[7]=centerA<compareA+th?1:0;
+			}
+			compareA=0;
+			if(c-1>0){
+				compareA = hog_pixels.at<Gradient>(r,c-1)[0];b[2]=centerA<compareA+th?1:0;compareA=0;
+				if(r+1<rows)
+					compareA = hog_pixels.at<Gradient>(r+1,c-1)[0];b[3]=centerA<compareA+th?1:0;
+			}
+			compareA=0;
+			if(r+1<rows){
+				compareA = hog_pixels.at<Gradient>(r+1,c)[0];b[4]=centerA<compareA+th?1:0;compareA=0;
+				if(c+1<cols)
+					compareA = hog_pixels.at<Gradient>(r+1,c+1)[0];b[5]=centerA<compareA+th?1:0;
+			}
+			compareA=0;
+			if(c+1<cols)
+				compareA = hog_pixels.at<Gradient>(r,c+1)[0];b[6]=centerA<compareA+th?1:0;
+			int d=bin2dec(b,8);
+			lbb.at<int>(r,c) = d;
+
+		}
+	}
+	for (int r=0;r<rows;r++)
+	{
+		for (int c=0;c<cols;c++)
+		{
+			hog_pixels.at<Gradient>(r,c)[0] = lbb.at<int>(r,c);
+		}
+	}
+	lbb.release();
 
 
+}
 
-void calcHisOfCellsInWnd2(Mat hog_pixels,Rect wnd, Size cellSize, int n_bins,Mat& H)
+void calcHisOfCellsInWnd2(Mat hog_pixels,Rect wnd, Size cellSize, int n_bins,Mat& H,float maxD)
 {
 	int c = (int)(wnd.width/cellSize.width);
 	int r = (int)(wnd.height/cellSize.height);
@@ -212,7 +276,7 @@ void calcHisOfCellsInWnd2(Mat hog_pixels,Rect wnd, Size cellSize, int n_bins,Mat
 	//		printf("ZEROS %f \n",H.at<HIS*>(i,j)->at<float>(0,0));*/
 	//	}
 	//}
-	float a =180./n_bins;
+	float a =maxD/n_bins;
 	Rect rect(currX,currY,cellSize.width,cellSize.height);
 	HIS* H0=NULL,*H1=NULL,*H2=NULL,*H3=NULL;
 	HIS* Hs[4];
@@ -374,7 +438,7 @@ void calcHisOfCellsInWnd2(Mat hog_pixels,Rect wnd, Size cellSize, int n_bins,Mat
 
 							Hs[0]=H0;Hs[1]=H1;Hs[2]=H2;Hs[3]=H3;
 							R[0]=r0;R[1]=r1;R[2]=r2;R[3]=r3;
-							setHisOfCells(Gradient(angle,weight),Hs,R,4,cellSize);
+							setHisOfCells(Gradient(angle,weight),Hs,R,4,cellSize,maxD);
 							
 						}
 						else{
@@ -393,7 +457,7 @@ void calcHisOfCellsInWnd2(Mat hog_pixels,Rect wnd, Size cellSize, int n_bins,Mat
 
 							Hs[0]=H0;Hs[1]=H1;
 							R[0]=r0;R[1]=r1;
-							setHisOfCells(Gradient(angle,weight),Hs,R,2,cellSize);
+							setHisOfCells(Gradient(angle,weight),Hs,R,2,cellSize,maxD);
 						}
 					}
 					else if(H2!=NULL){
@@ -419,14 +483,14 @@ void calcHisOfCellsInWnd2(Mat hog_pixels,Rect wnd, Size cellSize, int n_bins,Mat
 
 						Hs[0]=H0;Hs[1]=H2;
 						R[0]=r0;R[1]=r2;
-						setHisOfCells(Gradient(angle,weight),Hs,R,2,cellSize);
+						setHisOfCells(Gradient(angle,weight),Hs,R,2,cellSize,maxD);
 					}
 					else{
 						//H0->vector_weight[n_b]+=weight;
 					//	setHisOfCell(Gradient(angle,weight),H0,cellSize);
 						Hs[0]=H0;
 						R[0]=1.;
-						setHisOfCells(Gradient(angle,weight),Hs,R,1,cellSize);
+						setHisOfCells(Gradient(angle,weight),Hs,R,1,cellSize,maxD);
 					}
 					
 					//H0->vector_weight[n_b]+=hog_pixels.at<Gradient>(ii+r.y,jj+r.x)[1];
@@ -788,11 +852,14 @@ void setHisOfCell(const Gradient& hog_pixcell, HIS* Hcell,Size cellSize)
 };
 
 inline
-void setHisOfCells(const Gradient& hog_pixcell, HIS** Hcells,float* R,int n_cells,Size cellSize)
+void setHisOfCells(const Gradient& hog_pixcell, HIS** Hcells,float* R,int n_cells,Size cellSize,float maxD)
 {
+//	cout<<Hcells[0]->cols<<endl;
+	
 	float a = hog_pixcell[0];
 	float w = hog_pixcell[1];
-	float step = 180./Hcells[0]->cols;
+//	cout<<a<<endl;
+	float step = maxD/Hcells[0]->cols;
 	int n_b = (int)( (a)/step);
 	for(int i=0;i<n_cells;i++)
 	if(a<n_b*(step+0.5))
@@ -957,10 +1024,57 @@ void calcHistOfBlockInWnd(const Mat& mat, Rect p,HIS& hist)
 
 	return ;
 }
-void GaussianBlurBlock(Mat& h)
+Mat GaussianBlurBlock(const Mat& mat,Vec2i overlap)
 {
+	Mat retM=mat.clone();
+	/*Mat w(mat.size(),DataType<float>::type);
+	Mat a(mat.size(),DataType<float>::type);
+	for (int r=0;r<mat.rows;r++)
+	{
+		for (int c=0;c<mat.cols;c++)
+		{
+			a.at<float>(r,c)=mat.at<Gradient>(r,c)[0];
+			w.at<float>(r,c)=mat.at<Gradient>(r,c)[1];
+		}
+	}*/
 	double sigma = 0.5 * cellSize.height*blockSize.height;
-	GaussianBlur(h,h,Size(5,5),sigma);
+	
+	int n_block_w = floor( 1.*(mat.cols/cellSize.width - overlap[0])/(blockSize.width - overlap[0]));
+	int n_block_h = floor( 1.*(mat.rows/cellSize.height - overlap[1])/(blockSize.height - overlap[1]));
+	
+	int x=0,y=0;
+//	int s=0;
+	for (int i=0; i < n_block_h;i++)
+	{
+		x=0;
+		for (int j = 0 ; j<n_block_w;j++)
+		{
+			Rect blk(x,y,blockSize.width*cellSize.width,blockSize.height*cellSize.height);
+			GaussianBlur(mat(blk),retM(blk),Size(3,3),0.5*cellSize.width*blockSize.width);
+			/*GaussianBlur(a(blk),a(blk),Size(3,3),0.5*cellSize.width*blockSize.width);
+			GaussianBlur(w(blk),w(blk),Size(3,3),0.5*cellSize.width*blockSize.width);
+			for (int ii=0;ii<blk.height;ii++)
+			{
+				for (int jj=0;jj<blk.width;jj++)
+				{
+					retM(blk).at<Gradient>(ii,jj)=Gradient(a(blk).at<float>(ii,jj),w(blk).at<float>(ii,jj));
+				}
+			}*/
+		//	calcHistOfBlockInWnd(mat,Rect(x,y,blockSize.width,blockSize.height),h_b);
+	//		Mat temp= h_b.clone();
+			
+	//		h_b.copyTo((H)(Rect(s,0,h_b.cols,1)));
+	//		s+=h_b.cols;
+			
+			x+= (blockSize.width -overlap[0])*cellSize.width;			
+		}
+		y+=(blockSize.height - overlap[1])*cellSize.height;
+
+	}
+	return retM;
+
+
+//	GaussianBlur(h,h,Size(3,3),sigma);
 }
 void calcHistOfWnd(const Mat& mat, const Size& blockSize, Vec2i overlap, int norm_c,HIS& H)
 { 
