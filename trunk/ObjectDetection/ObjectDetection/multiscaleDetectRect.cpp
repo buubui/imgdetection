@@ -53,7 +53,7 @@ void multiscale(Mat img,float step )
 
 
 			//	his_wnd = calcHisOfCellsInWnd(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9);
-				calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9,his_wnd);
+				calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9,his_wnd,180.);
 			//	HIS* h_w = calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2);
 				calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2,h_w);
 			//	if(!his){
@@ -145,7 +145,7 @@ void multiscale(Mat img,float step )
 	imshow("result",result);
 }
 
-Mat multiscaleExp(string filepath,float step,Size addStep)
+Mat multiscaleExp(string filepath,float step,Size addStep,bool useMaxChannel)
 {
 	Mat img = imread(filepath);
 //	Mat img;
@@ -191,8 +191,18 @@ Mat multiscaleExp(string filepath,float step,Size addStep)
 	Mat * weight;
 	float b;
 	getWeight("w.txt",weight,b);
-	Mat* imFils = imFilter(img,true);
-	Mat G = calcGradientOfPixels(imFils[0],imFils[1]);
+	int n_channels=1;
+	Mat* imFils;
+	Mat G;
+	if(useMaxChannel==true)
+	{
+		n_channels=img.channels();
+		imFils = imFilterChannels(img,true);
+		G = calcGradientOfPixelsMaxChannel(imFils,n_channels);
+	}else{
+		imFils = imFilter(img,true);
+		G = calcGradientOfPixels(imFils[0],imFils[1]);
+	}
 	Rect MaxWnd(0,0,wndSize.width,wndSize.height);
 	float max=0;
 	Mat img_slideWnd, his_wnd;
@@ -384,7 +394,7 @@ Mat multiscaleExp(string filepath,float step,Size addStep)
 			{
 				img_slideWnd=img(slideWnd);
 				
-				calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9,his_wnd);
+				calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9,his_wnd,180.);
 			//	calcHisOfCellsInWnd(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9,his_wnd);
 			//	if(his_wnd.rows==0)
 				calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2,h_w);
@@ -438,8 +448,14 @@ Mat multiscaleExp(string filepath,float step,Size addStep)
 
 		}
 	}
-	imFils[0].release();
-	imFils[1].release();
+//	imFils[0].release();
+//	imFils[1].release();
+	for (int i=0;i<n_channels;i++)
+	{
+		imFils[i].release();
+		imFils[i+1].release();
+	}
+	delete[] imFils;
 	imFils2[0].release();
 	imFils2[1].release();
 	for (int ii=0;ii<his_wnd.rows;ii++)

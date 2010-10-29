@@ -207,11 +207,13 @@ bool meanshiftFromFile(string fname,float minValue,float radius,int minCsize,flo
 			break;
 		if(atof(strs[p-1].c_str())<minValue)
 			continue;
+		
 		for (int i=0;i<p;i++)
 		{
 			data[n*p+i] = atof(strs[i].c_str());
 		}
 		n++;
+		if(n>=1000) break;
 
 	}
 	in.close();

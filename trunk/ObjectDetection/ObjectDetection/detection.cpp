@@ -22,7 +22,7 @@ bool detection(string path,string fname, string ext,float scaleStep,Size addStep
 		imgOrg.release();*/
 		
 		if(!justMeanshift){
-			multiscaleExp(path+fname+ext,scaleStep,addStep);
+			multiscaleExp(path+fname+ext,scaleStep,addStep,true);
 		}
 		Mat multiscale=img.clone();
 		drawRect2Img(multiscale,"output/"+fname+"_multiscale.txt",minB,realRect,false);
