@@ -133,14 +133,51 @@ void takeType(string fnamein,string fnameout,char type)
 	inData.close();
 	outData.close();
 }
+void splitList(string fname, int n_part)
+{
+	ifstream inData;
+	inData.open(fname.c_str());
+	ofstream* outData = new ofstream[n_part];
+	
+	for (int i=0;i<n_part;i++)
+	{
+		stringstream strName;
+		strName<<"output/list_"<<i<<".txt";
+		outData[i].open(strName.str().c_str());
+	}
+	string lineData;
+	getline(inData,lineData);
+	for (int i=0;i<n_part;i++)
+	{
+		outData[i]<<lineData<<endl;
+	}
+	int iLine=0;
+	while(!inData.eof()){
+		getline(inData,lineData);
+		if(lineData.length()<1)
+			break;
+	//	for (int i=0;i<n_part;i++)
+	//	{
+			outData[iLine%n_part]<<lineData<<endl;
+	//	}
+		iLine++;
+
+	}
+	inData.close();
+	for (int i=0;i<n_part;i++)
+	{
+		outData[i].close();
+	}
+}
 [STAThreadAttribute]
 int main(array<System::String ^> ^args)
 {
 	clock_t t1,t2;
 	t1 = clock();	
 	loadConfig();
-	
-	
+//	splitList("input/trainNeg.txt",3);
+//	int a[4]={0,1,0,1};
+//	cout << bin2dec(a,4);
 	
 	/*Mat im = imread("D:\\Lectures\\Luan_van\\DATASET\\VOC\\VOCdevkit\\VOC2010\\JPEGImages\\2007_000480.jpg");
 		Mat* imgfils=imFilterChannels(im,true);
@@ -182,8 +219,10 @@ int main(array<System::String ^> ^args)
 	
 //	svmGenerateData2("input/Train_Pos.txt","input/Train_Neg_P1.txt",1,8);
 //	svmGenerateData2("input/Test_Pos.txt","input/Test_Neg.txt",1,8);
-	svmGenerateData2("input/a.txt","input/b.txt",1,10,true,true);
-//	svmGenerateData2("input/trainPos.txt","input/trainNeg.txt",1,10,true);
+//	svmGenerateData2("input/a.txt","input/b.txt",1,5,true,true);
+	svmGenerateData2("input/trainPos.txt","input/trainNeg_0.txt",1,15,true,false,false);
+//	svmGenerateData2("input/trainPos.txt","input/trainNeg_1.txt",1,15,true,false,false);
+//	svmGenerateData2("input/trainPos.txt","input/trainNeg_2.txt",1,15,true,false,false);
 
 	/************************************************************************/
 	/*                      Test new mean shift                             */

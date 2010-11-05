@@ -129,7 +129,7 @@ void svmGenerateData(string inputfilelist, int pos,int randTime){
 
 
 
-void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int randTimeNeg,bool useMaxChannel,bool useLBB)
+void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int randTimeNeg,bool useMaxChannel,bool useSmooth,bool useLBB)
 {	
 	ifstream inputFile;
 	printf("%s\n",posfilelist.c_str());
@@ -325,7 +325,9 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 				if((i+1)%300==0)
 					printf("%d %d. %s (%d,%d, %d, %d)\n",j,i+1,filename.c_str(),slideWnd.x,slideWnd.y,slideWnd.width,slideWnd.height);
 				Mat img_slideWnd=img(slideWnd);
-				Mat G1=GaussianBlurBlock(G(slideWnd),Vec2i(1,1));
+				Mat G1=G(slideWnd);
+				if(useSmooth)
+					G1=GaussianBlurBlock(G(slideWnd),Vec2i(1,1));
 				
 				
 				//	imshow(filename,img);
@@ -344,7 +346,8 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 		//		calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9,his_wnd);
 		//		HIS* h_w = calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2);
 				calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2,h_w);
-				G1.release();
+				if(useSmooth)
+					G1.release();
 
 				myfile2 << pos<<"\t";
 				for (int i=0;i<h_w.cols;i++)
