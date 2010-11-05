@@ -1050,7 +1050,7 @@ Mat GaussianBlurBlock(const Mat& mat,Vec2i overlap)
 		for (int j = 0 ; j<n_block_w;j++)
 		{
 			Rect blk(x,y,blockSize.width*cellSize.width,blockSize.height*cellSize.height);
-			GaussianBlur(mat(blk),retM(blk),Size(3,3),0.5*cellSize.width*blockSize.width);
+			GaussianBlur(mat(blk),retM(blk),Size(3,3),sigma);
 			/*GaussianBlur(a(blk),a(blk),Size(3,3),0.5*cellSize.width*blockSize.width);
 			GaussianBlur(w(blk),w(blk),Size(3,3),0.5*cellSize.width*blockSize.width);
 			for (int ii=0;ii<blk.height;ii++)
