@@ -175,6 +175,7 @@ int main(array<System::String ^> ^args)
 	clock_t t1,t2;
 	t1 = clock();	
 	loadConfig();
+//	takeHardList("D:\\Lectures\\Luan_van\\tool\\svm_light_windows\\classify_result1.txt","D:\\Lectures\\Luan_van\\tool\\svm_light_windows\\val_1.txt");
 //	splitList("input/trainNeg.txt",3);
 //	int a[4]={0,1,0,1};
 //	cout << bin2dec(a,4);
@@ -219,10 +220,11 @@ int main(array<System::String ^> ^args)
 	
 //	svmGenerateData2("input/Train_Pos.txt","input/Train_Neg_P1.txt",1,8);
 //	svmGenerateData2("input/Test_Pos.txt","input/Test_Neg.txt",1,8);
-//	svmGenerateData2("input/a.txt","input/b.txt",1,5,true,true);
-	svmGenerateData2("input/trainPos.txt","input/trainNeg_0.txt",1,15,true,false,false);
-//	svmGenerateData2("input/trainPos.txt","input/trainNeg_1.txt",1,15,true,false,false);
-//	svmGenerateData2("input/trainPos.txt","input/trainNeg_2.txt",1,15,true,false,false);
+//	svmGenerateData2("input/NULL.txt","input/b.txt",1,5,true,false,false);
+	svmGenerateData2("input/trainPos.txt","input/trainNeg_0.txt",1,1,true,false,false);
+	/*svmGenerateData2("input/NULL.txt","input/trainNeg_0.txt",1,1,true,false,false);
+	svmGenerateData2("input/NULL.txt","input/trainNeg_1.txt",1,1,true,false,false);
+	svmGenerateData2("input/NULL.txt","input/trainNeg_2.txt",1,1,true,false,false);*/
 
 	/************************************************************************/
 	/*                      Test new mean shift                             */
