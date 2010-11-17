@@ -51,9 +51,10 @@ void calcHistOfWnd(const Mat& mat, const Size& blockSize, Vec2i overlap, int nor
 void calcHisOfCellsInWnd2(Mat hog_pixels,Rect wnd, Size cellSize, int n_bins,Mat& H,float maxD);
 void setHisOfCell(const Gradient& hog_pixcell, HIS* Hcell,Size cellSize);
 inline void setHisOfCells(const Gradient& hog_pixcell, HIS** Hcells,float* R,int n_cells,Size cellSize,float maxD);
-void calcHisOfCellsInWnd2new(const Mat& hog_pixels,Rect wnd, Size cellSize, int n_bins,Mat& H);
+HIS calcHistOfWndNew(const Mat& hog_pixels,Size cellSize, int n_bins,Mat*& h_w);
 //void GaussianBlurBlock(Mat& h);
 Mat GaussianBlurBlock(const Mat& mat,Vec2i overlap);
 int bin2dec(int* arrI,int n);
 void calcLBP(Mat& hog_pixels,float th);
+HIS appendHis(HIS* Hs,int n);
 #endif

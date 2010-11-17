@@ -251,8 +251,12 @@ void calcHisOfCellsInWnd2(Mat hog_pixels,Rect wnd, Size cellSize, int n_bins,Mat
 {
 	int c = (int)(wnd.width/cellSize.width);
 	int r = (int)(wnd.height/cellSize.height);
-	if(H.rows==0)
+	if(H.rows!=r || H.cols!=c)
+//	if(H.rows==0)
+	{
+	//	H.release();
 		H=Mat::zeros(r,c,DataType<HIS*>::type);
+	}
 	int currX =wnd.x;
 	int currY=wnd.y;
 //	Mat mask=Mat::zeros(r,c,DataType<bool>::type);
@@ -509,302 +513,76 @@ void calcHisOfCellsInWnd2(Mat hog_pixels,Rect wnd, Size cellSize, int n_bins,Mat
 
 
 };
-void calcHisOfCellsInWnd2new(const Mat& hog_pixels,Rect wnd, Size cellSize, int n_bins,Mat& H)
+HIS calcHistOfWndNew(const Mat& hog_pixels,Size cellSize, int n_bins,Mat*&h_w)
 {
-	int c = (int)(wnd.width/cellSize.width);
-	int r = (int)(wnd.height/cellSize.height);
-	if(H.rows==0)
-		H=Mat::zeros(r,c,DataType<HIS*>::type);
-	int currX =wnd.x;
-	int currY=wnd.y;
-	//	Mat mask=Mat::zeros(r,c,DataType<bool>::type);
-	//for (int i=0;i<r;i++)
-	//{
-	//	for (int j=0;j<c;j++)
+	Rect delRect = Rect(hog_pixels.cols/2  ,hog_pixels.rows/2,hog_pixels.cols*0.1875,hog_pixels.rows*0.1875);
+	delRect.x -= delRect.width/2;
+	delRect.y -= delRect.height/2;
+//	printf("%d %d\n",hog_pixels.cols,hog_pixels.rows);
+//	printf("%d %d %d %d\n",delRect.x,delRect.y,delRect.width,delRect.height);
+//	Rect r=Rect(0,0,(hog_pixels.cols-delRect.width)/2,(hog_pixels.rows-delRect.height)/2+delRect.height);
+//	printf("%d %d %d %d\n",r.x,r.y,r.width,r.height);
+	Mat *hog_mats=new Mat[4];
+//	Mat m=hog_pixels(Rect(0,0,203,222));
+	hog_mats[0]=hog_pixels(Rect(0,0,(hog_pixels.cols-delRect.width)/2,(hog_pixels.rows-delRect.height)/2+delRect.height));
+	hog_mats[1]=hog_pixels(Rect(hog_mats[0].cols,0,hog_pixels.cols-hog_mats[0].cols,(hog_pixels.rows-delRect.height)/2));
+	hog_mats[2]=hog_pixels(Rect(hog_mats[0].cols+delRect.width,hog_mats[1].rows,hog_mats[0].cols,hog_pixels.rows-hog_mats[1].rows));
+	hog_mats[3]=hog_pixels(Rect(0,hog_mats[0].rows, hog_pixels.cols-hog_mats[2].cols, hog_mats[1].rows));
 
-	//	{
-	//		if(H.at<HIS*>(i,j)==NULL)
-	//			H.at<HIS*>(i,j) = new Mat();
-	//		*(H.at<HIS*>(i,j))=Mat::zeros(1,n_bins,DataType<float>::type);
-	//		
-	//		/*Mat A;
-	//		A=(Mat::zeros(1,n_bins,DataType<float>::type));;
-	//		H.at<HIS*>(i,j)= &A;*/
-	//		
-	//	/*	for (int t=0;t<h->cols;t++)
-	//		{
-	//			h->at<float>(0,t)=0.;
-	//		}
-	//		printf("ZEROS %f \n",H.at<HIS*>(i,j)->at<float>(0,0));*/
-	//	}
-	//}
-	float a =180./n_bins;
-	Rect rect(currX,currY,cellSize.width,cellSize.height);
-	
-	HIS* Hs[4];
-	float R[4];
-	float angle; 
-	float weight ; 
-	int n_b ;
-	Point currPix;
-	Vec2i tmp;
-	
-	Point currCenter1,currCenter2,currCenter3,currCenter;
-	for (int i=0;i<r;i++)
+	hog_mats[0]=rotateMat(rotateMat(hog_mats[0],1),1);
+	hog_mats[1]=rotateMat(hog_mats[1],1);
+	hog_mats[3]=rotateMat(hog_mats[3],0);
+	/*imshow("ori",hog_pixels);
+	imshow("0",Hs[0]);
+	imshow("1",Hs[1]);
+	imshow("2",Hs[2]);
+	imshow("3",Hs[3]);
+	imshow("del",hog_pixels(delRect));*/
+	HIS* his_wins= new HIS[4];
+	if(h_w==NULL)
+		h_w=new Mat[4];
+	for (int i=0;i<4;i++)
+//	while(true)
 	{
-		currX=0;
-		for (int j=0;j<c;j++)
-
-		{
-			if(i==0&&j==0){
-				if(H.at<HIS*>(i,j)==NULL){
-					H.at<HIS*>(i,j) = new Mat();
-				}
-				//			if(mask.at<bool>(i,j)==false){
-				*(H.at<HIS*>(i,j))=Mat::zeros(1,n_bins,DataType<float>::type);
-				//				mask.at<bool>(i,j)=true;
-				//			}
-			}
-
-			if(i==0&&j+1<c){
-				if(H.at<HIS*>(i,j+1)==NULL)
-					H.at<HIS*>(i,j+1) = new Mat();
-				//				if(mask.at<bool>(i,j+1)==false){
-				*(H.at<HIS*>(i,j+1))=Mat::zeros(1,n_bins,DataType<float>::type);
-				//					mask.at<bool>(i,j+1)=true;
-				//				}
-			}
-
-			if(j==0&&i+1<r){
-				if(H.at<HIS*>(i+1,j)==NULL)
-					H.at<HIS*>(i+1,j) = new Mat();
-				//				if(mask.at<bool>(i+1,j)==false){
-				*(H.at<HIS*>(i+1,j))=Mat::zeros(1,n_bins,DataType<float>::type);
-				//				mask.at<bool>(i+1,j)=true;
-				//				}
-			}
-			if(i+1<r&&j+1<c){
-				if(H.at<HIS*>(i+1,j+1)==NULL)
-					H.at<HIS*>(i+1,j+1) = new Mat();
-				//	if(mask.at<bool>(i+1,j+1)==false){
-				*(H.at<HIS*>(i+1,j+1))=Mat::zeros(1,n_bins,DataType<float>::type);
-				//		mask.at<bool>(i+1,j+1)=true;
-				//	}
-			}
-			rect.x=currX;
-			rect.y=currY;
-
-			
-			Hs[0]=H.at<HIS*>(i,j);
-			currCenter.x=currX+cellSize.width/2 ; currCenter.y=currY+cellSize.height/2;
-			int n_cells=1;
-			for (int ii=0;ii<rect.height;ii++)
-			{
-				for (int jj=0;jj<rect.width;jj++)
-				{
-					//	printf("\n%f:%f\n",hog_pixels.at<Gradient>(i+r.x,j+r.y)[0],hog_pixels.at<Gradient>(i+r.x,j+r.y)[1]);
-					//	int n_b = (int)( (hog_pixels.at<Gradient>(i+r.x,j+r.y)[0]+90)/a);
-					angle = hog_pixels.at<Gradient>(ii+rect.y,jj+rect.x)[0]; 
-					weight = hog_pixels.at<Gradient>(ii+rect.y,jj+rect.x)[1]; 
-					n_b = (int)( (angle)/a);
-					currPix.x=currX+jj ; currPix.y=currY+ii;
-					
-					if (currPix.x>currCenter.x)
-					{
-
-						if (currPix.y>currCenter.y)
-						{
-							tmp[0]=1; //r
-							tmp[1]=1; //c
-
-							Hs[2] = (i+tmp[0])<r-1?(H.at<HIS*>(i+tmp[0],j)):NULL;
-							Hs[1] = (j+tmp[1])<c-1?(H.at<HIS*>(i,j+tmp[1])):NULL;
-							Hs[3] = (i+tmp[0]<r)&&(j+tmp[1]<c)?(H.at<HIS*>(i+tmp[0],j+tmp[1])):NULL;
-
-						}
-						else{
-							tmp[0]=-1; //r
-							tmp[1]=1; //c
-							Hs[2] = (i+tmp[0])>0?(H.at<HIS*>(i+tmp[0],j)):NULL;
-							Hs[1] = (j+tmp[1])<c-1?(H.at<HIS*>(i,j+tmp[1])):NULL;
-							Hs[3] = (i+tmp[0]>0)&&(j+tmp[1]<c-1)?(H.at<HIS*>(i+tmp[0],j+tmp[1])):NULL;
-
-						}
-					}
-					else{
-						if (currPix.y>currCenter.y)
-						{
-							tmp[0]=+1; //r
-							tmp[1]=-1; //c
-							Hs[2] = (i+tmp[0])<r-1?(H.at<HIS*>(i+tmp[0],j)):NULL;
-							Hs[1] = (j+tmp[1])>0?(H.at<HIS*>(i,j+tmp[1])):NULL;
-							Hs[3] = (i+tmp[0]<r-1)&&(j+tmp[1]>0)?(H.at<HIS*>(i+tmp[0],j+tmp[1])):NULL;
-
-
-						}
-						else{
-							tmp[0]=-1;
-							tmp[1]=-1;
-							Hs[1] = (i+tmp[0])>0?(H.at<HIS*>(i+tmp[0],j)):NULL;
-							Hs[2] = (j+tmp[1])>0?(H.at<HIS*>(i,j+tmp[1])):NULL;
-							Hs[3] = (i+tmp[0]>0)&&(j+tmp[1]>0)?(H.at<HIS*>(i+tmp[0],j+tmp[1])):NULL;
-
-						}
-					}
-
-					if (Hs[1]!=NULL)
-					{
-						currCenter1.x=currCenter.x +tmp[1]*cellSize.width ; currCenter1.y=currCenter.y;
-						int d_01 = std::abs(currPix.y -currCenter.y);
-					//	if(d_01<0) d_01=-d_01;
-						int d_02 = std::abs(currPix.x -currCenter.x);
-					//	if(d_02<0) d_02=-d_02;
-
-						if(Hs[2]!=NULL)
-						{
-							currCenter2.x=currCenter.x ;currCenter2.y=currCenter.y+tmp[0]*cellSize.height ;
-
-							currCenter3.x=currCenter.x+tmp[1]*cellSize.width ; currCenter3.y=currCenter.y+tmp[0]*cellSize.height ;
-							int d_13 = std::abs(cellSize.width - d_02);
-						//	if(d_13<0) d_13=-d_13;
-							int d_23 = std::abs(cellSize.height - d_01);
-						//	if(d_23<0) d_23=-d_23;
-
-							R[0]= (1. - 1.*d_01/cellSize.height) * (1. - 1.*d_02/cellSize.width);
-							R[1] = (1. - 1.*d_01/cellSize.height) * (1. - 1.*d_13/cellSize.width);
-							R[2] = (1. - 1.*d_23/cellSize.height) * (1. - 1.*d_02/cellSize.width);
-							R[3] = (1. - 1.*d_23/cellSize.height) * (1. - 1.*d_13/cellSize.width);
-
-							/*H0->vector_weight[n_b]+=weight*r0;
-							H1->vector_weight[n_b]+=weight*r1;
-							H2->vector_weight[n_b]+=weight*r2;
-							H3->vector_weight[n_b]+=weight*r3;*/
-
-							/*setHisOfCell(Gradient(angle,weight*r0),H0,cellSize);
-							setHisOfCell(Gradient(angle,weight*r1),H1,cellSize);
-							setHisOfCell(Gradient(angle,weight*r2),H2,cellSize);
-							setHisOfCell(Gradient(angle,weight*r3),H3,cellSize);*/
-
-						//	Hs[0]=H0;Hs[1]=H1;Hs[2]=H2;Hs[3]=H3;
-						//	R[0]=r0;R[1]=r1;R[2]=r2;R[3]=r3;
-							n_cells=4;
-						//	setHisOfCells(Gradient(angle,weight),Hs,R,4,cellSize);
-
-						}
-						else{
-							R[0] =  (1. - 1.*d_02/cellSize.width);
-							R[1] =  (1.*d_02/cellSize.width);
-							//r2 = (1. - 1.*d_23/cellSize.height) * (1. - 1.*d_02/cellSize.width);
-							//r3 = (1. - 1.*d_23/cellSize.height) * (1. - 1.*d_13/cellSize.width);
-
-							//	H0->vector_weight[n_b]+=weight*r0;
-							//	H1->vector_weight[n_b]+=weight*r1;
-							//H2->vector_weight[n_b]+=weight*r2;
-							//H3->vector_weight[n_b]+=weight*r3;
-
-							/*setHisOfCell(Gradient(angle,weight*r0),H0,cellSize);
-							setHisOfCell(Gradient(angle,weight*r1),H1,cellSize);*/
-
-						//	Hs[0]=H0;Hs[1]=H1;
-						//	R[0]=r0;R[1]=r1;
-							n_cells=2;
-						//	setHisOfCells(Gradient(angle,weight),Hs,R,2,cellSize);
-						}
-					}
-					else if(Hs[2]!=NULL){
-						int d_01 = std::abs(currPix.y -currCenter.y);
-					//	if(d_01<0) d_01=-d_01;
-						int d_02 = std::abs(currPix.x -currCenter.x);
-					//	if(d_02<0) d_02=-d_02;
-
-						Point currCenter2(currCenter.x ,currCenter.y+tmp[1]*cellSize.height );
-
-						R[0]= (1. - 1.*d_01/cellSize.height);// * (1. - 1.*d_02/cellSize.width);
-						//r1 = (1. - 1.*d_01/cellSize.height) * (1. - 1.*d_13/cellSize.width);
-						R[1] = (1.*d_01/cellSize.height); //* (1. - 1.*d_02/cellSize.width);
-						//r3 = (1. - 1.*d_23/cellSize.height) * (1. - 1.*d_13/cellSize.width);
-
-						//H0->vector_weight[n_b]+=weight*r0;
-						//H1->vector_weight[n_b]+=weight*r1;
-						//H2->vector_weight[n_b]+=weight*r2;
-						//H3->vector_weight[n_b]+=weight*r3;
-
-						/*setHisOfCell(Gradient(angle,weight*r0),H0,cellSize);
-						setHisOfCell(Gradient(angle,weight*r2),H2,cellSize);*/
-
-					//	Hs[0]=H0;Hs[1]=H2;
-					//	R[0]=r0;R[1]=r2;
-						n_cells=2;
-						Hs[1]=Hs[2];
-					//	setHisOfCells(Gradient(angle,weight),Hs,R,2,cellSize);
-					}
-					else{
-						//H0->vector_weight[n_b]+=weight;
-						//	setHisOfCell(Gradient(angle,weight),H0,cellSize);
-					//	Hs[0]=H0;
-						R[0]=1.;
-						n_cells=1;
-					//	setHisOfCells(Gradient(angle,weight),Hs,R,1,cellSize);
-					}
-
-					//H0->vector_weight[n_b]+=hog_pixels.at<Gradient>(ii+r.y,jj+r.x)[1];
-
-					float step = 180./Hs[0]->cols;
-					int n_b = (int)( (a)/step);
-					for(int i=0;i<n_cells;i++)
-						if(a<n_b*(step+0.5))
-						{
-							if(n_b>0)
-							{
-								float r1=  (n_b*(step+0.5)-a)/step ;
-								float r0 = 1-r1;
-								//	if(Hcell->at<float>(0,n_b)<-100000.)
-								//		Hcell->at<float>(0,n_b)=0.;
-								Hs[i]->at<float>(0,n_b)+=r0*weight*R[i];
-
-								//	if(Hcell->at<float>(0,n_b-1)<-100000.)
-								//		Hcell->at<float>(0,n_b-1)=0.;
-								Hs[i]->at<float>(0,n_b-1)+=r1*weight*R[i];
-							}else{
-								//	if(Hcell->at<float>(0,n_b)<-100000.)
-								//		Hcell->at<float>(0,n_b)=0.;
-								Hs[i]->at<float>(0,n_b)+=weight*R[i];
-							}
-						}else{
-							if(n_b < Hs[0]->cols-1)
-							{
-								float r1= (a- n_b*(step+0.5))/step ;
-								float r0 = 1-r1;
-								//	if(Hcell->at<float>(0,n_b)<-100000.)
-								//		Hcell->at<float>(0,n_b)=0.;
-								Hs[i]->at<float>(0,n_b)+=r0*weight*R[i];
-
-								//	if(Hcell->at<float>(0,n_b+1)<-100000.)
-								//		Hcell->at<float>(0,n_b+1)=0.;
-								Hs[i]->at<float>(0,n_b+1)+=r1*weight*R[i];
-							}else{
-								//	if(Hcell->at<float>(0,n_b)<-100000.)
-								//		Hcell->at<float>(0,n_b)=0.;
-								Hs[i]->at<float>(0,n_b)+=weight*R[i];
-							}
-						}
-						//Hcell->vector_weight[n_b]+= 
-
-
-				}
-			}
-			//H.at<HIS*>(i,j)= calcHisOfCell(hog_pixels,Rect(currX,currY,cellSize.width,cellSize.height),n_bins);
-
-
-			currX+=cellSize.width;
-		}
-		currY+=cellSize.height;
+		calcHisOfCellsInWnd2(hog_mats[i],Rect(Point(0,0),hog_mats[i].size()),cellSize,n_bins,h_w[i],180.);
+		calcHistOfWnd(h_w[i],blockSize,Vec2i(1,1),2,his_wins[i]);
+	//	h_w.release();
 	}
-	//	mask.release();
-	return ;	
-
-
+	
+	HIS finalHis = appendHis(his_wins,4);
+	for (int i=0;i<4;i++)
+	{
+	//	printf(" vung %d(%d %d): %d\n",i,Hs[i].rows,Hs[i].cols,His[i].cols);
+		hog_mats[i].release();
+		his_wins[i].release();
+		/*H0.release();
+		H1.release();
+		H2.release();
+		H3.release();*/
+		
+	}
+//	h_w.release();
+	delete[] hog_mats;
+	delete[] his_wins;
+	return finalHis;
 };
+HIS appendHis(HIS* Hs,int n)
+{
+	int n_size = 0;
+	for (int i=0;i<n;i++)
+	{
+		n_size+= Hs[i].cols;
+	}
+	cout<<"n_size="<<n_size<<endl;
+	HIS A = Mat::zeros(1,n_size,Hs[0].type());
+	int currIndex=0;
+	for (int i=0;i<n;i++)
+	{
+		Hs[i].copyTo(A(Rect(currIndex,0,Hs[i].cols,1)));
+		currIndex+=Hs[i].cols;
+	}
+	return A;
+}
 void setHisOfCell(const Gradient& hog_pixcell, HIS* Hcell,Size cellSize)
 {
 	float a = hog_pixcell[0];

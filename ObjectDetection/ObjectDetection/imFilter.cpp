@@ -124,3 +124,14 @@ Mat* imFilterChannels(const Mat& img,bool equalize){
 	return arrFils;
 }
 
+Mat rotateMat(Mat src,int rotateType)//0:left, 1:right
+{
+		Mat r=Mat::zeros(src.size(),src.type());
+	//	Mat d=Mat::zeros(a.size(),a.type());
+		if(rotateType==0)
+			cv::flip(src,r,1);
+		else
+			cv::flip(src,r,0);
+	return r.t();
+
+}
