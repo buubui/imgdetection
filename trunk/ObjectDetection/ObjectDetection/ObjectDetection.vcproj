@@ -215,10 +215,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\hog_src.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\imFilter.cpp"
 				>
 			</File>

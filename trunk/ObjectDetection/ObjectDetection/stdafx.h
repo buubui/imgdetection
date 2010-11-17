@@ -28,6 +28,7 @@ using namespace System::Collections;
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include "detection.h"
+#include "meanshift.h"
 #include <msclr\marshal_cppstd.h>
 
 //abc

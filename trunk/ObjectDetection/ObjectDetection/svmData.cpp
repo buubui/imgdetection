@@ -1,8 +1,9 @@
+//#include "svmData.h"
 #include "stdafx.h"
-#include "meanshift.h"
 using namespace System;
 using namespace System::Xml;
 extern Size cellSize,blockSize,wndSize,maxWndSz;
+
 void svmGenerateData(string inputfilelist, int pos,int randTime){
 	ifstream conffile;
 	conffile.open ("input/config.txt");
@@ -129,7 +130,7 @@ void svmGenerateData(string inputfilelist, int pos,int randTime){
 
 
 
-void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int randTimeNeg,bool useMaxChannel,bool useSmooth,bool useLBB)
+void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int randTimeNeg,bool useMaxChannel,bool useSmooth,bool useLBP,bool useNewTech)
 {	
 	ifstream inputFile;
 	printf("%s\n",posfilelist.c_str());
@@ -166,6 +167,7 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 		tmp.height = wndSize.height / cellSize.height;
 		Mat his_wnd ;
 		HIS h_w;
+		HIS* h_ws=NULL;
 		for (int i=0;;i++)
 
 			//		while (! inputfile.eof() )
@@ -336,16 +338,21 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 //				Mat his_wnd = calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9);
 				int maxD=180.; 
 				int n_bins=9;
-				if(useLBB)
+				if(useLBP)
 				{
 					calcLBP(G1,0);
 					maxD=256.;
 					n_bins=8;
 				}
-				calcHisOfCellsInWnd2(G1,Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,n_bins,his_wnd,maxD);
-		//		calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9,his_wnd);
-		//		HIS* h_w = calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2);
-				calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2,h_w);
+				if(!useNewTech)
+				{
+					calcHisOfCellsInWnd2(G1,Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,n_bins,his_wnd,maxD);
+			//		calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9,his_wnd);
+			//		HIS* h_w = calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2);
+					calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2,h_w);
+				}else{
+					h_w=calcHistOfWndNew(G1,cellSz,n_bins,h_ws);
+				}
 				if(useSmooth)
 					G1.release();
 
@@ -400,6 +407,13 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 		}
 		his_wnd.release();
 		h_w.release();
+		if(h_ws!=NULL){
+			for (int i=0;i<4;i++)
+			{
+				h_ws[i].release();
+			}
+			delete[]h_ws;
+		}
 	//	myfile.close();
 		myfile2.close();
 	}
@@ -772,7 +786,7 @@ void VOCAnnRects(System::String^ XmlFileName,System::String^ objName,Rect* &rect
 //};
 
 
-void VOCSvmGenerateData2(System::String^ AnnPath,string imgsPath,string fileExt,System::String^ objName,string filelist, int randTimePos,int randTimeNeg,double scale,double step,bool useMaxChannel)
+void VOCSvmGenerateData2(System::String^ AnnPath,std::string imgsPath,std::string fileExt,System::String^ objName,std::string filelist, int randTimePos,int randTimeNeg,double scale,double step,bool useMaxChannel,bool useSmooth, bool useLBP)
 {
 	ifstream inputFile;
 	printf("%s\n",filelist.c_str());
@@ -1003,19 +1017,25 @@ void VOCSvmGenerateData2(System::String^ AnnPath,string imgsPath,string fileExt,
 				}
 				if((i+1)%300==0)
 					printf("%d %d. %s (%d,%d, %d, %d) %s\n",j,i+1,filename.c_str(),slideWnd.x,slideWnd.y,slideWnd.width,slideWnd.height,pos.c_str());
+				
 				Mat img_slideWnd=img(slideWnd);
-				//Mat G1 = G(slideWnd).clone();
-//				Mat G1=GaussianBlurBlock(G(slideWnd),Vec2i(1,1));
-				//	imshow(filename,img);
-				//		Mat* imFils = imFilter(img_slideWnd);
-				//		Mat G = calcGradientOfPixels(imFils[0],imFils[1]);
-				//				Mat his_wnd = calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9);
-				calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9,his_wnd,180.);
-			//	calcHisOfCellsInWnd2(G1,Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9,his_wnd);
+				Mat G1=G(slideWnd);
+				if(useSmooth)
+					G1=GaussianBlurBlock(G(slideWnd),Vec2i(1,1));
+				int maxD=180.; 
+				int n_bins=9;
+				if(useLBP)
+				{
+					calcLBP(G1,0);
+					maxD=256.;
+					n_bins=8;
+				}
+				calcHisOfCellsInWnd2(G1,Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,n_bins,his_wnd,maxD);
+				//		calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9,his_wnd);
 				//		HIS* h_w = calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2);
 				calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2,h_w);
-			//	G1.release();
-
+				if(useSmooth)
+					G1.release();
 
 				myfile2 << pos<<"\t";
 				for (int i=0;i<h_w.cols;i++)

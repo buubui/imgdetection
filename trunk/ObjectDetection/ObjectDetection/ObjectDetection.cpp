@@ -2,21 +2,18 @@
 
 #include "stdafx.h"
 #include "MainWindow.h"
-using namespace System;
-using namespace ObjectDetection;
+//using namespace System;
+//using namespace ObjectDetection;
 // TestOpenCv.cpp : Defines the entry point for the console application.
 //
-#include "stdafx.h"
-#include "imFilter.h"
-#include <math.h>
-#include "HOG.h"
+//#include "imFilter.h"
+//#include <math.h>
+//#include "HOG.h"
 #include "ctime"
 #include "glbVars.h"
-#include "meanshift.h"
-#include "HardSample.h"
-//#include <list>
-//#include "boost\make_shared.hpp"
-//#include <vector>
+//#include "meanshift.h"
+//#include "HardSample.h"
+
 void takefalseImg(string ffile)
 {
 	ifstream in1,in2;
@@ -176,12 +173,35 @@ int main(array<System::String ^> ^args)
 	t1 = clock();	
 	loadConfig();
 //	takeHardList("D:\\Lectures\\Luan_van\\tool\\svm_light_windows\\classify_result1.txt","D:\\Lectures\\Luan_van\\tool\\svm_light_windows\\val_1.txt");
-//	splitList("input/trainNeg.txt",3);
+//	splitList("input/trainNeg.txt",2);
 //	int a[4]={0,1,0,1};
 //	cout << bin2dec(a,4);
 	
-	/*Mat im = imread("D:\\Lectures\\Luan_van\\DATASET\\VOC\\VOCdevkit\\VOC2010\\JPEGImages\\2007_000480.jpg");
-		Mat* imgfils=imFilterChannels(im,true);
+	/*Mat img = imread("D:\\Lectures\\Luan_van\\DATASET\\INRIAPerson\\70X134H96\\Test\\pos\\crop_000002b.png");
+	img=img(Rect(0,0,64,128));
+	int n_channels=1;
+	Mat* imFils;
+	Mat G;
+	
+	n_channels=img.channels();
+	imFils = imFilterChannels(img,true);
+	G = calcGradientOfPixelsMaxChannel(imFils,n_channels);
+	Mat* h_w=NULL;*/
+//	while(true)
+//	{
+		
+	//	HIS H=calcHistOfWndNew(G,cellSize,9,h_w);
+//		H.release();
+//	}*/
+
+	/*printf("%d %d\n",H.rows,H.cols);
+	for (int i=0;i <200;i++)
+	{
+		cout<<H.at<float>(0,i)<<"; ";
+	}
+	waitKey(0);*/
+	
+	/*	Mat* imgfils=imFilterChannels(im,true);
 		int n_channels=im.channels();
 		Mat G = calcGradientOfPixelsMaxChannel(imgfils,n_channels);
 		Mat T;
@@ -220,11 +240,12 @@ int main(array<System::String ^> ^args)
 	
 //	svmGenerateData2("input/Train_Pos.txt","input/Train_Neg_P1.txt",1,8);
 //	svmGenerateData2("input/Test_Pos.txt","input/Test_Neg.txt",1,8);
-//	svmGenerateData2("input/NULL.txt","input/b.txt",1,5,true,false,false);
-	svmGenerateData2("input/trainPos.txt","input/trainNeg_0.txt",1,1,true,false,false);
-	/*svmGenerateData2("input/NULL.txt","input/trainNeg_0.txt",1,1,true,false,false);
-	svmGenerateData2("input/NULL.txt","input/trainNeg_1.txt",1,1,true,false,false);
-	svmGenerateData2("input/NULL.txt","input/trainNeg_2.txt",1,1,true,false,false);*/
+	svmGenerateData2("input/a.txt","input/b.txt",1,5,true,false,false,true);
+//	svmGenerateData2("input/trainPos.txt","input/trainNeg_0.txt",1,1,true,false,false);
+//	svmGenerateData2("input/NULL.txt","input/trainNeg_0.txt",1,1,true,false,false);
+//	svmGenerateData2("input/NULL.txt","input/trainNeg_1.txt",1,1,true,false,false);
+//	svmGenerateData2("input/NULL.txt","input/trainNeg.txt",1,30,true,false,false);
+//	svmGenerateData2("input/testPosF.txt","input/testNegF.txt",1,100,true,false,false);
 
 	/************************************************************************/
 	/*                      Test new mean shift                             */
@@ -254,10 +275,10 @@ int main(array<System::String ^> ^args)
 	int n_rect;
 	//	VOCAnnRects("D:\\My Documents\\VOC2009\\Annotations\\2009_005311.xml","person",rects,n_rect);
 	//	cout<<n_rect<<endl;
-	string filelist="D:\\Lectures\\Luan_van\\DATASET\\VOC\\VOCdevkit\\VOC2010\\ImageSets\\Main\\bottle_train.txt";
-	//	VOCSvmGenerateData2(annpath,"D:\\Lectures\\Luan_van\\DATASET\\VOC\\VOCdevkit\\VOC2010\\JPEGImages\\",".jpg","person",filelist,1,3,3.,8.,true);
-	//	takeType("output/his_svmLight_2010_9_23_23_33.txt","output/pos.txt",'+');
-	//	takeType("output/his_svmLight_2010_9_23_23_33.txt","output/neg.txt",'-');
+	std::string filelist="D:\\Lectures\\Luan_van\\DATASET\\VOC\\VOCdevkit\\VOC2010\\ImageSets\\Main\\person_val.txt";
+	//	VOCSvmGenerateData2(annpath,"D:\\Lectures\\Luan_van\\DATASET\\VOC\\VOCdevkit\\VOC2010\\JPEGImages\\",".jpg","person",filelist,1,5,2.,5.,true,false,false);
+	//	takeType("output/train_person.txt","output/train_person_pos.txt",'+');
+	//	takeType("output/train_person.txt","output/train_person_neg.txt",'-');
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	//ifstream inputFile;
 	//printf("%s\n",posfilelist.c_str());
