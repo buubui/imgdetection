@@ -514,7 +514,7 @@ void calcHisOfCellsInWnd2(Mat hog_pixels,Rect wnd, Size cellSize, int n_bins,Mat
 
 
 };
-HIS calcHistOfWndNew(const Mat& hog_pixels,Size cellSize, int n_bins,Mat*&h_w)
+HIS calcHistOfWndNew(const Mat& hog_pixels,Size cellSz, int n_bins,Mat*&h_w)
 {
 	Rect delRect = Rect(hog_pixels.cols/2  ,hog_pixels.rows/2,hog_pixels.cols*delPart,hog_pixels.rows*delPart);
 	delRect.x -= delRect.width/2;
@@ -525,19 +525,22 @@ HIS calcHistOfWndNew(const Mat& hog_pixels,Size cellSize, int n_bins,Mat*&h_w)
 //	printf("%d %d %d %d\n",r.x,r.y,r.width,r.height);
 	Mat *hog_mats=new Mat[4];
 //	Mat m=hog_pixels(Rect(0,0,203,222));
-	hog_mats[0]=hog_pixels(Rect(0,0,(hog_pixels.cols-delRect.width)/2,(hog_pixels.rows-delRect.height)/2+delRect.height));
-	hog_mats[1]=hog_pixels(Rect(hog_mats[0].cols,0,hog_pixels.cols-hog_mats[0].cols,(hog_pixels.rows-delRect.height)/2));
-	hog_mats[2]=hog_pixels(Rect(hog_mats[0].cols+delRect.width,hog_mats[1].rows,hog_mats[0].cols,hog_pixels.rows-hog_mats[1].rows));
-	hog_mats[3]=hog_pixels(Rect(0,hog_mats[0].rows, hog_pixels.cols-hog_mats[2].cols, hog_mats[1].rows));
+	hog_mats[0]=hog_pixels(Rect(0,0,delRect.x,delRect.y+delRect.height + regionOverlap[1]*cellSz.height));
+	hog_mats[1]=hog_pixels( Rect(delRect.x - regionOverlap[0]*cellSz.width,0,
+		hog_pixels.cols- (delRect.x - regionOverlap[0]*cellSz.width)  ,delRect.y) );
+	hog_mats[2]=hog_pixels(Rect(delRect.x+delRect.width, delRect.y - regionOverlap[1]*cellSz.height ,
+		hog_pixels.cols - (delRect.x + delRect.width), hog_pixels.rows-delRect.y + regionOverlap[1]*cellSz.height));
+	hog_mats[3]=hog_pixels(Rect(0,delRect.y+delRect.height, 
+		delRect.x+delRect.width+regionOverlap[0]*cellSz.width, hog_pixels.rows - delRect.height - delRect.y));
 
 	hog_mats[0]=rotateMat(rotateMat(hog_mats[0],1),1);
 	hog_mats[1]=rotateMat(hog_mats[1],1);
 	hog_mats[3]=rotateMat(hog_mats[3],0);
 	/*imshow("ori",hog_pixels);
-	imshow("0",Hs[0]);
-	imshow("1",Hs[1]);
-	imshow("2",Hs[2]);
-	imshow("3",Hs[3]);
+	imshow("0",hog_mats[0]);
+	imshow("1",hog_mats[1]);
+	imshow("2",hog_mats[2]);
+	imshow("3",hog_mats[3]);
 	imshow("del",hog_pixels(delRect));*/
 	HIS* his_wins= new HIS[4];
 	if(h_w==NULL)
@@ -546,7 +549,7 @@ HIS calcHistOfWndNew(const Mat& hog_pixels,Size cellSize, int n_bins,Mat*&h_w)
 	for (int i=0;i<4;i++)
 //	while(true)
 	{
-		calcHisOfCellsInWnd2(hog_mats[i],Rect(Point(0,0),hog_mats[i].size()),cellSize,n_bins,h_w[i],180.);
+		calcHisOfCellsInWnd2(hog_mats[i],Rect(Point(0,0),hog_mats[i].size()),cellSz,n_bins,h_w[i],180.);
 		calcHistOfWnd(h_w[i],blockSize,blockOverlap,2,his_wins[i]);
 		n_size += his_wins[i].cols;
 	//	h_w.release();
@@ -555,7 +558,7 @@ HIS calcHistOfWndNew(const Mat& hog_pixels,Size cellSize, int n_bins,Mat*&h_w)
 	HIS finalHis = appendHis(his_wins,4,n_size);
 	for (int i=0;i<4;i++)
 	{
-	//	printf(" vung %d(%d %d): %d\n",i,Hs[i].rows,Hs[i].cols,His[i].cols);
+	//	printf(" vung %d(%d %d)\n",i,hog_mats[i].rows,hog_mats[i].cols);
 		hog_mats[i].release();
 		his_wins[i].release();
 		/*H0.release();

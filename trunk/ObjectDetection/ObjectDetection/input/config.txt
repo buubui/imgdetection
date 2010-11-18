@@ -2,8 +2,8 @@ CellSize
 8
 8
 BlockSize
-3
-3
+2
+2
 WindowSize
 64
 128
