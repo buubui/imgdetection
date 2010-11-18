@@ -2,6 +2,8 @@
 #include <boost/algorithm/string.hpp>
 #include "meanshift.h"
 extern Size cellSize,blockSize,wndSize,maxWndSz;
+extern cv::Vec2i blockOverlap, regionOverlap;
+extern float delPart;
 void multiscale(Mat img,float step )
 {
 	Mat result = img.clone();
@@ -55,7 +57,7 @@ void multiscale(Mat img,float step )
 			//	his_wnd = calcHisOfCellsInWnd(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9);
 				calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9,his_wnd,180.);
 			//	HIS* h_w = calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2);
-				calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2,h_w);
+				calcHistOfWnd(his_wnd,blockSize,blockOverlap,2,h_w);
 			//	if(!his){
 					/*Mat A;
 					A=(Mat::zeros(1,h_w->cols,DataType<float>::type));;
@@ -397,7 +399,7 @@ Mat multiscaleExp(string filepath,float step,Size addStep,bool useMaxChannel)
 				calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9,his_wnd,180.);
 			//	calcHisOfCellsInWnd(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9,his_wnd);
 			//	if(his_wnd.rows==0)
-				calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2,h_w);
+				calcHistOfWnd(his_wnd,blockSize,blockOverlap,2,h_w);
 
 				Mat R = (h_w)* (*weight ) - b;
 				float v = R.at<float>(0,0);

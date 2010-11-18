@@ -2,11 +2,20 @@ CellSize
 8
 8
 BlockSize
-2
-2
+3
+3
 WindowSize
 64
 128
 MaxWindowSize
 500
 400
+Block Overlap
+1
+1
+Del part
+0.1875
+Region Overlap (cell)
+1
+1
+
