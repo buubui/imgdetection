@@ -176,8 +176,8 @@ int main(array<System::String ^> ^args)
 //	splitList("input/trainNeg.txt",2);
 //	int a[4]={0,1,0,1};
 //	cout << bin2dec(a,4);
-	
-	/*Mat img = imread("D:\\Lectures\\Luan_van\\DATASET\\INRIAPerson\\70X134H96\\Test\\pos\\crop_000002b.png");
+/*	
+	Mat img = imread("D:\\Lectures\\Luan_van\\DATASET\\INRIAPerson\\70X134H96\\Test\\pos\\crop_000002b.png");
 	img=img(Rect(0,0,64,128));
 	int n_channels=1;
 	Mat* imFils;
@@ -189,8 +189,9 @@ int main(array<System::String ^> ^args)
 	Mat* h_w=NULL;*/
 //	while(true)
 //	{
-		
-	//	HIS H=calcHistOfWndNew(G,cellSize,9,h_w);
+//		HIS* h_w=NULL;
+//		HIS H=calcHistOfWndNew(img,cellSize,9,h_w);
+//		waitKey(0);
 //		H.release();
 //	}*/
 
@@ -240,7 +241,7 @@ int main(array<System::String ^> ^args)
 	
 //	svmGenerateData2("input/Train_Pos.txt","input/Train_Neg_P1.txt",1,8);
 //	svmGenerateData2("input/Test_Pos.txt","input/Test_Neg.txt",1,8);
-//	svmGenerateData2("input/a.txt","input/b.txt",1,5,true,false,false,true);
+	svmGenerateData2("input/a.txt","input/b.txt",1,5,true,false,false,true);
 //	svmGenerateData2("input/trainPos.txt","input/trainNeg.txt",1,3,true,false,false,true);
 //	svmGenerateData2("input/NULL.txt","input/trainNeg_0.txt",1,1,true,false,false);
 //	svmGenerateData2("input/NULL.txt","input/trainNeg_1.txt",1,1,true,false,false);
