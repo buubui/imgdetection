@@ -2,7 +2,8 @@
 #include "HOG.h"
 #include <cxoperations.hpp>
 extern Size cellSize,blockSize,wndSize,maxWndSz;
-
+extern cv::Vec2i blockOverlap, regionOverlap;
+extern float delPart;
 //Gradient** calcHOG(const Mat&filx,const Mat&fily)
 //{
 //	int r = filx.rows;
@@ -515,7 +516,7 @@ void calcHisOfCellsInWnd2(Mat hog_pixels,Rect wnd, Size cellSize, int n_bins,Mat
 };
 HIS calcHistOfWndNew(const Mat& hog_pixels,Size cellSize, int n_bins,Mat*&h_w)
 {
-	Rect delRect = Rect(hog_pixels.cols/2  ,hog_pixels.rows/2,hog_pixels.cols*0.1875,hog_pixels.rows*0.1875);
+	Rect delRect = Rect(hog_pixels.cols/2  ,hog_pixels.rows/2,hog_pixels.cols*delPart,hog_pixels.rows*delPart);
 	delRect.x -= delRect.width/2;
 	delRect.y -= delRect.height/2;
 //	printf("%d %d\n",hog_pixels.cols,hog_pixels.rows);
@@ -541,15 +542,17 @@ HIS calcHistOfWndNew(const Mat& hog_pixels,Size cellSize, int n_bins,Mat*&h_w)
 	HIS* his_wins= new HIS[4];
 	if(h_w==NULL)
 		h_w=new Mat[4];
+	int n_size=0;
 	for (int i=0;i<4;i++)
 //	while(true)
 	{
 		calcHisOfCellsInWnd2(hog_mats[i],Rect(Point(0,0),hog_mats[i].size()),cellSize,n_bins,h_w[i],180.);
-		calcHistOfWnd(h_w[i],blockSize,Vec2i(1,1),2,his_wins[i]);
+		calcHistOfWnd(h_w[i],blockSize,blockOverlap,2,his_wins[i]);
+		n_size += his_wins[i].cols;
 	//	h_w.release();
 	}
 	
-	HIS finalHis = appendHis(his_wins,4);
+	HIS finalHis = appendHis(his_wins,4,n_size);
 	for (int i=0;i<4;i++)
 	{
 	//	printf(" vung %d(%d %d): %d\n",i,Hs[i].rows,Hs[i].cols,His[i].cols);
@@ -566,14 +569,14 @@ HIS calcHistOfWndNew(const Mat& hog_pixels,Size cellSize, int n_bins,Mat*&h_w)
 	delete[] his_wins;
 	return finalHis;
 };
-HIS appendHis(HIS* Hs,int n)
+HIS appendHis(HIS* Hs,int n, int n_size)
 {
-	int n_size = 0;
-	for (int i=0;i<n;i++)
-	{
-		n_size+= Hs[i].cols;
-	}
-	cout<<"n_size="<<n_size<<endl;
+//	int n_size = 0;
+//	for (int i=0;i<n;i++)
+//	{
+//		n_size+= Hs[i].cols;
+//	}
+//	cout<<"n_size="<<n_size<<endl;
 	HIS A = Mat::zeros(1,n_size,Hs[0].type());
 	int currIndex=0;
 	for (int i=0;i<n;i++)

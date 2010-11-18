@@ -56,5 +56,5 @@ HIS calcHistOfWndNew(const Mat& hog_pixels,Size cellSize, int n_bins,Mat*& h_w);
 Mat GaussianBlurBlock(const Mat& mat,Vec2i overlap);
 int bin2dec(int* arrI,int n);
 void calcLBP(Mat& hog_pixels,float th);
-HIS appendHis(HIS* Hs,int n);
+HIS appendHis(HIS* Hs,int n, int n_size);
 #endif

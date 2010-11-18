@@ -3,6 +3,8 @@
 using namespace System;
 using namespace System::Xml;
 extern Size cellSize,blockSize,wndSize,maxWndSz;
+extern cv::Vec2i blockOverlap, regionOverlap;
+extern float delPart;
 
 void svmGenerateData(string inputfilelist, int pos,int randTime){
 	ifstream conffile;
@@ -90,7 +92,7 @@ void svmGenerateData(string inputfilelist, int pos,int randTime){
 			//	Mat his_wnd = calcHisOfCellsInWnd2(G,Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSize,9);
 				calcHisOfCellsInWnd2(G,Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSize,9,his_wnd ,180.);
 			//	HIS* h_w = calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2);
-				calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2,h_w);
+				calcHistOfWnd(his_wnd,blockSize,blockOverlap,2,h_w);
 
 				myfile2 << pos<<"\t";
 				for (int i=0;i<h_w.rows*h_w.cols;i++)
@@ -329,7 +331,7 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 				Mat img_slideWnd=img(slideWnd);
 				Mat G1=G(slideWnd);
 				if(useSmooth)
-					G1=GaussianBlurBlock(G(slideWnd),Vec2i(1,1));
+					G1=GaussianBlurBlock(G(slideWnd),blockOverlap);
 				
 				
 				//	imshow(filename,img);
@@ -349,7 +351,7 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 					calcHisOfCellsInWnd2(G1,Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,n_bins,his_wnd,maxD);
 			//		calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9,his_wnd);
 			//		HIS* h_w = calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2);
-					calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2,h_w);
+					calcHistOfWnd(his_wnd,blockSize,blockOverlap,2,h_w);
 				}else{
 					h_w=calcHistOfWndNew(G1,cellSz,n_bins,h_ws);
 				}
@@ -1021,7 +1023,7 @@ void VOCSvmGenerateData2(System::String^ AnnPath,std::string imgsPath,std::strin
 				Mat img_slideWnd=img(slideWnd);
 				Mat G1=G(slideWnd);
 				if(useSmooth)
-					G1=GaussianBlurBlock(G(slideWnd),Vec2i(1,1));
+					G1=GaussianBlurBlock(G(slideWnd),blockOverlap);
 				int maxD=180.; 
 				int n_bins=9;
 				if(useLBP)
@@ -1033,7 +1035,7 @@ void VOCSvmGenerateData2(System::String^ AnnPath,std::string imgsPath,std::strin
 				calcHisOfCellsInWnd2(G1,Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,n_bins,his_wnd,maxD);
 				//		calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9,his_wnd);
 				//		HIS* h_w = calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2);
-				calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2,h_w);
+				calcHistOfWnd(his_wnd,blockSize,blockOverlap,2,h_w);
 				if(useSmooth)
 					G1.release();
 

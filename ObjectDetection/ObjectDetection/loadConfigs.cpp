@@ -1,6 +1,7 @@
 #include "stdafx.h"
 extern Size cellSize,blockSize,wndSize,maxWndSz;
-
+extern cv::Vec2i blockOverlap, regionOverlap;
+extern float delPart;
 void loadConfig()
 {
 	srand(time(NULL));
@@ -32,7 +33,22 @@ void loadConfig()
 		maxWndSz.width = atoi(tmp.c_str());
 		getline (conffile,tmp);
 		maxWndSz.height = atoi(tmp.c_str());
+		
+		getline (conffile,tmp);//Block overlap
+		getline (conffile,tmp);
+		blockOverlap[0] = atoi(tmp.c_str());
+		getline (conffile,tmp);
+		blockOverlap[1] = atoi(tmp.c_str());
 
+		getline (conffile,tmp);//Del part
+		getline (conffile,tmp);
+		delPart = atof(tmp.c_str());
+
+		getline (conffile,tmp);//Region overlap
+		getline (conffile,tmp);
+		regionOverlap[0] = atoi(tmp.c_str());
+		getline (conffile,tmp);
+		regionOverlap[1] = atoi(tmp.c_str());
 		//		}
 	}
 	conffile.close();
