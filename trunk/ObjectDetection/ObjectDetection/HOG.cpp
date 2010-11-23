@@ -1001,8 +1001,7 @@ void calcHistOfWndNew2(const Mat& mat, const Size& blockSize, Vec2i overlap, int
 		h_b=H(Rect(s,0,n_size_block,1));	
 		calcHistOfBlockInWnd(mat,Rect(x,y,blockSize.width,blockSize.height),h_b);
 		NormalizeBlock(h_b,norm_c);
-		x=x+d[0]*(blockSize.width -overlap[0]);
-		y=y+d[1]*(blockSize.height -overlap[1]);
+		
 		if(d==Vec2i(0,-1) && y <delRect.y+blockSize.height && y>delRect.y)
 		{
 			//new vong moi
@@ -1014,16 +1013,18 @@ void calcHistOfWndNew2(const Mat& mat, const Size& blockSize, Vec2i overlap, int
 			x=delRect.x+delRect.width,y=delRect.y;
 			continue;
 		}
-		if( x<delRect.x && delRect.y-y >= blockSize.height)
+		x=x+d[0]*(blockSize.width -overlap[0]);
+		y=y+d[1]*(blockSize.height -overlap[1]);
+		if( d==Vec2i(0, -1) && x>delRect.x && delRect.y-y >= blockSize.height)
 			d=Vec2i(-1,0); //trai
 		
-		if(delRect.x -x>=blockSize.width && delRect.y > y)
+		else if(d==Vec2i(-1,0) && delRect.x -x>=blockSize.width && delRect.y > y)
 			d=Vec2i(0,1); //xuong
 
-		if(delRect.x <x && delRect.y +delRect.height < y)
+		else if(d==Vec2i(0,1) && delRect.x >x && delRect.y +delRect.height <= y)
 			d=Vec2i(1,0); //phai
 
-		if(x - delRect.x >=delRect.width  && delRect.y < y)
+		else if(d==Vec2i(1,0) && x - delRect.x >=delRect.width  && delRect.y < y)
 			d=Vec2i(0,-1); //len
 		
 		
