@@ -57,4 +57,5 @@ Mat GaussianBlurBlock(const Mat& mat,Vec2i overlap);
 int bin2dec(int* arrI,int n);
 void calcLBP(Mat& hog_pixels,float th);
 HIS appendHis(HIS* Hs,int n, int n_size);
+void calcHistOfWndNew2(const Mat& mat, const Size& blockSize, Vec2i overlap, int norm_c,HIS& H);
 #endif

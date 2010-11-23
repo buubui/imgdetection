@@ -2,7 +2,8 @@
 #include "HOG.h"
 #include <cxoperations.hpp>
 extern Size cellSize,blockSize,wndSize,maxWndSz;
-extern cv::Vec2i blockOverlap, regionOverlap;
+extern cv::Vec2i blockOverlap;
+extern cv::Vec2f regionOverlap;
 extern float delPart;
 //Gradient** calcHOG(const Mat&filx,const Mat&fily)
 //{
@@ -689,17 +690,18 @@ void setHisOfCells(const Gradient& hog_pixcell, HIS** Hcells,float* R,int n_cell
 
 void NormalizeBlock(Mat& m, int c)
 {
-	Mat mat;
+//	Mat mat;
 //	mat.zeros(m.size(),m.type());
 	float n =0.;
 	switch(c)
 	{
 	case 0: // L2 norm
-		n =norm(m,NORM_L2);	mat = m/sqrt( n*n + M_e*M_e); break;
+		n =norm(m,NORM_L2);	m = m/sqrt( n*n + M_e*M_e); break;
 	case 1: // L1 Norm
-		mat = m/(norm(m,NORM_L1) + M_e); break;
+		m = m/(norm(m,NORM_L1) + M_e); break;
 	case 2: //L1-sqrt
-		sqrt( m/(norm(m,NORM_L1) + M_e),mat); break;
+	//	sqrt( m/(norm(m,NORM_L1) + M_e),mat); break;
+		sqrt( m/(norm(m,NORM_L1) + M_e),m); break;
 	case 3://L2-HYS
 		float maxval=0.2;
 		float epsilon2=0.01;
@@ -714,14 +716,14 @@ void NormalizeBlock(Mat& m, int c)
 	//	float norm = std::sqrt(tmp.at<float>(0,0)) + epsilon2;
 	//	tmp.release();
 	//	m /= norm;
-		mat=m/norm;
+		m=m/norm;
 	//	n =norm(m,NORM_L2);
 	//	mat = m/sqrt( n*n + M_e*M_e);
 		break;
 	
 	}
-	m.release();
-	m=mat;	
+//	m.release();
+//	m=mat;	
 //	return mat;
 }
 
@@ -866,6 +868,7 @@ void calcHistOfWnd(const Mat& mat, const Size& blockSize, Vec2i overlap, int nor
 	int n_block_w = floor( 1.*(mat.cols - overlap[0])/(blockSize.width - overlap[0]));
 	int n_block_h = floor( 1.*(mat.rows - overlap[1])/(blockSize.height - overlap[1]));
 	int n_block = n_block_h*n_block_w;
+	int n_size_block=blockSize.width*blockSize.height*n;
 	/*Mat A;
 	A=(Mat::zeros(1,n_block*blockSize.width*blockSize.height*n,DataType<float>::type));;
 	HIS* H= &A;*/
@@ -880,60 +883,153 @@ void calcHistOfWnd(const Mat& mat, const Size& blockSize, Vec2i overlap, int nor
 	stringstream name;
 	name <<"output/hisBlock_Gauss.txt";
 	outHisBlock.open(name.str().c_str());*/
-	for (int i=0; i < n_block_h;i++)
+	
+	for ( s=0;s<H.cols;s+=n_size_block)
 	{
-		x=0;
-		for (int j = 0 ; j<n_block_w;j++)
+		h_b=H(Rect(s,0,n_size_block,1));
+		
+		calcHistOfBlockInWnd(mat,Rect(x,y,blockSize.width,blockSize.height),h_b);
+		NormalizeBlock(h_b,norm_c);
+		if(1.*(x)/mat.cols<0.1 && 1.*(y)/mat.rows<0.1)
+			x+=blockSize.width -overlap[0];
+		else
+			x+=blockSize.width;
+		if(x+blockSize.width>mat.cols)
 		{
-			calcHistOfBlockInWnd(mat,Rect(x,y,blockSize.width,blockSize.height),h_b);
-			Mat temp= h_b.clone();
-//			GaussianBlur(temp,h_b,Size(0,0),0.5*cellSize.height*blockSize.height);
-			//GaussianBlurBlock(h_b);
-			//
-			/*Mat temp;
-			temp = h_b.clone();
-			float sigma = 0.5*6*3;
-			GaussianBlur(h_b,temp,Size(3,3),sigma);
-			int r = temp.rows;
-			int c = temp.cols;
-			for(int rr =0; rr<r;rr++)
-				for(int cc=0;cc<c;cc++)
-				{
-					float val = temp.at<float>(rr,cc);
-					outHisBlock<<val<<"\t";
-				}
-			outHisBlock<<"\n";*/
-			//
-			NormalizeBlock(h_b,norm_c);
-
-
-		//	for (int e=0;e<n*blockSize.width*blockSize.height;e++)
-		//	{
-		//		H->at<float>(0,s)=h_b->at<float>(0,e);
-				h_b.copyTo((H)(Rect(s,0,h_b.cols,1)));
-				s+=h_b.cols;
-		//	}
-			x+= blockSize.width -overlap[0];
-		//	h_b->release();
-			
-
-
-
-			/*HIS* h_b = calcHistOfBlockInWnd(mat,Rect(x,y,blockSize.width,blockSize.height));
-			NormalizeBlock(*h_b,norm_c);
-			for (int e=0;e<n*blockSize.width*blockSize.height;e++)
-			{
-				H->at<float>(0,s)=h_b->at<float>(0,e);
-				s++;
-			}
-			x+= blockSize.width -overlap[0];
-			delete h_b;*/
+			x=0;
+			if(1.*(y)/mat.rows<0.1)
+				y+=blockSize.height -overlap[1];
+			else
+				y+=blockSize.height;
+			if(y+blockSize.height>mat.rows)
+				break;
 		}
-		y+=blockSize.height - overlap[1];
-			
+
 	}
-	 h_b.release();
-//	 outHisBlock.close();
+
+//	x=y=0;
+//	s=0;
+//	for (int i=0; i < n_block_h;i++)
+//	{
+//		x=0;
+//		for (int j = 0 ; j<n_block_w;j++)
+//		{
+//			h_b=H(Rect(s,0,n_size_block,1));
+//			calcHistOfBlockInWnd(mat,Rect(x,y,blockSize.width,blockSize.height),h_b);
+//		//	Mat temp= h_b.clone();
+////			GaussianBlur(temp,h_b,Size(0,0),0.5*cellSize.height*blockSize.height);
+//			//GaussianBlurBlock(h_b);
+//			//
+//			/*Mat temp;
+//			temp = h_b.clone();
+//			float sigma = 0.5*6*3;
+//			GaussianBlur(h_b,temp,Size(3,3),sigma);
+//			int r = temp.rows;
+//			int c = temp.cols;
+//			for(int rr =0; rr<r;rr++)
+//				for(int cc=0;cc<c;cc++)
+//				{
+//					float val = temp.at<float>(rr,cc);
+//					outHisBlock<<val<<"\t";
+//				}
+//			outHisBlock<<"\n";*/
+//			//
+//			NormalizeBlock(h_b,norm_c);
+//
+//
+//		//	for (int e=0;e<n*blockSize.width*blockSize.height;e++)
+//		//	{
+//		//		H->at<float>(0,s)=h_b->at<float>(0,e);
+//		//		h_b.copyTo((H)(Rect(s,0,h_b.cols,1)));
+//				s+=h_b.cols;
+//		//	}
+//
+//			x+= blockSize.width -overlap[0];
+//		//	h_b->release();
+//			
+//
+//
+//
+//			/*HIS* h_b = calcHistOfBlockInWnd(mat,Rect(x,y,blockSize.width,blockSize.height));
+//			NormalizeBlock(*h_b,norm_c);
+//			for (int e=0;e<n*blockSize.width*blockSize.height;e++)
+//			{
+//				H->at<float>(0,s)=h_b->at<float>(0,e);
+//				s++;
+//			}
+//			x+= blockSize.width -overlap[0];
+//			delete h_b;*/
+//		}
+//		y+=blockSize.height - overlap[1];
+//			
+//	}
+//	 h_b.release();
+////	 outHisBlock.close();
+	return ;
+
+
+}
+
+
+
+//chay theo kim dong ho
+void calcHistOfWndNew2(const Mat& mat, const Size& blockSize, Vec2i overlap, int norm_c,HIS& H)
+{ 
+	Rect delRect = Rect(mat.cols/2  ,mat.rows/2,mat.cols*delPart,mat.rows*delPart);
+	delRect.x -= delRect.width/2;
+	delRect.y -= delRect.height/2;
+
+	int n = mat.at<HIS*>(0,0)->cols;
+//	int n_block_w = floor( 1.*(mat.cols - overlap[0])/(blockSize.width - overlap[0]));
+//	int n_block_h = floor( 1.*(mat.rows - overlap[1])/(blockSize.height - overlap[1]));
+//	int n_block = n_block_h*n_block_w;
+	int n_size_block=blockSize.width*blockSize.height*n;
+
+	if(H.rows==0)
+	//	H=Mat::zeros(1,n_block*blockSize.width*blockSize.height*n,DataType<float>::type);
+	H=Mat::zeros(1,7000,DataType<float>::type);
+	int s=0;
+	HIS h_b;
+
+	int x=delRect.x+delRect.width,y=delRect.y;
+
+	Vec2i d(0,-1);//d[0]:trai(-1) dung(0) phai(+1)      d[1]:len(-1) dung(0) xuong(+1)
+	while(true)
+	{
+		if(x<0 || x+blockSize.width>mat.cols || y<0 || y+blockSize.height>mat.rows)
+			break;
+		h_b=H(Rect(s,0,n_size_block,1));	
+		calcHistOfBlockInWnd(mat,Rect(x,y,blockSize.width,blockSize.height),h_b);
+		NormalizeBlock(h_b,norm_c);
+		x=x+d[0]*(blockSize.width -overlap[0]);
+		y=y+d[1]*(blockSize.height -overlap[1]);
+		if(d==Vec2i(0,-1) && y <delRect.y+blockSize.height && y>delRect.y)
+		{
+			//new vong moi
+			delRect.x -=(blockSize.width - overlap[0]);
+			delRect.y -=(blockSize.height - overlap[1]);
+			delRect.width +=(blockSize.width - overlap[0])*2;
+			delRect.height +=(blockSize.height - overlap[1])*2;
+			d=Vec2i(0,-1);
+			x=delRect.x+delRect.width,y=delRect.y;
+			continue;
+		}
+		if( x<delRect.x && delRect.y-y >= blockSize.height)
+			d=Vec2i(-1,0); //trai
+		
+		if(delRect.x -x>=blockSize.width && delRect.y > y)
+			d=Vec2i(0,1); //xuong
+
+		if(delRect.x <x && delRect.y +delRect.height < y)
+			d=Vec2i(1,0); //phai
+
+		if(x - delRect.x >=delRect.width  && delRect.y < y)
+			d=Vec2i(0,-1); //len
+		
+		
+		s+=n_size_block;
+	}
+
 	return ;
 
 

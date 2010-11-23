@@ -1,6 +1,7 @@
 #include "stdafx.h"
 extern Size cellSize,blockSize,wndSize,maxWndSz;
-extern cv::Vec2i blockOverlap, regionOverlap;
+extern cv::Vec2i blockOverlap;
+extern cv::Vec2f regionOverlap;
 extern float delPart;
 void loadConfig()
 {
@@ -46,9 +47,9 @@ void loadConfig()
 
 		getline (conffile,tmp);//Region overlap
 		getline (conffile,tmp);
-		regionOverlap[0] = atoi(tmp.c_str());
+		regionOverlap[0] = atof(tmp.c_str());
 		getline (conffile,tmp);
-		regionOverlap[1] = atoi(tmp.c_str());
+		regionOverlap[1] = atof(tmp.c_str());
 		//		}
 	}
 	conffile.close();

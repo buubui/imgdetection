@@ -3,7 +3,8 @@
 using namespace System;
 using namespace System::Xml;
 extern Size cellSize,blockSize,wndSize,maxWndSz;
-extern cv::Vec2i blockOverlap, regionOverlap;
+extern cv::Vec2i blockOverlap;
+extern cv::Vec2f regionOverlap;
 extern float delPart;
 
 void svmGenerateData(string inputfilelist, int pos,int randTime){
@@ -148,6 +149,7 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 	{
 		getline (inputFile,filepath);
 		ofstream myfile2;
+		
 		//ofstream myfile;
 		//	SYSTEMTIME st;
 		//	GetSystemTime(&st);
@@ -162,6 +164,7 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 		outputfile2<<"output/his_test"<<"_svmLight_"<<local.tm_year+1900<<"_"<<local.tm_mon+1<<"_"<<local.tm_mday<<"_"<<local.tm_hour<<"_"<<local.tm_min<<".txt" ;
 	//	myfile.open(outputfile.str().c_str());
 		myfile2.open(outputfile2.str().c_str());
+		myfile2.precision(4);
 		Size cellSz,wndSz,tmp;
 		cellSz.width = cellSize.width;
 		cellSz.height = cellSize.height;
@@ -351,13 +354,14 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 					calcHisOfCellsInWnd2(G1,Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,n_bins,his_wnd,maxD);
 			//		calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9,his_wnd);
 			//		HIS* h_w = calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2);
-					calcHistOfWnd(his_wnd,blockSize,blockOverlap,2,h_w);
+				//	calcHistOfWnd(his_wnd,blockSize,blockOverlap,2,h_w);
+					calcHistOfWndNew2(his_wnd,blockSize,blockOverlap,2,h_w);
 				}else{
 					h_w=calcHistOfWndNew(G1,cellSz,n_bins,h_ws);
 				}
 				if(useSmooth)
 					G1.release();
-
+				
 				myfile2 << pos<<"\t";
 				for (int i=0;i<h_w.cols;i++)
 				{

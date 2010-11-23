@@ -3,7 +3,7 @@ CellSize
 8
 BlockSize
 2
-2
+3
 WindowSize
 64
 128
@@ -14,8 +14,8 @@ Block Overlap
 1
 1
 Del part
-0.1875
+0.125
 Region Overlap (cell)
-1
-1
+0
+0
 
