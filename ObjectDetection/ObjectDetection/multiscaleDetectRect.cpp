@@ -2,7 +2,8 @@
 #include <boost/algorithm/string.hpp>
 #include "meanshift.h"
 extern Size cellSize,blockSize,wndSize,maxWndSz;
-extern cv::Vec2i blockOverlap, regionOverlap;
+extern cv::Vec2i blockOverlap;
+extern cv::Vec2f regionOverlap;
 extern float delPart;
 void multiscale(Mat img,float step )
 {
