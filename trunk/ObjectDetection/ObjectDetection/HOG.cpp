@@ -249,6 +249,7 @@ void calcLBP(Mat& hog_pixels,float th)
 
 }
 
+//spartial
 void calcHisOfCellsInWnd2(Mat hog_pixels,Rect wnd, Size cellSize, int n_bins,Mat& H,float maxD)
 {
 	int c = (int)(wnd.width/cellSize.width);
@@ -515,6 +516,7 @@ void calcHisOfCellsInWnd2(Mat hog_pixels,Rect wnd, Size cellSize, int n_bins,Mat
 
 
 };
+//4 phan
 HIS calcHistOfWndNew(const Mat& hog_pixels,Size cellSz, int n_bins,Mat*&h_w)
 {
 	Rect delRect = Rect(hog_pixels.cols/2  ,hog_pixels.rows/2,hog_pixels.cols*delPart,hog_pixels.rows*delPart);
@@ -1034,4 +1036,61 @@ void calcHistOfWndNew2(const Mat& mat, const Size& blockSize, Vec2i overlap, int
 	return ;
 
 
+}
+//grid
+void calcGrid(Mat hog_mat,Size blockSz,Size cellSz, Size gridSz, int*& x_corr,int*& y_corr, int& n_x,int& n_y)
+{
+	Size szA=Size(blockSz.width*cellSz.width/2,blockSz.height*cellSz.height/2);
+	n_x=(hog_mat.cols-2*szA.width)/gridSz.width+1;
+	n_y=(hog_mat.rows-2*szA.height)/gridSz.height+1;
+	x_corr = new int[n_x];
+	y_corr = new int[n_y];
+	x_corr[0]=szA.width;
+	for (int i=1;i<n_x;i++)
+	{
+		x_corr[i]=x_corr[i-1]+gridSz.width;
+	}
+	y_corr[0]=szA.height;
+	for (int i=1;i<n_y;i++)
+	{
+		y_corr[i]=y_corr[i-1]+gridSz.height;
+	}
+}
+void calcHisOfGrid(Mat hog_mat,Size blockSz,Size cellSz, Size gridSz, int* x_corr,int* y_corr, int& n_x,int& n_y,float scale, int n_bins,HIS& H_wnd)
+{
+	Rect blockRect=Rect(0,0,blockSz.width*cellSz.width,blockSz.height*cellSz.height);
+	Mat M_cellsInBlock;
+	HIS H_Block;
+	int n_block = n_x*n_y;
+	int n_size_block;
+//	HIS H_wnd;
+	int s=0;
+//	int n_bins=9;
+	for (int y=0;y<n_y;y++)
+	{
+		for (int x=0;x<n_x;x++)
+		{
+			blockRect.x = scale*x_corr[x]-blockRect.width/2;
+			blockRect.y = scale*y_corr[y]-blockRect.height/2;
+			Mat blockWnd;//=hog_mat(blockRect);
+			GaussianBlur(hog_mat(blockRect),blockWnd,Size(3,3),0.5*cellSz.width*blockSz.width);
+			
+			calcHisOfCellsInWnd2(blockWnd,Rect(0,0,blockRect.width,blockRect.height),cellSz,n_bins,M_cellsInBlock,180);
+			
+			blockWnd.release();
+
+			if(x==0&&y==0)
+			{
+				n_size_block=blockSz.width*blockSz.height*n_bins;
+				if(H_wnd.cols!=n_block*n_size_block)
+					H_wnd=Mat::zeros(1,n_block*n_size_block,DataType<float>::type);
+			}
+			H_Block=H_wnd(Rect(s,0,n_size_block,1));
+			calcHistOfWnd(M_cellsInBlock,blockSz,Vec2i(0,0),2,H_Block);
+			s+=n_size_block;
+		//	H_Block.copyTo(H_wnd(Rect()))
+			
+		}
+	}
+	M_cellsInBlock.release();
 }

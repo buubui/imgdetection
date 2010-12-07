@@ -133,7 +133,7 @@ void svmGenerateData(string inputfilelist, int pos,int randTime){
 
 
 
-void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int randTimeNeg,bool useMaxChannel,bool useSmooth,bool useLBP,bool useNewTech)
+void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int randTimeNeg,bool useMaxChannel,bool useSmooth,bool useLBP,int useNewTech)
 {	
 	ifstream inputFile;
 	printf("%s\n",posfilelist.c_str());
@@ -173,6 +173,7 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 		Mat his_wnd ;
 		HIS h_w;
 		HIS* h_ws=NULL;
+		int* x_corr;int* y_corr; int n_x=0, n_y=0;
 		for (int i=0;;i++)
 
 			//		while (! inputfile.eof() )
@@ -349,15 +350,23 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 					maxD=256.;
 					n_bins=8;
 				}
-				if(!useNewTech)
+				if(useNewTech==0)
 				{
 					calcHisOfCellsInWnd2(G1,Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,n_bins,his_wnd,maxD);
 			//		calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9,his_wnd);
 			//		HIS* h_w = calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2);
 				//	calcHistOfWnd(his_wnd,blockSize,blockOverlap,2,h_w);
 					calcHistOfWndNew2(his_wnd,blockSize,blockOverlap,2,h_w);
-				}else{
+				
+				}else if(useNewTech==1){
 					h_w=calcHistOfWndNew(G1,cellSz,n_bins,h_ws);
+				}
+				else if(useNewTech==2)
+				{
+					if(n_x==0)
+						calcGrid(G1,blockSize,cellSz, Size(blockSize.width*cellSz.width/2,blockSize.height*cellSz.height/2),x_corr,y_corr, n_x, n_y);
+					calcHisOfGrid(G1,blockSize,cellSz,Size(blockSize.width*cellSz.width/2,blockSize.height*cellSz.height/2),x_corr,y_corr,n_x,n_y,scale, n_bins,h_w);
+					
 				}
 				if(useSmooth)
 					G1.release();
@@ -420,6 +429,7 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 			}
 			delete[]h_ws;
 		}
+		delete[] x_corr;delete[] y_corr;
 	//	myfile.close();
 		myfile2.close();
 	}

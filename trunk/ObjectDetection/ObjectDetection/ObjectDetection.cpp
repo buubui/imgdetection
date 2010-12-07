@@ -244,12 +244,12 @@ int main(array<System::String ^> ^args)
 	
 //	svmGenerateData2("input/Train_Pos.txt","input/Train_Neg_P1.txt",1,8);
 //	svmGenerateData2("input/Test_Pos.txt","input/Test_Neg.txt",1,8);
-	svmGenerateData2("input/a.txt","input/b.txt",1,5,true,false,false,false);
-//	svmGenerateData2("input/trainPos.txt","input/trainNeg.txt",1,3,true,false,false,true);
+	svmGenerateData2("input/a.txt","input/b.txt",1,5,true,false,false,2);
+//	svmGenerateData2("input/trainPos.txt","input/trainNeg.txt",1,3,true,false,false,2);
 //	svmGenerateData2("input/NULL.txt","input/trainNeg_0.txt",1,1,true,false,false);
 //	svmGenerateData2("input/NULL.txt","input/trainNeg_1.txt",1,1,true,false,false);
-//	svmGenerateData2("input/NULL.txt","input/trainNeg.txt",1,30,true,false,false,true);
-//	svmGenerateData2("input/testPosF.txt","input/testNegF.txt",1,250,true,false,false,true);
+//	svmGenerateData2("input/NULL.txt","input/trainNeg.txt",1,10,true,false,false,2);
+//	svmGenerateData2("input/testPosF.txt","input/testNegF.txt",1,100,true,false,false,2);
 
 	/************************************************************************/
 	/*                      Test new mean shift                             */

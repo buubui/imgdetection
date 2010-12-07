@@ -58,4 +58,11 @@ int bin2dec(int* arrI,int n);
 void calcLBP(Mat& hog_pixels,float th);
 HIS appendHis(HIS* Hs,int n, int n_size);
 void calcHistOfWndNew2(const Mat& mat, const Size& blockSize, Vec2i overlap, int norm_c,HIS& H);
+
+void calcGrid(Mat hog_mat,Size blockSz,Size cellSz, Size gridSz, int*& x_corr,int*& y_corr, int& n_x,int& n_y);
+void calcHisOfGrid(Mat hog_mat,Size blockSz,Size cellSz, Size gridSz, int* x_corr,int* y_corr, int& n_x,int& n_y,float scale, int n_bins,HIS& H_wnd);
+
+
+
+
 #endif
