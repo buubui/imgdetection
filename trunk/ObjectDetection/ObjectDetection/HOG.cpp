@@ -1072,8 +1072,8 @@ void calcHisOfGrid(Mat hog_mat,Size blockSz,Size cellSz, Size gridSz, int* x_cor
 		{
 			blockRect.x = scale*x_corr[x]-blockRect.width/2;
 			blockRect.y = scale*y_corr[y]-blockRect.height/2;
-			Mat blockWnd;//=hog_mat(blockRect);
-			GaussianBlur(hog_mat(blockRect),blockWnd,Size(3,3),0.5*cellSz.width*blockSz.width);
+			Mat blockWnd=hog_mat(blockRect).clone();
+			GaussianBlur(blockWnd,blockWnd,Size(3,3),0.5*cellSz.width*blockSz.width);
 			
 			calcHisOfCellsInWnd2(blockWnd,Rect(0,0,blockRect.width,blockRect.height),cellSz,n_bins,M_cellsInBlock,180);
 			
