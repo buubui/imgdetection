@@ -77,18 +77,20 @@ Mat* imFilterChannels(const Mat& img,bool equalize){
 	cv::split(img,imgs);
 //	Mat img_gray;
 //	cvtColor(img,img_gray,CV_BGR2GRAY);
-	if(equalize)
+	/*if(equalize)
 	{
 		for (int i=0;i<n_channels;i++)
 		{
 			equalizeHist(imgs[i],imgs[i]);	
 		}
-	}
+	}*/
 	float v[]={-1,0,1};
 	Mat Dx (1,3,CV_32F,v);
 	for (int i=0;i<n_channels;i++)
 	{
 		imgs[i].convertTo(imgs[i],DataType<float>::type,1./255);
+		if(equalize)
+			cv::sqrt(imgs[i],imgs[i]);
 	//	Mat dst,dst2;
 		filter2D(imgs[i],arrFils[i*2],imgs[i].depth(),Dx);
 		//filter2D(img_gray,dst,img_gray.depth(),Dx);

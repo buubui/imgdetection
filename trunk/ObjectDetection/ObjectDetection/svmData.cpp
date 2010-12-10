@@ -173,7 +173,7 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 		Mat his_wnd ;
 		HIS h_w;
 		HIS* h_ws=NULL;
-		int* x_corr;int* y_corr; int n_x=0, n_y=0;
+		int* x_corr=NULL;int* y_corr=NULL; int n_x=0, n_y=0;
 		for (int i=0;;i++)
 
 			//		while (! inputfile.eof() )
@@ -350,7 +350,17 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 					maxD=256.;
 					n_bins=8;
 				}
-				if(useNewTech==0)
+				if(useNewTech==-1)
+				{
+					calcHisOfCellsInWnd2(G1,Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,n_bins,his_wnd,maxD);
+					//		calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9,his_wnd);
+					//		HIS* h_w = calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2);
+					calcHistOfWnd(his_wnd,blockSize,blockOverlap,2,h_w);
+				//	calcHistOfWndNew2(his_wnd,blockSize,blockOverlap,2,h_w);
+
+				}
+
+				else if(useNewTech==0)
 				{
 					calcHisOfCellsInWnd2(G1,Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,n_bins,his_wnd,maxD);
 			//		calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9,his_wnd);
@@ -429,7 +439,10 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 			}
 			delete[]h_ws;
 		}
-		delete[] x_corr;delete[] y_corr;
+		if(x_corr!=NULL)
+		delete[] x_corr;
+		if(y_corr!=NULL)
+		delete[] y_corr;
 	//	myfile.close();
 		myfile2.close();
 	}
