@@ -694,7 +694,7 @@ void NormalizeBlock(Mat& m, int c)
 {
 //	Mat mat;
 //	mat.zeros(m.size(),m.type());
-	float n =0.;
+	double n =0.;
 	switch(c)
 	{
 	case 0: // L2 norm
@@ -708,17 +708,22 @@ void NormalizeBlock(Mat& m, int c)
 		float maxval=0.2;
 		float epsilon2=0.01;
 		for (int i= 0; i< m.cols; ++i) 
+		{
 			if (m.at<float>(0,i) > maxval)
 				m.at<float>(0,i) = maxval;
-		Mat tmp;
-		cv::pow(m,2,tmp);
-		float norm = std::sqrt(cv::sum(tmp)[0]) + epsilon2;
+		}
+		n =norm(m,NORM_L2);	
+		m = m/sqrt( n*n + M_e*M_e);
+		
+	//	Mat tmp;
+	//	cv::pow(m,2,tmp);
+	//	float norm = std::sqrt(cv::sum(tmp)[0]) + epsilon2;
 	//	cout<<norm<<endl;
 	//	Mat tmp=m*m.t();
 	//	float norm = std::sqrt(tmp.at<float>(0,0)) + epsilon2;
 	//	tmp.release();
 	//	m /= norm;
-		m=m/norm;
+	//	m=m/norm;
 	//	n =norm(m,NORM_L2);
 	//	mat = m/sqrt( n*n + M_e*M_e);
 		break;
@@ -892,17 +897,17 @@ void calcHistOfWnd(const Mat& mat, const Size& blockSize, Vec2i overlap, int nor
 		
 		calcHistOfBlockInWnd(mat,Rect(x,y,blockSize.width,blockSize.height),h_b);
 		NormalizeBlock(h_b,norm_c);
-		if(1.*(x)/mat.cols<0.1 && 1.*(y)/mat.rows<0.1)
+	//	if(1.*(x)/mat.cols<0.1 && 1.*(y)/mat.rows<0.1)
 			x+=blockSize.width -overlap[0];
-		else
-			x+=blockSize.width;
+	//	else
+	//		x+=blockSize.width;
 		if(x+blockSize.width>mat.cols)
 		{
 			x=0;
-			if(1.*(y)/mat.rows<0.1)
+	//		if(1.*(y)/mat.rows<0.1)
 				y+=blockSize.height -overlap[1];
-			else
-				y+=blockSize.height;
+	//		else
+	//			y+=blockSize.height;
 			if(y+blockSize.height>mat.rows)
 				break;
 		}

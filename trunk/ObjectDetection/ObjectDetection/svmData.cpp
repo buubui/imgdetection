@@ -130,10 +130,7 @@ void svmGenerateData(string inputfilelist, int pos,int randTime){
 
 }
 
-
-
-
-void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int randTimeNeg,bool useMaxChannel,bool useSmooth,bool useLBP,int useNewTech)
+void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int randTimeNeg, int normType,float scale,float scaleStep, bool useMaxChannel,bool useSmooth,bool useLBP,int useNewTech)
 {	
 	ifstream inputFile;
 	printf("%s\n",posfilelist.c_str());
@@ -144,12 +141,12 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 	string pos ="+1";
 	string posStr = pos.compare("+1")==0?"Pos":"Neg";
 	Rect slideWnd(0,0,wndSize.width,wndSize.height);
-	float scale=1.,step=1.2;          // change step.
+//	float scaleStep=1.2;          // change step.
 	if (inputFile.is_open())
 	{
 		getline (inputFile,filepath);
 		ofstream myfile2;
-		
+
 		//ofstream myfile;
 		//	SYSTEMTIME st;
 		//	GetSystemTime(&st);
@@ -157,12 +154,12 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 		tm local;
 		time(&curr); // get current time_t value
 		local=*(localtime(&curr)); // dereference and assign
-	//	stringstream outputfile;
+		//	stringstream outputfile;
 		stringstream outputfile2; 
 
-	//	outputfile<<"output/his_"<<"test"<<"_winSvm_"<<local.tm_year+1900<<"_"<<local.tm_mon+1<<"_"<<local.tm_mday<<"_"<<local.tm_hour<<"_"<<local.tm_min<<".txt" ;
+		//	outputfile<<"output/his_"<<"test"<<"_winSvm_"<<local.tm_year+1900<<"_"<<local.tm_mon+1<<"_"<<local.tm_mday<<"_"<<local.tm_hour<<"_"<<local.tm_min<<".txt" ;
 		outputfile2<<"output/his_test"<<"_svmLight_"<<local.tm_year+1900<<"_"<<local.tm_mon+1<<"_"<<local.tm_mday<<"_"<<local.tm_hour<<"_"<<local.tm_min<<".txt" ;
-	//	myfile.open(outputfile.str().c_str());
+		//	myfile.open(outputfile.str().c_str());
 		myfile2.open(outputfile2.str().c_str());
 		myfile2.precision(4);
 		Size cellSz,wndSz,tmp;
@@ -170,8 +167,8 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 		cellSz.height = cellSize.height;
 		tmp.width = wndSize.width / cellSize.width;
 		tmp.height = wndSize.height / cellSize.height;
-		Mat his_wnd ;
-		HIS h_w;
+		Mat his_cells_wnd ;
+		HIS his_wind;
 		HIS* h_ws=NULL;
 		int* x_corr=NULL;int* y_corr=NULL; int n_x=0, n_y=0;
 		for (int i=0;;i++)
@@ -200,11 +197,11 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 				//break;
 			}
 			Mat img = imread(filepath+filename);
-			
+
 			float maxSz=maxWndSz.width*maxWndSz.height;
 			float minSz = wndSize.width*wndSize.height;
 			Rect realRect=resizeImg(img,maxSz,minSz,false);
-		//	Mat img = imread(filepath+filename);
+			//	Mat img = imread(filepath+filename);
 			int n_channels=1;
 			Mat* imFils;
 			Mat G;
@@ -217,15 +214,15 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 				imFils = imFilter(img,true);
 				G = calcGradientOfPixels(imFils[0],imFils[1]);
 			}
-			
+
 			bool continueScale = false;
 			Point startP;
 			for (int j =0;j<randTime;)
 			{
-				
+
 				if(randTime>1)
 				{
-				
+
 					if (!continueScale)
 					{
 						int rnd;
@@ -233,28 +230,28 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 						int sizeH = img.rows - wndSize.height;
 						switch(j)
 						{
-						//	case 0: startP.x=img.cols/2;startP.y=img.rows/2;break;
-						//	case 1: startP.x=wndSize.width/2+ sizeW/4;startP.y=wndSize.height/2+sizeH/4;break;
-						//	case 2: startP.x=wndSize.width/2+ 3*sizeW/4;startP.y=wndSize.height/2+sizeH/4;break;
-						//	case 3: startP.x=wndSize.width/2+ sizeW/4;startP.y=wndSize.height/2+3*sizeH/4;break;
-						//	case 4: startP.x=wndSize.width/2+ 3*sizeW/4;startP.y=wndSize.height/2+3*sizeH/4;break;
-						//	case 5: startP.x=wndSize.width/2+ sizeW/4;startP.y=wndSize.height/2+sizeH/2;break;
-						//	case 6: startP.x=wndSize.width/2+ 3*sizeW/4;startP.y=wndSize.height/2+sizeH/2;break;
-						//	case 7: startP.x=wndSize.width/2+ sizeW/2;startP.y=wndSize.height/2+sizeH/4;break;
-						//	case 8: startP.x=wndSize.width/2+ sizeW/2;startP.y=wndSize.height/2+3*sizeH/4;break;
-							default:
-								
-								rnd = rand()%sizeW;
-								startP.x =wndSize.width/2+rnd;
-								rnd = rand()%sizeH;
-								startP.y = wndSize.height/2+rnd;
-								break;
+							//	case 0: startP.x=img.cols/2;startP.y=img.rows/2;break;
+							//	case 1: startP.x=wndSize.width/2+ sizeW/4;startP.y=wndSize.height/2+sizeH/4;break;
+							//	case 2: startP.x=wndSize.width/2+ 3*sizeW/4;startP.y=wndSize.height/2+sizeH/4;break;
+							//	case 3: startP.x=wndSize.width/2+ sizeW/4;startP.y=wndSize.height/2+3*sizeH/4;break;
+							//	case 4: startP.x=wndSize.width/2+ 3*sizeW/4;startP.y=wndSize.height/2+3*sizeH/4;break;
+							//	case 5: startP.x=wndSize.width/2+ sizeW/4;startP.y=wndSize.height/2+sizeH/2;break;
+							//	case 6: startP.x=wndSize.width/2+ 3*sizeW/4;startP.y=wndSize.height/2+sizeH/2;break;
+							//	case 7: startP.x=wndSize.width/2+ sizeW/2;startP.y=wndSize.height/2+sizeH/4;break;
+							//	case 8: startP.x=wndSize.width/2+ sizeW/2;startP.y=wndSize.height/2+3*sizeH/4;break;
+						default:
 
-							
+							rnd = rand()%sizeW;
+							startP.x =wndSize.width/2+rnd;
+							rnd = rand()%sizeH;
+							startP.y = wndSize.height/2+rnd;
+							break;
+
+
 						}
-						
-					//	slideWnd.width = wndSize.width;
-					//	slideWnd.height=wndSize.height;
+
+						//	slideWnd.width = wndSize.width;
+						//	slideWnd.height=wndSize.height;
 						scale=1.;
 						slideWnd=getRect(startP.x,startP.y,scale);
 						wndSz.width=slideWnd.width;
@@ -262,10 +259,10 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 					}
 					else
 					{
-					//	cellSz.width+=2;
-					//	cellSz.height+=2;
+						//	cellSz.width+=2;
+						//	cellSz.height+=2;
 
-						scale = scale * step;
+						scale = scale * scaleStep;
 						float tt = scale* cellSize.width;
 						if( (int)tt==cellSz.width)
 						{
@@ -286,11 +283,11 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 					//	{
 					if( slideWnd.x<0 || slideWnd.y<0 || slideWnd.x+slideWnd.width>img.cols || 
 						slideWnd.y+slideWnd.height>img.rows || max(slideWnd.width,slideWnd.height)> 0.75*max(img.cols,img.rows))
-			//		if( (cellSz.width*tmp.width>img.cols - slideWnd.x) || (cellSz.height*tmp.height>img.rows - slideWnd.y) 
-			//		||	max(cellSz.width*tmp.width,cellSz.height*tmp.height)>0.75*max(img.cols,img.rows ) 
-			//			)
+						//		if( (cellSz.width*tmp.width>img.cols - slideWnd.x) || (cellSz.height*tmp.height>img.rows - slideWnd.y) 
+						//		||	max(cellSz.width*tmp.width,cellSz.height*tmp.height)>0.75*max(img.cols,img.rows ) 
+						//			)
 					{
-						
+
 						//	printf("SAI %d %d. %s (%d,%d, %d, %d)\n",j,i+1,filename.c_str(),slideWnd.x,slideWnd.y,slideWnd.width,slideWnd.height);
 						cellSz = cellSize;
 						wndSz = wndSize;
@@ -302,10 +299,10 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 					}
 					continueScale = true;
 					//	}
-				//	wndSz.width = cellSz.width*tmp.width;
-				//	wndSz.height = cellSz.height*tmp.height;
-				//	slideWnd.width = wndSz.width;
-				//	slideWnd.height = wndSz.height;
+					//	wndSz.width = cellSz.width*tmp.width;
+					//	wndSz.height = cellSz.height*tmp.height;
+					//	slideWnd.width = wndSz.width;
+					//	slideWnd.height = wndSz.height;
 
 
 
@@ -315,8 +312,8 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 					{
 						if(img.rows > slideWnd.height)
 						{
-						slideWnd.x = (img.rows - slideWnd.height)/2;
-						slideWnd.y = (img.cols - slideWnd.width)/2;
+							slideWnd.x = (img.rows - slideWnd.height)/2;
+							slideWnd.y = (img.cols - slideWnd.width)/2;
 						}else{
 							slideWnd.x=0;
 							slideWnd.y=0;
@@ -332,65 +329,68 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 				}
 				if((i+1)%300==0)
 					printf("%d %d. %s (%d,%d, %d, %d)\n",j,i+1,filename.c_str(),slideWnd.x,slideWnd.y,slideWnd.width,slideWnd.height);
-				Mat img_slideWnd=img(slideWnd);
-				Mat G1=G(slideWnd);
-				if(useSmooth)
-					G1=GaussianBlurBlock(G(slideWnd),blockOverlap);
-				
-				
-				//	imshow(filename,img);
-				//		Mat* imFils = imFilter(img_slideWnd);
-				//		Mat G = calcGradientOfPixels(imFils[0],imFils[1]);
-//				Mat his_wnd = calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9);
-				int maxD=180.; 
-				int n_bins=9;
-				if(useLBP)
-				{
-					calcLBP(G1,0);
-					maxD=256.;
-					n_bins=8;
-				}
-				if(useNewTech==-1)
-				{
-					calcHisOfCellsInWnd2(G1,Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,n_bins,his_wnd,maxD);
-					//		calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9,his_wnd);
-					//		HIS* h_w = calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2);
-					calcHistOfWnd(his_wnd,blockSize,blockOverlap,2,h_w);
-				//	calcHistOfWndNew2(his_wnd,blockSize,blockOverlap,2,h_w);
 
-				}
+					svmClassify(img,G,slideWnd,cellSz,scale,n_x,n_y,x_corr,y_corr,his_cells_wnd,his_wind,h_ws,normType,useMaxChannel,useSmooth,useLBP,useNewTech);
 
-				else if(useNewTech==0)
-				{
-					calcHisOfCellsInWnd2(G1,Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,n_bins,his_wnd,maxD);
-			//		calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9,his_wnd);
-			//		HIS* h_w = calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2);
-				//	calcHistOfWnd(his_wnd,blockSize,blockOverlap,2,h_w);
-					calcHistOfWndNew2(his_wnd,blockSize,blockOverlap,2,h_w);
-				
-				}else if(useNewTech==1){
-					h_w=calcHistOfWndNew(G1,cellSz,n_bins,h_ws);
-				}
-				else if(useNewTech==2)
-				{
-					if(n_x==0)
-						calcGrid(G1,blockSize,cellSz, Size(blockSize.width*cellSz.width/2,blockSize.height*cellSz.height/2),x_corr,y_corr, n_x, n_y);
-					calcHisOfGrid(G1,blockSize,cellSz,Size(blockSize.width*cellSz.width/2,blockSize.height*cellSz.height/2),x_corr,y_corr,n_x,n_y,scale, n_bins,h_w);
-					
-				}
-				if(useSmooth)
-					G1.release();
-				
+				//Mat img_slideWnd=img(slideWnd);
+				//Mat G1=G(slideWnd);
+				//if(useSmooth)
+				//	G1=GaussianBlurBlock(G(slideWnd),blockOverlap);
+
+
+				////	imshow(filename,img);
+				////		Mat* imFils = imFilter(img_slideWnd);
+				////		Mat G = calcGradientOfPixels(imFils[0],imFils[1]);
+				////				Mat his_wnd = calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9);
+				//int maxD=180.; 
+				//int n_bins=9;
+				//if(useLBP)
+				//{
+				//	calcLBP(G1,0);
+				//	maxD=256.;
+				//	n_bins=8;
+				//}
+				//if(useNewTech==-1)
+				//{
+				//	calcHisOfCellsInWnd2(G1,Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,n_bins,his_cells_wnd,maxD);
+				//	//		calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9,his_wnd);
+				//	//		HIS* h_w = calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2);
+				//	calcHistOfWnd(his_cells_wnd,blockSize,blockOverlap,2,his_wind);
+				//	//	calcHistOfWndNew2(his_wnd,blockSize,blockOverlap,2,h_w);
+
+				//}
+
+				//else if(useNewTech==0)
+				//{
+				//	calcHisOfCellsInWnd2(G1,Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,n_bins,his_cells_wnd,maxD);
+				//	//		calcHisOfCellsInWnd2(G(slideWnd),Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,9,his_wnd);
+				//	//		HIS* h_w = calcHistOfWnd(his_wnd,blockSize,Vec2i(1,1),2);
+				//	//	calcHistOfWnd(his_wnd,blockSize,blockOverlap,2,h_w);
+				//	calcHistOfWndNew2(his_cells_wnd,blockSize,blockOverlap,2,his_wind);
+
+				//}else if(useNewTech==1){
+				//	his_wind=calcHistOfWndNew(G1,cellSz,n_bins,h_ws);
+				//}
+				//else if(useNewTech==2)
+				//{
+				//	if(n_x==0)
+				//		calcGrid(G1,blockSize,cellSz, Size(blockSize.width*cellSz.width/2,blockSize.height*cellSz.height/2),x_corr,y_corr, n_x, n_y);
+				//	calcHisOfGrid(G1,blockSize,cellSz,Size(blockSize.width*cellSz.width/2,blockSize.height*cellSz.height/2),x_corr,y_corr,n_x,n_y,scale, n_bins,his_wind);
+
+				//}
+				//if(useSmooth)
+				//	G1.release();
+
 				myfile2 << pos<<"\t";
-				for (int i=0;i<h_w.cols;i++)
+				for (int i=0;i<his_wind.cols;i++)
 				{
 					//	printf("%f ; ",h_w->vector_weight[i]);
-					float v =h_w.at<float>(0,i); 
-			//		myfile << v<<"\t";
+					float v =his_wind.at<float>(0,i); 
+					//		myfile << v<<"\t";
 					if(v!=0)
 						myfile2 << i+1<<":"<<v<<"\t";
 				}
-			//	myfile << pos<<"\n";
+				//	myfile << pos<<"\n";
 				myfile2 <<"\t #"<<filename<<"\t ("<<slideWnd.x<<", "<<slideWnd.y<<", "<<slideWnd.width<<", "<<slideWnd.height<<")\n";
 				//	delete[] h_w->vector_weight;
 				// h_w->release();
@@ -416,22 +416,22 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 			}
 			delete[] imFils;
 			G.release();
-			
-			
-			
+
+
+
 
 		}
-		for (int ii=0;ii<his_wnd.rows;ii++)
+		for (int ii=0;ii<his_cells_wnd.rows;ii++)
 		{
-			for (int jj=0;jj<his_wnd.cols;jj++)
+			for (int jj=0;jj<his_cells_wnd.cols;jj++)
 			{
-				HIS* hh=his_wnd.at<HIS*>(ii,jj);
+				HIS* hh=his_cells_wnd.at<HIS*>(ii,jj);
 				//	hh->release();
 				delete hh;
 			}
 		}
-		his_wnd.release();
-		h_w.release();
+		his_cells_wnd.release();
+		his_wind.release();
 		if(h_ws!=NULL){
 			for (int i=0;i<4;i++)
 			{
@@ -440,10 +440,10 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 			delete[]h_ws;
 		}
 		if(x_corr!=NULL)
-		delete[] x_corr;
+			delete[] x_corr;
 		if(y_corr!=NULL)
-		delete[] y_corr;
-	//	myfile.close();
+			delete[] y_corr;
+		//	myfile.close();
 		myfile2.close();
 	}
 	inputFile.close();
@@ -456,7 +456,393 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 
 }
 
+void svmClassify( Mat img,Mat G,Rect slideWnd, Size cellSz,float& scale, int& n_x, int& n_y,int*& x_corr,int*&y_corr, Mat& his_cells_wnd, HIS& his_wind,Mat*&h_ws, int normType, bool useMaxChannel,bool useSmooth,bool useLBP,int useNewTech)
+{	
+	Mat img_slideWnd=img(slideWnd);
+	Mat G1=G(slideWnd);
+	if(useSmooth)
+		G1=GaussianBlurBlock(G(slideWnd),blockOverlap);
+	int maxD=180.; 
+	int n_bins=9;
+	if(useLBP)
+	{
+		calcLBP(G1,0);
+		maxD=256.;
+		n_bins=8;
+	}
+	if(useNewTech==-1)
+	{
+		calcHisOfCellsInWnd2(G1,Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,n_bins,his_cells_wnd,maxD);
+		calcHistOfWnd(his_cells_wnd,blockSize,blockOverlap,normType,his_wind);
+	}
+	else if(useNewTech==0)
+	{
+		calcHisOfCellsInWnd2(G1,Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,n_bins,his_cells_wnd,maxD);
+		calcHistOfWndNew2(his_cells_wnd,blockSize,blockOverlap,normType,his_wind);
 
+	}else if(useNewTech==1){
+		his_wind=calcHistOfWndNew(G1,cellSz,n_bins,h_ws);
+	}
+	else if(useNewTech==2)
+	{
+		if(n_x==0)
+			calcGrid(G1,blockSize,cellSz, Size(blockSize.width*cellSz.width/2,blockSize.height*cellSz.height/2),x_corr,y_corr, n_x, n_y);
+		calcHisOfGrid(G1,blockSize,cellSz,Size(blockSize.width*cellSz.width/2,blockSize.height*cellSz.height/2),x_corr,y_corr,n_x,n_y,scale, n_bins,his_wind);
+
+	}
+	if(useSmooth)
+		G1.release();			
+}
+
+
+
+void svmGenHardList(string weightFile,string posfilelist, string negfilelist,string prefixName, int randTimePos,int randTimeNeg,int normType, float scale,float scaleStep, bool useMaxChannel,bool useSmooth,bool useLBP,int useNewTech)
+{	
+	Mat * weight;
+	float b;
+	getWeight(weightFile,weight,b);
+	ifstream inputFile;
+	printf("%s\n",posfilelist.c_str());
+	inputFile.open (posfilelist.c_str());
+	//inputNegFile.open (negfilelist.c_str());
+	string filepath,filename;
+	int randTime = randTimePos;
+	string pos ="+1";
+	string posStr = pos.compare("+1")==0?"Pos":"Neg";
+	Rect slideWnd(0,0,wndSize.width,wndSize.height);
+//	float scale=1.,scaleStep=1.2;          // change step.
+	if (inputFile.is_open())
+	{
+		getline (inputFile,filepath);
+		ofstream myfile,myfile2,infofile,scoreFilePos,scoreFileNeg;
+		
+		string str="output/"+prefixName+"_hardPos.txt";
+		myfile.open(str.c_str());
+		str="output/"+prefixName+"_hardNeg.txt";
+		myfile2.open(str.c_str());
+		str="output/"+prefixName+"_info.txt";
+		infofile.open(str.c_str());
+		str="output/"+prefixName+"_scorePos.txt";
+		scoreFilePos.open(str.c_str());
+		str="output/"+prefixName+"_scoreNeg.txt";
+		scoreFileNeg.open(str.c_str());
+		myfile.precision(4);
+		myfile2.precision(4);
+		infofile.precision(4);
+		scoreFilePos.precision(4);
+		scoreFileNeg.precision(4);
+		int truePos=0,trueNeg=0,falsePos=0,falseNeg=0;
+		long totalWnd=0;
+		float precision=0,recall=0;
+		Size cellSz,wndSz,tmp;
+		cellSz.width = cellSize.width;
+		cellSz.height = cellSize.height;
+		tmp.width = wndSize.width / cellSize.width;
+		tmp.height = wndSize.height / cellSize.height;
+		Mat his_cells_wnd ;
+		HIS his_wind;
+		HIS* h_ws=NULL;
+		int* x_corr=NULL;int* y_corr=NULL; int n_x=0, n_y=0;
+		for (int i=0;;i++)
+
+			//		while (! inputfile.eof() )
+		{
+			/*cellSz = cellSize;
+			wndSz = wndSize;
+			slideWnd.width = wndSize.width;
+			slideWnd.height =wndSize.height;*/
+
+			getline (inputFile,filename);
+			if (filename.length()<2)
+			{
+				if(pos.compare("+1")!=0)
+					break;
+				inputFile.close();
+				inputFile.open(negfilelist.c_str());
+				if(!inputFile.is_open())
+					printf("XXXXXX");
+				pos="-1";
+				randTime=randTimeNeg;
+				inputFile.seekg(0, ios::beg);
+				getline (inputFile,filepath);
+				continue;
+				//break;
+			}
+			Mat img = imread(filepath+filename);
+
+			float maxSz=maxWndSz.width*maxWndSz.height;
+			float minSz = wndSize.width*wndSize.height;
+			Rect realRect=resizeImg(img,maxSz,minSz,false);
+			//	Mat img = imread(filepath+filename);
+			int n_channels=1;
+			Mat* imFils;
+			Mat G;
+			if(useMaxChannel==true)
+			{
+				n_channels=img.channels();
+				imFils = imFilterChannels(img,true);
+				G = calcGradientOfPixelsMaxChannel(imFils,n_channels);
+			}else{
+				imFils = imFilter(img,true);
+				G = calcGradientOfPixels(imFils[0],imFils[1]);
+			}
+
+			bool continueScale = false;
+			Point startP;
+			stringstream scoreNegStream;
+			for (int j =0;j<randTime;)
+			{
+
+				if(randTime>1)
+				{
+
+					if (!continueScale)
+					{
+						int rnd;
+						int sizeW = img.cols - wndSize.width;
+						int sizeH = img.rows - wndSize.height;
+						switch(j)
+						{
+							//	case 0: startP.x=img.cols/2;startP.y=img.rows/2;break;
+							//	case 1: startP.x=wndSize.width/2+ sizeW/4;startP.y=wndSize.height/2+sizeH/4;break;
+							//	case 2: startP.x=wndSize.width/2+ 3*sizeW/4;startP.y=wndSize.height/2+sizeH/4;break;
+							//	case 3: startP.x=wndSize.width/2+ sizeW/4;startP.y=wndSize.height/2+3*sizeH/4;break;
+							//	case 4: startP.x=wndSize.width/2+ 3*sizeW/4;startP.y=wndSize.height/2+3*sizeH/4;break;
+							//	case 5: startP.x=wndSize.width/2+ sizeW/4;startP.y=wndSize.height/2+sizeH/2;break;
+							//	case 6: startP.x=wndSize.width/2+ 3*sizeW/4;startP.y=wndSize.height/2+sizeH/2;break;
+							//	case 7: startP.x=wndSize.width/2+ sizeW/2;startP.y=wndSize.height/2+sizeH/4;break;
+							//	case 8: startP.x=wndSize.width/2+ sizeW/2;startP.y=wndSize.height/2+3*sizeH/4;break;
+						default:
+
+							rnd = rand()%sizeW;
+							startP.x =wndSize.width/2+rnd;
+							rnd = rand()%sizeH;
+							startP.y = wndSize.height/2+rnd;
+							break;
+
+
+						}
+
+						//	slideWnd.width = wndSize.width;
+						//	slideWnd.height=wndSize.height;
+						scale=1.;
+						slideWnd=getRect(startP.x,startP.y,scale);
+						wndSz.width=slideWnd.width;
+						wndSz.height=slideWnd.height;
+					}
+					else
+					{
+						//	cellSz.width+=2;
+						//	cellSz.height+=2;
+
+						scale = scale * scaleStep;
+						float tt = scale* cellSize.width;
+						if( (int)tt==cellSz.width)
+						{
+							cellSz.width = ceil( tt);
+							cellSz.height = ceil( scale* cellSize.height);
+						}else{
+							cellSz.width = (int)tt;
+							cellSz.height = (int)( scale* cellSize.height);
+						}
+						scale = (float)cellSz.width/cellSize.width;
+						slideWnd= getRect(startP.x,startP.y,scale);
+						wndSz.width =slideWnd.width;
+						wndSz.height =slideWnd.height;
+
+					}
+
+					//	for (int t=0;;t++)
+					//	{
+					if( slideWnd.x<0 || slideWnd.y<0 || slideWnd.x+slideWnd.width>img.cols || 
+						slideWnd.y+slideWnd.height>img.rows || max(slideWnd.width,slideWnd.height)> 0.75*max(img.cols,img.rows))
+						//		if( (cellSz.width*tmp.width>img.cols - slideWnd.x) || (cellSz.height*tmp.height>img.rows - slideWnd.y) 
+						//		||	max(cellSz.width*tmp.width,cellSz.height*tmp.height)>0.75*max(img.cols,img.rows ) 
+						//			)
+					{
+
+						//	printf("SAI %d %d. %s (%d,%d, %d, %d)\n",j,i+1,filename.c_str(),slideWnd.x,slideWnd.y,slideWnd.width,slideWnd.height);
+						cellSz = cellSize;
+						wndSz = wndSize;
+						slideWnd.width = wndSize.width;
+						slideWnd.height =wndSize.height;
+						j++;
+						continueScale = false;
+						continue;
+					}
+					continueScale = true;
+					//	}
+					//	wndSz.width = cellSz.width*tmp.width;
+					//	wndSz.height = cellSz.height*tmp.height;
+					//	slideWnd.width = wndSz.width;
+					//	slideWnd.height = wndSz.height;
+
+
+
+				}else{
+					scale=1.;
+					if(pos.compare("+1")==0)
+					{
+						if(img.rows > slideWnd.height)
+						{
+							slideWnd.x = (img.rows - slideWnd.height)/2;
+							slideWnd.y = (img.cols - slideWnd.width)/2;
+						}else{
+							slideWnd.x=0;
+							slideWnd.y=0;
+						}
+						float r=rand();
+					}
+					cellSz = cellSize;
+					wndSz = wndSize;
+					slideWnd.width = wndSize.width;
+					slideWnd.height =wndSize.height;
+					j++;
+					continueScale = false;
+				}
+				if((i+1)%300==0)
+					printf("%d %d. %s (%d,%d, %d, %d)\n",j,i+1,filename.c_str(),slideWnd.x,slideWnd.y,slideWnd.width,slideWnd.height);
+
+				svmClassify(img,G,slideWnd,cellSz,scale,n_x,n_y,x_corr,y_corr,his_cells_wnd,his_wind,h_ws,normType, useMaxChannel,useSmooth,useLBP,useNewTech);
+				if(weight->rows<his_wind.cols)
+				{
+					Mat tmp=(*weight);
+					
+					*weight=Mat::zeros(his_wind.cols,1,weight->type());
+					Mat m=(*weight)(Rect(0,0,1,tmp.rows));
+					tmp.copyTo(m);
+				}
+				Mat R = (his_wind)* (*weight ) - b;
+				float score = R.at<float>(0,0);
+				R.release();
+				totalWnd++;
+				
+				//write hard example
+
+				if(pos.compare("+1")==0)
+				{
+					scoreFilePos<<score<<endl;
+					if( score<0.)
+					{
+						falseNeg++;
+					//	cout<<"Found hard ex:"<<pos<<endl;
+						myfile << pos<<"\t";
+						for (int i=0;i<his_wind.cols;i++)
+						{
+							float v =his_wind.at<float>(0,i); 
+							if(v!=0)
+								myfile << i+1<<":"<<v<<"\t";
+						}
+						myfile <<"\t #"<<filename<<"\t ("<<slideWnd.x<<", "<<slideWnd.y<<", "<<slideWnd.width<<", "<<slideWnd.height<<")\n";
+					}else
+					{
+						truePos++;
+					}
+
+				}
+				else if(pos.compare("-1")==0 )
+				{
+				//	scoreFileNeg<<score<<endl;
+					scoreNegStream<<score<<endl;
+					if( score>=0.)
+					{
+						falsePos++;
+					//	cout<<"Found hard ex:"<<pos<<endl;
+						myfile2 << pos<<"\t";
+						for (int i=0;i<his_wind.cols;i++)
+						{
+							float v =his_wind.at<float>(0,i); 
+							if(v!=0)
+								myfile2 << i+1<<":"<<v<<"\t";
+						}
+						myfile2 <<"\t #"<<filename<<"\t ("<<slideWnd.x<<", "<<slideWnd.y<<", "<<slideWnd.width<<", "<<slideWnd.height<<")\n";
+					}
+					else
+					{
+						trueNeg++;
+					}
+				}
+			}
+			scoreFileNeg<<scoreNegStream.str();
+			img.release();
+			for (int i=0;i<n_channels;i++)
+			{
+				imFils[i].release();
+				imFils[i+1].release();
+			}
+			delete[] imFils;
+			G.release();
+		}
+		for (int ii=0;ii<his_cells_wnd.rows;ii++)
+		{
+			for (int jj=0;jj<his_cells_wnd.cols;jj++)
+			{
+				HIS* hh=his_cells_wnd.at<HIS*>(ii,jj);
+				//	hh->release();
+				delete hh;
+			}
+		}
+		his_cells_wnd.release();
+		his_wind.release();
+		if(h_ws!=NULL){
+			for (int i=0;i<4;i++)
+			{
+				h_ws[i].release();
+			}
+			delete[]h_ws;
+		}
+		if(x_corr!=NULL)
+			delete[] x_corr;
+		if(y_corr!=NULL)
+			delete[] y_corr;
+		//	myfile.close();
+		infofile<<"Total windows: "<<totalWnd<<endl;
+		infofile<<"True Pos: "<<truePos<<endl;
+		infofile<<"True Neg: "<<trueNeg<<endl;
+		infofile<<"False Pos: "<<falsePos<<endl;
+		infofile<<"False Neg: "<<falseNeg<<endl;
+		if(truePos+falsePos!=0)
+		{
+			precision=1.*truePos/(truePos+falsePos);
+			infofile<<"Precision : "<<100. * precision<<"(%)"<<endl;
+		}
+		else
+		{
+			precision=-1;
+			infofile<<"Precision : !#!"<<"(%)"<<endl;
+		}
+		if(truePos+falseNeg!=0)
+		{
+			recall=1.*truePos/(truePos+falseNeg);
+			infofile<<"Recall : "<<100. * recall<<"(%)"<<endl;
+		}
+		else
+		{
+			recall=-1;
+			infofile<<"Recall : !#!"<<"(%)"<<endl;
+		}
+		if (totalWnd>0)
+		{
+			infofile<<"FPPW : "<<1. * falsePos/totalWnd<<endl;
+		}
+		if(recall!=-1)
+			infofile<<"Missrate : "<<1. - recall<<endl;
+		
+		myfile2.close();
+		myfile.close();
+		infofile.close();
+		scoreFilePos.close();
+		scoreFileNeg.close();
+	}
+	inputFile.close();
+
+
+
+
+
+
+
+}
 
 
 
