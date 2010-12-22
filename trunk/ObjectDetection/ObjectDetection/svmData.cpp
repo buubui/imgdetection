@@ -453,6 +453,14 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 			delete[] x_corr;
 		if(y_corr!=NULL)
 			delete[] y_corr;
+		if(x_corr2!=NULL)
+			delete[] x_corr2;
+		if(y_corr2!=NULL)
+			delete[] y_corr2;
+		if(x_corr3!=NULL)
+			delete[] x_corr3;
+		if(y_corr3!=NULL)
+			delete[] y_corr3;
 		//	myfile.close();
 		myfile2.close();
 	}
@@ -501,7 +509,14 @@ void svmClassify( Mat img,Mat G,Rect slideWnd, Size cellSz,float& scale, int& n_
 	}else if(useNewTech==1){ // 4 parts
 		his_wind=calcHistOfWndNew(G1,cellSz,n_bins,h_ws);
 	}
-	else if(useNewTech==2)  // chia grid
+	else if(useNewTech==2) //grid
+	{
+		if(n_x==0)
+			calcGrid(G1,blockSize,cellSz, Size(blockSize.width*cellSz.width/2,blockSize.height*cellSz.height/2),x_corr,y_corr, n_x, n_y);
+		calcHisOfGrid(G1,blockSize,cellSz,Size(blockSize.width*cellSz.width/2,blockSize.height*cellSz.height/2),x_corr,y_corr,n_x,n_y,scale, n_bins,his_wind);
+
+	}
+	else if(useNewTech==3)  // multiscale
 	{
 		if(n_x==0)
 		{
@@ -509,33 +524,24 @@ void svmClassify( Mat img,Mat G,Rect slideWnd, Size cellSz,float& scale, int& n_
 			calcGrid(G1,blockSize,cellSz*2, Size(blockSize.width*cellSz.width*2/2,blockSize.height*cellSz.height*2/2),x_corr2,y_corr2, n_x2, n_y2);
 			calcGrid(G1,blockSize,cellSz*4, Size(blockSize.width*cellSz.width*4/2,blockSize.height*cellSz.height*4/2),x_corr3,y_corr3, n_x3, n_y3);
 		}
-		//if(n_x2==0)
-		//{
-		////	calcGrid(G1,blockSize,cellSz, Size(blockSize.width*cellSz.width/2,blockSize.height*cellSz.height/2),x_corr,y_corr, n_x, n_y);
-		//	calcGrid(G1,blockSize,cellSz*2, Size(blockSize.width*cellSz.width*2/2,blockSize.height*cellSz.height*2/2),x_corr2,y_corr2, n_x2, n_y2);
-		////	calcGrid(G1,blockSize,cellSz*4, Size(blockSize.width*cellSz.width*4/2,blockSize.height*cellSz.height*4/2),x_corr3,y_corr3, n_x3, n_y3);
-		//}
-		//if(n_x3==0)
-		//{
-		////	calcGrid(G1,blockSize,cellSz, Size(blockSize.width*cellSz.width/2,blockSize.height*cellSz.height/2),x_corr,y_corr, n_x, n_y);
-		////	calcGrid(G1,blockSize,cellSz*2, Size(blockSize.width*cellSz.width*2/2,blockSize.height*cellSz.height*2/2),x_corr2,y_corr2, n_x2, n_y2);
-		//	calcGrid(G1,blockSize,cellSz*4, Size(blockSize.width*cellSz.width*4/2,blockSize.height*cellSz.height*4/2),x_corr3,y_corr3, n_x3, n_y3);
-		//}
 		int s1 = n_x*n_y*blockSize.height*blockSize.width*n_bins;
 		int s2 = n_x2*n_y2*blockSize.height*blockSize.width*n_bins;
 		int s3 = n_x3*n_y3*blockSize.height*blockSize.width*n_bins;
 		int ss = s1 + s2 + s3;
-		his_wind = Mat::zeros(1,ss,DataType<float>::type);
-		HIS hw1, hw2, hw3;
+		if(his_wind.cols!=ss)
+			his_wind = Mat::zeros(1,ss,DataType<float>::type);
+		HIS hw1=his_wind(Rect(0,0,s1,1));
+		HIS hw2=his_wind(Rect(s1,0,s2,1));
+		HIS hw3=his_wind(Rect(s1+s2,0,s3,1));
 		calcHisOfGrid(G1,blockSize,cellSz,Size(blockSize.width*cellSz.width/2,blockSize.height*cellSz.height/2),x_corr,y_corr,n_x,n_y,scale, n_bins,hw1);
 		calcHisOfGrid(G1,blockSize,cellSz*2,Size(blockSize.width*cellSz.width*2/2,blockSize.height*cellSz.height*2/2),x_corr2,y_corr2,n_x2,n_y2,scale, n_bins,hw2);
 		calcHisOfGrid(G1,blockSize,cellSz*4,Size(blockSize.width*cellSz.width*4/2,blockSize.height*cellSz.height*4/2),x_corr3,y_corr3,n_x3,n_y3,scale, n_bins,hw3);
-		hw1.copyTo((his_wind)(Rect(0,0,s1,1)));
-		hw2.copyTo((his_wind)(Rect(s1,0,s2,1)));
-		hw3.copyTo((his_wind)(Rect(s1+s2,0,s3,1)));
-		hw1.release();
-		hw2.release();
-		hw3.release(); 
+	//	hw1.copyTo((his_wind)(Rect(0,0,s1,1)));
+	//	hw2.copyTo((his_wind)(Rect(s1,0,s2,1)));
+	//	hw3.copyTo((his_wind)(Rect(s1+s2,0,s3,1)));
+	//	hw1.release();
+	//	hw2.release();
+	//	hw3.release(); 
 	}
 	if(useSmooth)
 		G1.release();			
@@ -842,6 +848,14 @@ void svmGenHardList(string weightFile,string posfilelist, string negfilelist,str
 			delete[] x_corr;
 		if(y_corr!=NULL)
 			delete[] y_corr;
+		if(x_corr2!=NULL)
+			delete[] x_corr2;
+		if(y_corr2!=NULL)
+			delete[] y_corr2;
+		if(x_corr3!=NULL)
+			delete[] x_corr3;
+		if(y_corr3!=NULL)
+			delete[] y_corr3;
 		//	myfile.close();
 		infofile<<"Total windows: "<<totalWnd<<endl;
 		infofile<<"True Pos: "<<truePos<<endl;
