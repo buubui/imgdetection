@@ -254,7 +254,7 @@ int main(array<System::String ^> ^args)
 //	svmGenerateData2("input/Test_Pos.txt","input/Test_Neg.txt",1,8);
 //	svmGenerateData2("input/a.txt","input/b.txt",1,5,3, 1., 1.05, true,false,false,-1);
 
-//	svmGenerateData2("input/trainPos.txt","input/trainNeg.txt",1,2,3,1.,1.1,true,false,false,2);
+	svmGenerateData2("input/trainPos.txt","input/trainNeg.txt",1,2,3,1.,1.1,true,false,false,3);
 //	svmGenerateData2("input/NULL.txt","input/trainNeg_0.txt",1,1,true,false,false);
 //	svmGenerateData2("input/NULL.txt","input/trainNeg_1.txt",1,1,true,false,false);
 //	svmGenerateData2("input/NULL.txt","input/trainNeg.txt",1,6,true,false,false,-1);
@@ -266,7 +266,7 @@ int main(array<System::String ^> ^args)
 //	svmGenerateData2("input/testPosF.txt","input/testNegF.txt",1,10,true,false,false,-1);
 	
 //	svmGenHardList("input/weight.txt","input/a.txt","input/b.txt","temp",1,4,1.,100,true,false,false,-1);
-	svmGenHardList("input/weight.txt","input/trainPos.txt","input/trainNeg.txt","train",1,350,3,1.,1.05,true,false,false,-1);
+//	svmGenHardList("input/weight.txt","input/trainPos.txt","input/trainNeg.txt","train",1,350,3,1.,1.05,true,false,false,-1);
 //	svmGenHardList("input/weight.txt","input/testPosF.txt","input/testNegF.txt","test",1,350,1.,1.05,true,false,false,-1);
 	/************************************************************************/
 	/*                      Test new mean shift                             */
