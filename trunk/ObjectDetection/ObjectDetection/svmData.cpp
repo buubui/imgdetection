@@ -7,6 +7,16 @@ extern cv::Vec2i blockOverlap;
 extern cv::Vec2f regionOverlap;
 extern float delPart;
 
+int n_x2 = 0;
+int n_y2 = 0;
+int n_x3 = 0;
+int n_y3 = 0;
+int* x_corr2=NULL;
+int* x_corr3=NULL;
+int* y_corr2=NULL;
+int* y_corr3=NULL;
+
+
 void svmGenerateData(string inputfilelist, int pos,int randTime){
 	ifstream conffile;
 	conffile.open ("input/config.txt");
@@ -460,6 +470,14 @@ void svmClassify( Mat img,Mat G,Rect slideWnd, Size cellSz,float& scale, int& n_
 {	
 	Mat img_slideWnd=img(slideWnd);
 	Mat G1=G(slideWnd);
+	/*int n_x2 = (n_x+1)/2 -1;
+	int n_y2 = (n_y+1)/2 -1;
+	int n_x3 = (n_x2+1)/2 -1;
+	int n_y3 = (n_y2+1)/2 -1;
+	int* x_corr2=NULL;
+	int* x_corr3=NULL;
+	int* y_corr2=NULL;
+	int* y_corr3=NULL;*/
 	if(useSmooth)
 		G1=GaussianBlurBlock(G(slideWnd),blockOverlap);
 	int maxD=180.; 
@@ -470,25 +488,54 @@ void svmClassify( Mat img,Mat G,Rect slideWnd, Size cellSz,float& scale, int& n_
 		maxD=256.;
 		n_bins=8;
 	}
-	if(useNewTech==-1)
+	if(useNewTech==-1) // cach cu: tinh cell roi tinh block
 	{
 		calcHisOfCellsInWnd2(G1,Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,n_bins,his_cells_wnd,maxD);
 		calcHistOfWnd(his_cells_wnd,blockSize,blockOverlap,normType,his_wind);
 	}
-	else if(useNewTech==0)
+	else if(useNewTech==0) // chay theo kim dong ho
 	{
 		calcHisOfCellsInWnd2(G1,Rect(0,0,img_slideWnd.cols,img_slideWnd.rows),cellSz,n_bins,his_cells_wnd,maxD);
 		calcHistOfWndNew2(his_cells_wnd,blockSize,blockOverlap,normType,his_wind);
 
-	}else if(useNewTech==1){
+	}else if(useNewTech==1){ // 4 parts
 		his_wind=calcHistOfWndNew(G1,cellSz,n_bins,h_ws);
 	}
-	else if(useNewTech==2)
+	else if(useNewTech==2)  // chia grid
 	{
 		if(n_x==0)
+		{
 			calcGrid(G1,blockSize,cellSz, Size(blockSize.width*cellSz.width/2,blockSize.height*cellSz.height/2),x_corr,y_corr, n_x, n_y);
-		calcHisOfGrid(G1,blockSize,cellSz,Size(blockSize.width*cellSz.width/2,blockSize.height*cellSz.height/2),x_corr,y_corr,n_x,n_y,scale, n_bins,his_wind);
-
+			calcGrid(G1,blockSize,cellSz*2, Size(blockSize.width*cellSz.width*2/2,blockSize.height*cellSz.height*2/2),x_corr2,y_corr2, n_x2, n_y2);
+			calcGrid(G1,blockSize,cellSz*4, Size(blockSize.width*cellSz.width*4/2,blockSize.height*cellSz.height*4/2),x_corr3,y_corr3, n_x3, n_y3);
+		}
+		//if(n_x2==0)
+		//{
+		////	calcGrid(G1,blockSize,cellSz, Size(blockSize.width*cellSz.width/2,blockSize.height*cellSz.height/2),x_corr,y_corr, n_x, n_y);
+		//	calcGrid(G1,blockSize,cellSz*2, Size(blockSize.width*cellSz.width*2/2,blockSize.height*cellSz.height*2/2),x_corr2,y_corr2, n_x2, n_y2);
+		////	calcGrid(G1,blockSize,cellSz*4, Size(blockSize.width*cellSz.width*4/2,blockSize.height*cellSz.height*4/2),x_corr3,y_corr3, n_x3, n_y3);
+		//}
+		//if(n_x3==0)
+		//{
+		////	calcGrid(G1,blockSize,cellSz, Size(blockSize.width*cellSz.width/2,blockSize.height*cellSz.height/2),x_corr,y_corr, n_x, n_y);
+		////	calcGrid(G1,blockSize,cellSz*2, Size(blockSize.width*cellSz.width*2/2,blockSize.height*cellSz.height*2/2),x_corr2,y_corr2, n_x2, n_y2);
+		//	calcGrid(G1,blockSize,cellSz*4, Size(blockSize.width*cellSz.width*4/2,blockSize.height*cellSz.height*4/2),x_corr3,y_corr3, n_x3, n_y3);
+		//}
+		int s1 = n_x*n_y*blockSize.height*blockSize.width*n_bins;
+		int s2 = n_x2*n_y2*blockSize.height*blockSize.width*n_bins;
+		int s3 = n_x3*n_y3*blockSize.height*blockSize.width*n_bins;
+		int ss = s1 + s2 + s3;
+		his_wind = Mat::zeros(1,ss,DataType<float>::type);
+		HIS hw1, hw2, hw3;
+		calcHisOfGrid(G1,blockSize,cellSz,Size(blockSize.width*cellSz.width/2,blockSize.height*cellSz.height/2),x_corr,y_corr,n_x,n_y,scale, n_bins,hw1);
+		calcHisOfGrid(G1,blockSize,cellSz*2,Size(blockSize.width*cellSz.width*2/2,blockSize.height*cellSz.height*2/2),x_corr2,y_corr2,n_x2,n_y2,scale, n_bins,hw2);
+		calcHisOfGrid(G1,blockSize,cellSz*4,Size(blockSize.width*cellSz.width*4/2,blockSize.height*cellSz.height*4/2),x_corr3,y_corr3,n_x3,n_y3,scale, n_bins,hw3);
+		hw1.copyTo((his_wind)(Rect(0,0,s1,1)));
+		hw2.copyTo((his_wind)(Rect(s1,0,s2,1)));
+		hw3.copyTo((his_wind)(Rect(s1+s2,0,s3,1)));
+		hw1.release();
+		hw2.release();
+		hw3.release(); 
 	}
 	if(useSmooth)
 		G1.release();			
@@ -568,15 +615,15 @@ void svmGenHardList(string weightFile,string posfilelist, string negfilelist,str
 				continue;
 				//break;
 			}
-			Mat img = imread(filepath+filename);
+			Mat img = imread(filepath+filename);   //
 
 			float maxSz=maxWndSz.width*maxWndSz.height;
 			float minSz = wndSize.width*wndSize.height;
 			Rect realRect=resizeImg(img,maxSz,minSz,false);
 			//	Mat img = imread(filepath+filename);
 			int n_channels=1;
-			Mat* imFils;
-			Mat G;
+			Mat* imFils;                           //
+			Mat G;									//
 			if(useMaxChannel==true)
 			{
 				n_channels=img.channels();
@@ -706,7 +753,7 @@ void svmGenHardList(string weightFile,string posfilelist, string negfilelist,str
 				svmClassify(img,G,slideWnd,cellSz,scale,n_x,n_y,x_corr,y_corr,his_cells_wnd,his_wind,h_ws,normType, useMaxChannel,useSmooth,useLBP,useNewTech);
 				if(weight->rows<his_wind.cols)
 				{
-					Mat tmp=(*weight);
+					Mat tmp=(*weight);		//
 					
 					*weight=Mat::zeros(his_wind.cols,1,weight->type());
 					Mat m=(*weight)(Rect(0,0,1,tmp.rows));
