@@ -15,7 +15,7 @@ int* x_corr2=NULL;
 int* x_corr3=NULL;
 int* y_corr2=NULL;
 int* y_corr3=NULL;
-
+Mat M_cellsInBlock1,M_cellsInBlock2,M_cellsInBlock3;
 
 void svmGenerateData(string inputfilelist, int pos,int randTime){
 	ifstream conffile;
@@ -181,6 +181,9 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 		HIS his_wind;
 		HIS* h_ws=NULL;
 		int* x_corr=NULL;int* y_corr=NULL; int n_x=0, n_y=0;
+		int rnd=0;
+		int sizeW = 0;
+		int sizeH = 0;
 		for (int i=0;;i++)
 
 			//		while (! inputfile.eof() )
@@ -235,9 +238,9 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 
 					if (!continueScale)
 					{
-						int rnd;
-						int sizeW = img.cols - wndSize.width;
-						int sizeH = img.rows - wndSize.height;
+					//	int rnd;
+						sizeW = img.cols - wndSize.width;
+						sizeH = img.rows - wndSize.height;
 						switch(j)
 						{
 							//	case 0: startP.x=img.cols/2;startP.y=img.rows/2;break;
@@ -328,7 +331,7 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 							slideWnd.x=0;
 							slideWnd.y=0;
 						}
-						float r=rand();
+						
 					}
 					cellSz = cellSize;
 					wndSz = wndSize;
@@ -436,7 +439,7 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 			for (int jj=0;jj<his_cells_wnd.cols;jj++)
 			{
 				HIS* hh=his_cells_wnd.at<HIS*>(ii,jj);
-				//	hh->release();
+					hh->release();
 				delete hh;
 			}
 		}
@@ -449,6 +452,10 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 			}
 			delete[]h_ws;
 		}
+		M_cellsInBlock1.release();
+		M_cellsInBlock2.release();
+		M_cellsInBlock3.release();
+
 		if(x_corr!=NULL)
 			delete[] x_corr;
 		if(y_corr!=NULL)
@@ -513,7 +520,7 @@ void svmClassify( Mat img,Mat G,Rect slideWnd, Size cellSz,float& scale, int& n_
 	{
 		if(n_x==0)
 			calcGrid(G1,blockSize,cellSz, Size(blockSize.width*cellSz.width/2,blockSize.height*cellSz.height/2),x_corr,y_corr, n_x, n_y);
-		calcHisOfGrid(G1,blockSize,cellSz,Size(blockSize.width*cellSz.width/2,blockSize.height*cellSz.height/2),x_corr,y_corr,n_x,n_y,scale, n_bins,his_wind);
+		calcHisOfGrid(G1,blockSize,cellSz,Size(blockSize.width*cellSz.width/2,blockSize.height*cellSz.height/2),x_corr,y_corr,n_x,n_y,scale, n_bins,his_wind,M_cellsInBlock1);
 
 	}
 	else if(useNewTech==3)  // multiscale
@@ -533,9 +540,9 @@ void svmClassify( Mat img,Mat G,Rect slideWnd, Size cellSz,float& scale, int& n_
 		HIS hw1=his_wind(Rect(0,0,s1,1));
 		HIS hw2=his_wind(Rect(s1,0,s2,1));
 		HIS hw3=his_wind(Rect(s1+s2,0,s3,1));
-		calcHisOfGrid(G1,blockSize,cellSz,Size(blockSize.width*cellSz.width/2,blockSize.height*cellSz.height/2),x_corr,y_corr,n_x,n_y,scale, n_bins,hw1);
-		calcHisOfGrid(G1,blockSize,cellSz*2,Size(blockSize.width*cellSz.width*2/2,blockSize.height*cellSz.height*2/2),x_corr2,y_corr2,n_x2,n_y2,scale, n_bins,hw2);
-		calcHisOfGrid(G1,blockSize,cellSz*4,Size(blockSize.width*cellSz.width*4/2,blockSize.height*cellSz.height*4/2),x_corr3,y_corr3,n_x3,n_y3,scale, n_bins,hw3);
+		calcHisOfGrid(G1,blockSize,cellSz,Size(blockSize.width*cellSz.width/2,blockSize.height*cellSz.height/2),x_corr,y_corr,n_x,n_y,scale, n_bins,hw1,M_cellsInBlock1);
+		calcHisOfGrid(G1,blockSize,cellSz*2,Size(blockSize.width*cellSz.width*2/2,blockSize.height*cellSz.height*2/2),x_corr2,y_corr2,n_x2,n_y2,scale, n_bins,hw2,M_cellsInBlock2);
+		calcHisOfGrid(G1,blockSize,cellSz*4,Size(blockSize.width*cellSz.width*4/2,blockSize.height*cellSz.height*4/2),x_corr3,y_corr3,n_x3,n_y3,scale, n_bins,hw3,M_cellsInBlock3);
 	//	hw1.copyTo((his_wind)(Rect(0,0,s1,1)));
 	//	hw2.copyTo((his_wind)(Rect(s1,0,s2,1)));
 	//	hw3.copyTo((his_wind)(Rect(s1+s2,0,s3,1)));
@@ -567,21 +574,20 @@ void svmGenHardList(string weightFile,string posfilelist, string negfilelist,str
 	if (inputFile.is_open())
 	{
 		getline (inputFile,filepath);
-		ofstream myfile,myfile2,infofile,scoreFilePos,scoreFileNeg;
+		ofstream hardPosFile,harNegFile,scoreFilePos,scoreFileNeg;
 		
 		string str="output/"+prefixName+"_hardPos.txt";
-		myfile.open(str.c_str());
+		hardPosFile.open(str.c_str());
 		str="output/"+prefixName+"_hardNeg.txt";
-		myfile2.open(str.c_str());
-		str="output/"+prefixName+"_info.txt";
-		infofile.open(str.c_str());
+		harNegFile.open(str.c_str());
+		
 		str="output/"+prefixName+"_scorePos.txt";
 		scoreFilePos.open(str.c_str());
 		str="output/"+prefixName+"_scoreNeg.txt";
 		scoreFileNeg.open(str.c_str());
-		myfile.precision(4);
-		myfile2.precision(4);
-		infofile.precision(4);
+		hardPosFile.precision(4);
+		harNegFile.precision(4);
+		
 		scoreFilePos.precision(4);
 		scoreFileNeg.precision(4);
 		int truePos=0,trueNeg=0,falsePos=0,falseNeg=0;
@@ -596,6 +602,8 @@ void svmGenHardList(string weightFile,string posfilelist, string negfilelist,str
 		HIS his_wind;
 		HIS* h_ws=NULL;
 		int* x_corr=NULL;int* y_corr=NULL; int n_x=0, n_y=0;
+		Mat R;
+		Mat h_w;
 		for (int i=0;;i++)
 
 			//		while (! inputfile.eof() )
@@ -630,6 +638,7 @@ void svmGenHardList(string weightFile,string posfilelist, string negfilelist,str
 			int n_channels=1;
 			Mat* imFils;                           //
 			Mat G;									//
+			
 			if(useMaxChannel==true)
 			{
 				n_channels=img.channels();
@@ -642,7 +651,7 @@ void svmGenHardList(string weightFile,string posfilelist, string negfilelist,str
 
 			bool continueScale = false;
 			Point startP;
-			stringstream scoreNegStream;
+			
 			for (int j =0;j<randTime;)
 			{
 
@@ -757,15 +766,18 @@ void svmGenHardList(string weightFile,string posfilelist, string negfilelist,str
 					printf("%d %d. %s (%d,%d, %d, %d)\n",j,i+1,filename.c_str(),slideWnd.x,slideWnd.y,slideWnd.width,slideWnd.height);
 
 				svmClassify(img,G,slideWnd,cellSz,scale,n_x,n_y,x_corr,y_corr,his_cells_wnd,his_wind,h_ws,normType, useMaxChannel,useSmooth,useLBP,useNewTech);
+				h_w = his_wind;
 				if(weight->rows<his_wind.cols)
 				{
-					Mat tmp=(*weight);		//
+				//	Mat tmp=(*weight);		//
 					
-					*weight=Mat::zeros(his_wind.cols,1,weight->type());
-					Mat m=(*weight)(Rect(0,0,1,tmp.rows));
-					tmp.copyTo(m);
+				//	*weight=Mat::zeros(his_wind.cols,1,weight->type());
+				//	Mat m=(*weight)(Rect(0,0,1,tmp.rows));
+				//	tmp.copyTo(m);
+					
+					h_w=his_wind(Rect(0,0,weight->rows,1));
 				}
-				Mat R = (his_wind)* (*weight ) - b;
+				R = (his_wind)* (*weight ) - b;
 				float score = R.at<float>(0,0);
 				R.release();
 				totalWnd++;
@@ -779,14 +791,14 @@ void svmGenHardList(string weightFile,string posfilelist, string negfilelist,str
 					{
 						falseNeg++;
 					//	cout<<"Found hard ex:"<<pos<<endl;
-						myfile << pos<<"\t";
+						hardPosFile << pos<<"\t";
 						for (int i=0;i<his_wind.cols;i++)
 						{
 							float v =his_wind.at<float>(0,i); 
 							if(v!=0)
-								myfile << i+1<<":"<<v<<"\t";
+								hardPosFile << i+1<<":"<<v<<"\t";
 						}
-						myfile <<"\t #"<<filename<<"\t ("<<slideWnd.x<<", "<<slideWnd.y<<", "<<slideWnd.width<<", "<<slideWnd.height<<")\n";
+						hardPosFile <<"\t #"<<filename<<"\t ("<<slideWnd.x<<", "<<slideWnd.y<<", "<<slideWnd.width<<", "<<slideWnd.height<<")\n";
 					}else
 					{
 						truePos++;
@@ -795,20 +807,20 @@ void svmGenHardList(string weightFile,string posfilelist, string negfilelist,str
 				}
 				else if(pos.compare("-1")==0 )
 				{
-				//	scoreFileNeg<<score<<endl;
-					scoreNegStream<<score<<endl;
+					scoreFileNeg<<score<<endl;
+					
 					if( score>=0.)
 					{
 						falsePos++;
 					//	cout<<"Found hard ex:"<<pos<<endl;
-						myfile2 << pos<<"\t";
+						harNegFile << pos<<"\t";
 						for (int i=0;i<his_wind.cols;i++)
 						{
 							float v =his_wind.at<float>(0,i); 
 							if(v!=0)
-								myfile2 << i+1<<":"<<v<<"\t";
+								harNegFile << i+1<<":"<<v<<"\t";
 						}
-						myfile2 <<"\t #"<<filename<<"\t ("<<slideWnd.x<<", "<<slideWnd.y<<", "<<slideWnd.width<<", "<<slideWnd.height<<")\n";
+						harNegFile <<"\t #"<<filename<<"\t ("<<slideWnd.x<<", "<<slideWnd.y<<", "<<slideWnd.width<<", "<<slideWnd.height<<")\n";
 					}
 					else
 					{
@@ -816,7 +828,7 @@ void svmGenHardList(string weightFile,string posfilelist, string negfilelist,str
 					}
 				}
 			}
-			scoreFileNeg<<scoreNegStream.str();
+			
 			img.release();
 			for (int i=0;i<n_channels;i++)
 			{
@@ -825,7 +837,9 @@ void svmGenHardList(string weightFile,string posfilelist, string negfilelist,str
 			}
 			delete[] imFils;
 			G.release();
+			
 		}
+		
 		for (int ii=0;ii<his_cells_wnd.rows;ii++)
 		{
 			for (int jj=0;jj<his_cells_wnd.cols;jj++)
@@ -844,6 +858,9 @@ void svmGenHardList(string weightFile,string posfilelist, string negfilelist,str
 			}
 			delete[]h_ws;
 		}
+		M_cellsInBlock1.release();
+		M_cellsInBlock2.release();
+		M_cellsInBlock3.release();
 		if(x_corr!=NULL)
 			delete[] x_corr;
 		if(y_corr!=NULL)
@@ -857,6 +874,10 @@ void svmGenHardList(string weightFile,string posfilelist, string negfilelist,str
 		if(y_corr3!=NULL)
 			delete[] y_corr3;
 		//	myfile.close();
+		ofstream infofile;
+		str="output/"+prefixName+"_info.txt";
+		infofile.open(str.c_str());
+		infofile.precision(4);
 		infofile<<"Total windows: "<<totalWnd<<endl;
 		infofile<<"True Pos: "<<truePos<<endl;
 		infofile<<"True Neg: "<<trueNeg<<endl;
@@ -889,8 +910,8 @@ void svmGenHardList(string weightFile,string posfilelist, string negfilelist,str
 		if(recall!=-1)
 			infofile<<"Missrate : "<<1. - recall<<endl;
 		
-		myfile2.close();
-		myfile.close();
+		harNegFile.close();
+		hardPosFile.close();
 		infofile.close();
 		scoreFilePos.close();
 		scoreFileNeg.close();

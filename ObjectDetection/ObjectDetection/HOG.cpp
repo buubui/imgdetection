@@ -255,7 +255,7 @@ void calcHisOfCellsInWnd2(Mat hog_pixels,Rect wnd, Size cellSize, int n_bins,Mat
 	int c = (int)(wnd.width/cellSize.width);
 	int r = (int)(wnd.height/cellSize.height);
 	if(H.rows!=r || H.cols!=c)
-//	if(H.rows==0)
+	if(H.rows!=r || H.cols!=c)
 	{
 	//	H.release();
 		H=Mat::zeros(r,c,DataType<HIS*>::type);
@@ -1061,24 +1061,27 @@ void calcGrid(Mat hog_mat,Size blockSz,Size cellSz, Size gridSz, int*& x_corr,in
 		y_corr[i]=y_corr[i-1]+gridSz.height;
 	}
 }
-void calcHisOfGrid(Mat hog_mat,Size blockSz,Size cellSz, Size gridSz, int* x_corr,int* y_corr, int& n_x,int& n_y,float scale, int n_bins,HIS& H_wnd)
+void calcHisOfGrid(Mat hog_mat,Size blockSz,Size cellSz, Size gridSz, int* x_corr,int* y_corr, int& n_x,int& n_y,float scale, int n_bins,HIS& H_wnd,Mat& M_cellsInBlock)
 {
 	Rect blockRect=Rect(0,0,blockSz.width*cellSz.width,blockSz.height*cellSz.height);
-	Mat M_cellsInBlock;
+//	Mat M_cellsInBlock;
 	HIS H_Block;
 	int n_block = n_x*n_y;
 	int n_size_block;
 //	HIS H_wnd;
 	int s=0;
 //	int n_bins=9;
+	Mat gkernel= getGaussianKernel(3,0.5*cellSz.width*blockSz.width,DataType<float>::type);
+	Mat blockWnd;
 	for (int y=0;y<n_y;y++)
 	{
 		for (int x=0;x<n_x;x++)
 		{
 			blockRect.x = scale*x_corr[x]-blockRect.width/2;
 			blockRect.y = scale*y_corr[y]-blockRect.height/2;
-			Mat blockWnd=hog_mat(blockRect).clone();
-			GaussianBlur(blockWnd,blockWnd,Size(3,3),0.5*cellSz.width*blockSz.width);
+			blockWnd=hog_mat(blockRect).clone();
+			filter2D(blockWnd,blockWnd,-1,gkernel);
+		//	GaussianBlur(blockWnd,blockWnd,Size(3,3),0.5*cellSz.width*blockSz.width);
 			
 			calcHisOfCellsInWnd2(blockWnd,Rect(0,0,blockRect.width,blockRect.height),cellSz,n_bins,M_cellsInBlock,180);
 			
@@ -1097,5 +1100,6 @@ void calcHisOfGrid(Mat hog_mat,Size blockSz,Size cellSz, Size gridSz, int* x_cor
 			
 		}
 	}
-	M_cellsInBlock.release();
+//	M_cellsInBlock.release();
+	gkernel.release();
 }
