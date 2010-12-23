@@ -189,22 +189,32 @@ int main(array<System::String ^> ^args)
 //	//v= img2.at<Vec3b>(5,5);
 //	//cout<<(int)v[0]<<" "<<(int)v[1]<<" "<<(int)v[2]<<endl;
 //	waitKey(0);
-/*	img=img(Rect(0,0,64,128));
-	int n_channels=1;
-	Mat* imFils;
-	Mat G;
-	
-	n_channels=img.channels();
-	imFils = imFilterChannels(img,true);
-	G = calcGradientOfPixelsMaxChannel(imFils,n_channels);
-	Mat* h_w=NULL;*/
-//	while(true)
-//	{
-//		HIS* h_w=NULL;
-//		HIS H=calcHistOfWndNew(img,cellSize,9,h_w);
-//		waitKey(0);
-//		H.release();
-//	}*/
+	//img=img(Rect(0,0,64,128));
+	//int n_channels=1;
+	//Mat* imFils;
+	//Mat G;
+	//
+	//n_channels=img.channels();
+	//imFils = imFilterChannels(img,true);
+	//G = calcGradientOfPixelsMaxChannel(imFils,n_channels);
+	//Mat* h_w=NULL;
+	//int*x_corr=NULL;int*y_corr=NULL;
+	//int n_x=0, n_y=0;
+	//float scale=1.;
+	//int n_bins=9;
+	//HIS his_wind;
+	//if(n_x==0)
+	//	calcGrid(G,blockSize,cellSize, cv::Size(blockSize.width*cellSize.width/2,blockSize.height*cellSize.height/2),x_corr,y_corr, n_x, n_y);
+	//Mat m_tmp;
+	//while(true)
+	//{
+	////	HIS* h_w=NULL;
+	////	HIS H=calcHistOfWndNew(img,cellSize,9,h_w);
+	//	
+	//	calcHisOfGrid(G,blockSize,cellSize,cv::Size(blockSize.width*cellSize.width/2,blockSize.height*cellSize.height/2),x_corr,y_corr,n_x,n_y,scale, n_bins,his_wind,m_tmp);
+	//	
+	////	H.release();
+	//}
 
 	/*printf("%d %d\n",H.rows,H.cols);
 	for (int i=0;i <200;i++)
@@ -249,12 +259,17 @@ int main(array<System::String ^> ^args)
  /************************************************************************/
  /*                  Generating data for SVM                             */
  /************************************************************************/
+//	Rect r(100,100,33,33);
+//for (int i=0;i<100000000000;i++)
+//{
+//	r= getRect(0,0,2);
+//}
 	
 //	svmGenerateData2("input/Train_Pos.txt","input/Train_Neg_P1.txt",1,8);
 //	svmGenerateData2("input/Test_Pos.txt","input/Test_Neg.txt",1,8);
-//	svmGenerateData2("input/a.txt","input/b.txt",1,5,3, 1., 1.05, true,false,false,-1);
+//	svmGenerateData2("input/a.txt","input/b.txt",1,5000000,3, 1., 1.05, true,false,false,2);
 
-	svmGenerateData2("input/trainPos.txt","input/trainNeg.txt",1,2,3,1.,1.1,true,false,false,3);
+//	svmGenerateData2("input/trainPos.txt","input/trainNeg.txt",1,2,3,1.,1.1,true,false,false,3);
 //	svmGenerateData2("input/NULL.txt","input/trainNeg_0.txt",1,1,true,false,false);
 //	svmGenerateData2("input/NULL.txt","input/trainNeg_1.txt",1,1,true,false,false);
 //	svmGenerateData2("input/NULL.txt","input/trainNeg.txt",1,6,true,false,false,-1);
@@ -266,7 +281,7 @@ int main(array<System::String ^> ^args)
 //	svmGenerateData2("input/testPosF.txt","input/testNegF.txt",1,10,true,false,false,-1);
 	
 //	svmGenHardList("input/weight.txt","input/a.txt","input/b.txt","temp",1,4,1.,100,true,false,false,-1);
-//	svmGenHardList("input/weight.txt","input/trainPos.txt","input/trainNeg.txt","train",1,350,3,1.,1.05,true,false,false,-1);
+	svmGenHardList("input/weightj3.txt","input/trainPos.txt","input/trainNeg.txt","train",1,350,3,1.,1.05,true,false,false,3);
 //	svmGenHardList("input/weight.txt","input/testPosF.txt","input/testNegF.txt","test",1,350,1.,1.05,true,false,false,-1);
 	/************************************************************************/
 	/*                      Test new mean shift                             */

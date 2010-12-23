@@ -72,7 +72,24 @@ Mat* imFilter(const Mat& img,bool equalize){
 
 Mat* imFilterChannels(const Mat& img1,bool equalize){
 	Mat img=img1;
-//	cvtColor(img,img,CV_BGR2HSV);
+	//buubui - try this: BGR -> sqrtBGR -> HSV
+//	if(equalize)
+//	{
+	/*	for (int x=0;x<img.cols;x++)
+		{
+			for (int y=0;y<img.rows;y++)
+			{
+				Vec3b v = img.at<Vec3b>(y,x);
+				v[0]=std::sqrt(v[0]/255.)*255;
+				v[1]=std::sqrt(v[1]/255.)*255;
+				v[2]=std::sqrt(v[2]/255.)*255;
+			}
+		}*/
+
+	//	cvtColor(img,img,CV_BGR2HSV);
+//	}
+	cvtColor(img,img,CV_BGR2Lab);
+
 	int n_channels =  img.channels();
 	Mat* arrFils = new Mat[2*n_channels];
 	Mat * imgs = new Mat[n_channels];
