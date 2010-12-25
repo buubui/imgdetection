@@ -11,11 +11,17 @@ int n_x2 = 0;
 int n_y2 = 0;
 int n_x3 = 0;
 int n_y3 = 0;
+int n_x4=0, n_y4=0;
+int n_x5=0, n_y5=0;
 int* x_corr2=NULL;
 int* x_corr3=NULL;
+int* x_corr4=NULL;
+int* x_corr5=NULL;
 int* y_corr2=NULL;
 int* y_corr3=NULL;
-Mat M_cellsInBlock1,M_cellsInBlock2,M_cellsInBlock3;
+int* y_corr4=NULL;
+int* y_corr5=NULL;
+Mat M_cellsInBlock1,M_cellsInBlock2,M_cellsInBlock3,M_cellsInBlock4, M_cellsInBlock5 ;
 
 void svmGenerateData(string inputfilelist, int pos,int randTime){
 	ifstream conffile;
@@ -455,7 +461,8 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 		M_cellsInBlock1.release();
 		M_cellsInBlock2.release();
 		M_cellsInBlock3.release();
-
+		M_cellsInBlock4.release();
+		M_cellsInBlock5.release();
 		if(x_corr!=NULL)
 			delete[] x_corr;
 		if(y_corr!=NULL)
@@ -468,6 +475,14 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 			delete[] x_corr3;
 		if(y_corr3!=NULL)
 			delete[] y_corr3;
+		if(x_corr4!=NULL)
+			delete[] x_corr4;
+		if(y_corr4!=NULL)
+			delete[] y_corr4;
+		if(x_corr5!=NULL)
+			delete[] x_corr5;
+		if(y_corr5!=NULL)
+			delete[] y_corr5;
 		//	myfile.close();
 		myfile2.close();
 	}
@@ -530,16 +545,24 @@ void svmClassify( Mat img,Mat G,Rect slideWnd, Size cellSz,float& scale, int& n_
 			calcGrid(G1,blockSize,cellSz, Size(blockSize.width*cellSz.width/2,blockSize.height*cellSz.height/2),x_corr,y_corr, n_x, n_y);
 			calcGrid(G1,blockSize,cellSz*2, Size(blockSize.width*cellSz.width*2/2,blockSize.height*cellSz.height*2/2),x_corr2,y_corr2, n_x2, n_y2);
 			calcGrid(G1,blockSize,cellSz*4, Size(blockSize.width*cellSz.width*4/2,blockSize.height*cellSz.height*4/2),x_corr3,y_corr3, n_x3, n_y3);
+			/*calcGrid(G1,blockSize,cellSz*sqrt(2), Size(blockSize.width*cellSz.width*sqrt(2)/2,blockSize.height*cellSz.height*sqrt(2)/2),x_corr2,y_corr2, n_x2, n_y2);
+			calcGrid(G1,blockSize,cellSz*2, Size(blockSize.width*cellSz.width*2/2,blockSize.height*cellSz.height*2/2),x_corr3,y_corr3, n_x3, n_y3);
+			calcGrid(G1,blockSize,cellSz*2*sqrt(2), Size(blockSize.width*cellSz.width*2*sqrt(2)/2,blockSize.height*cellSz.height*2*sqrt(2)/2),x_corr4,y_corr4, n_x4, n_y4);
+			calcGrid(G1,blockSize,cellSz*4, Size(blockSize.width*cellSz.width*4/2,blockSize.height*cellSz.height*4/2),x_corr5,y_corr5, n_x5, n_y5);*/
 		}
 		int s1 = n_x*n_y*blockSize.height*blockSize.width*n_bins;
 		int s2 = n_x2*n_y2*blockSize.height*blockSize.width*n_bins;
 		int s3 = n_x3*n_y3*blockSize.height*blockSize.width*n_bins;
+		/*int s4 = n_x4*n_y4*blockSize.height*blockSize.width*n_bins;
+		int s5 = n_x5*n_y5*blockSize.height*blockSize.width*n_bins;*/
 		int ss = s1 + s2 + s3;
 		if(his_wind.cols!=ss)
 			his_wind = Mat::zeros(1,ss,DataType<float>::type);
 		HIS hw1=his_wind(Rect(0,0,s1,1));
 		HIS hw2=his_wind(Rect(s1,0,s2,1));
 		HIS hw3=his_wind(Rect(s1+s2,0,s3,1));
+		/*HIS hw4=his_wind(Rect(s1+s2+s3,0,s4,1));
+		HIS hw5=his_wind(Rect(s1+s2+s3+s4,0,s5,1));*/
 		calcHisOfGrid(G1,blockSize,cellSz,Size(blockSize.width*cellSz.width/2,blockSize.height*cellSz.height/2),x_corr,y_corr,n_x,n_y,scale, n_bins,hw1,M_cellsInBlock1);
 		calcHisOfGrid(G1,blockSize,cellSz*2,Size(blockSize.width*cellSz.width*2/2,blockSize.height*cellSz.height*2/2),x_corr2,y_corr2,n_x2,n_y2,scale, n_bins,hw2,M_cellsInBlock2);
 		calcHisOfGrid(G1,blockSize,cellSz*4,Size(blockSize.width*cellSz.width*4/2,blockSize.height*cellSz.height*4/2),x_corr3,y_corr3,n_x3,n_y3,scale, n_bins,hw3,M_cellsInBlock3);
@@ -549,6 +572,45 @@ void svmClassify( Mat img,Mat G,Rect slideWnd, Size cellSz,float& scale, int& n_
 	//	hw1.release();
 	//	hw2.release();
 	//	hw3.release(); 
+	}
+	else if(useNewTech==4)  // multiscale
+	{
+		float f2 = Math::Sqrt(2);
+		if(n_x==0)
+		{
+			calcGrid(G1,blockSize,cellSz, Size(blockSize.width*cellSz.width/2,blockSize.height*cellSz.height/2),x_corr,y_corr, n_x, n_y);
+			//	calcGrid(G1,blockSize,cellSz*2, Size(blockSize.width*cellSz.width*2/2,blockSize.height*cellSz.height*2/2),x_corr2,y_corr2, n_x2, n_y2);
+			//	calcGrid(G1,blockSize,cellSz*4, Size(blockSize.width*cellSz.width*4/2,blockSize.height*cellSz.height*4/2),x_corr3,y_corr3, n_x3, n_y3);
+			calcGrid(G1,blockSize,cellSz*f2, Size(blockSize.width*cellSz.width*f2/2,blockSize.height*cellSz.height*f2/2),x_corr2,y_corr2, n_x2, n_y2);
+			calcGrid(G1,blockSize,cellSz*2, Size(blockSize.width*cellSz.width*2/2,blockSize.height*cellSz.height*2/2),x_corr3,y_corr3, n_x3, n_y3);
+			calcGrid(G1,blockSize,cellSz*2*f2, Size(blockSize.width*cellSz.width*2*f2/2,blockSize.height*cellSz.height*2*f2/2),x_corr4,y_corr4, n_x4, n_y4);
+			calcGrid(G1,blockSize,cellSz*4, Size(blockSize.width*cellSz.width*4/2,blockSize.height*cellSz.height*4/2),x_corr5,y_corr5, n_x5, n_y5);
+		}
+		
+		int s1 = n_x*n_y*blockSize.height*blockSize.width*n_bins;
+		int s2 = n_x2*n_y2*blockSize.height*blockSize.width*n_bins;
+		int s3 = n_x3*n_y3*blockSize.height*blockSize.width*n_bins;
+		int s4 = n_x4*n_y4*blockSize.height*blockSize.width*n_bins;
+		int s5 = n_x5*n_y5*blockSize.height*blockSize.width*n_bins;
+		int ss = s1 + s2 + s3 + s4 + s5;
+		if(his_wind.cols!=ss)
+			his_wind = Mat::zeros(1,ss,DataType<float>::type);
+		HIS hw1=his_wind(Rect(0,0,s1,1));
+		HIS hw2=his_wind(Rect(s1,0,s2,1));
+		HIS hw3=his_wind(Rect(s1+s2,0,s3,1));
+		HIS hw4=his_wind(Rect(s1+s2+s3,0,s4,1));
+		HIS hw5=his_wind(Rect(s1+s2+s3+s4,0,s5,1));
+		calcHisOfGrid(G1,blockSize,cellSz,Size(blockSize.width*cellSz.width/2,blockSize.height*cellSz.height/2),x_corr,y_corr,n_x,n_y,scale, n_bins,hw1,M_cellsInBlock1);
+		calcHisOfGrid(G1,blockSize,cellSz*f2,Size(blockSize.width*cellSz.width*f2/2,blockSize.height*cellSz.height*f2/2),x_corr2,y_corr2,n_x2,n_y2,scale, n_bins,hw2,M_cellsInBlock2);
+		calcHisOfGrid(G1,blockSize,cellSz*2,Size(blockSize.width*cellSz.width*2/2,blockSize.height*cellSz.height*2/2),x_corr3,y_corr3,n_x3,n_y3,scale, n_bins,hw3,M_cellsInBlock3);
+		calcHisOfGrid(G1,blockSize,cellSz*2*f2,Size(blockSize.width*cellSz.width*2*f2/2,blockSize.height*cellSz.height*2*f2/2),x_corr4,y_corr4,n_x4,n_y4,scale, n_bins,hw4,M_cellsInBlock4);
+		calcHisOfGrid(G1,blockSize,cellSz*4,Size(blockSize.width*cellSz.width*4/2,blockSize.height*cellSz.height*4/2),x_corr5,y_corr5,n_x5,n_y5,scale, n_bins,hw5,M_cellsInBlock5);
+		//	hw1.copyTo((his_wind)(Rect(0,0,s1,1)));
+		//	hw2.copyTo((his_wind)(Rect(s1,0,s2,1)));
+		//	hw3.copyTo((his_wind)(Rect(s1+s2,0,s3,1)));
+		//	hw1.release();
+		//	hw2.release();
+		//	hw3.release(); 
 	}
 	if(useSmooth)
 		G1.release();			
@@ -861,6 +923,9 @@ void svmGenHardList(string weightFile,string posfilelist, string negfilelist,str
 		M_cellsInBlock1.release();
 		M_cellsInBlock2.release();
 		M_cellsInBlock3.release();
+		M_cellsInBlock4.release();
+		M_cellsInBlock5.release();
+		
 		if(x_corr!=NULL)
 			delete[] x_corr;
 		if(y_corr!=NULL)
@@ -873,6 +938,14 @@ void svmGenHardList(string weightFile,string posfilelist, string negfilelist,str
 			delete[] x_corr3;
 		if(y_corr3!=NULL)
 			delete[] y_corr3;
+		if(x_corr4!=NULL)
+			delete[] x_corr4;
+		if(y_corr4!=NULL)
+			delete[] y_corr4;
+		if(x_corr5!=NULL)
+			delete[] x_corr5;
+		if(y_corr5!=NULL)
+			delete[] y_corr5;
 		//	myfile.close();
 		ofstream infofile;
 		str="output/"+prefixName+"_info.txt";
