@@ -90,6 +90,8 @@ Mat* imFilterChannels(const Mat& img1,bool equalize){
 //	}
 	cvtColor(img,img,CV_BGR2Lab);
 
+//	Mat img;
+//	cvtColor(img1,img,CV_BGR2HSV);
 	int n_channels =  img.channels();
 	Mat* arrFils = new Mat[2*n_channels];
 	Mat * imgs = new Mat[n_channels];
@@ -141,7 +143,7 @@ Mat* imFilterChannels(const Mat& img1,bool equalize){
 		imgs[i].release();
 	}
 	delete[] imgs;
-
+	img.release();
 	return arrFils;
 }
 
