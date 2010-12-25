@@ -581,9 +581,9 @@ void svmClassify( Mat img,Mat G,Rect slideWnd, Size cellSz,float& scale, int& n_
 			calcGrid(G1,blockSize,cellSz, Size(blockSize.width*cellSz.width/2,blockSize.height*cellSz.height/2),x_corr,y_corr, n_x, n_y);
 			//	calcGrid(G1,blockSize,cellSz*2, Size(blockSize.width*cellSz.width*2/2,blockSize.height*cellSz.height*2/2),x_corr2,y_corr2, n_x2, n_y2);
 			//	calcGrid(G1,blockSize,cellSz*4, Size(blockSize.width*cellSz.width*4/2,blockSize.height*cellSz.height*4/2),x_corr3,y_corr3, n_x3, n_y3);
-			calcGrid(G1,blockSize,cellSz*f2, Size(blockSize.width*cellSz.width*f2/2,blockSize.height*cellSz.height*f2/2),x_corr2,y_corr2, n_x2, n_y2);
+			calcGrid(G1,blockSize,Size((int)(cellSz.width*f2),(int)(cellSz.height*f2)), Size((int)(blockSize.width*cellSz.width*f2/2),(int)(blockSize.height*cellSz.height*f2/2)),x_corr2,y_corr2, n_x2, n_y2);
 			calcGrid(G1,blockSize,cellSz*2, Size(blockSize.width*cellSz.width*2/2,blockSize.height*cellSz.height*2/2),x_corr3,y_corr3, n_x3, n_y3);
-			calcGrid(G1,blockSize,cellSz*2*f2, Size(blockSize.width*cellSz.width*2*f2/2,blockSize.height*cellSz.height*2*f2/2),x_corr4,y_corr4, n_x4, n_y4);
+			calcGrid(G1,blockSize,Size((int)(cellSz.width*2*f2),(int)(cellSz.height*2*f2)), Size((int)(blockSize.width*cellSz.width*2*f2/2),(int)(blockSize.height*cellSz.height*2*f2/2)),x_corr4,y_corr4, n_x4, n_y4);
 			calcGrid(G1,blockSize,cellSz*4, Size(blockSize.width*cellSz.width*4/2,blockSize.height*cellSz.height*4/2),x_corr5,y_corr5, n_x5, n_y5);
 		}
 		
@@ -601,9 +601,9 @@ void svmClassify( Mat img,Mat G,Rect slideWnd, Size cellSz,float& scale, int& n_
 		HIS hw4=his_wind(Rect(s1+s2+s3,0,s4,1));
 		HIS hw5=his_wind(Rect(s1+s2+s3+s4,0,s5,1));
 		calcHisOfGrid(G1,blockSize,cellSz,Size(blockSize.width*cellSz.width/2,blockSize.height*cellSz.height/2),x_corr,y_corr,n_x,n_y,scale, n_bins,hw1,M_cellsInBlock1);
-		calcHisOfGrid(G1,blockSize,cellSz*f2,Size(blockSize.width*cellSz.width*f2/2,blockSize.height*cellSz.height*f2/2),x_corr2,y_corr2,n_x2,n_y2,scale, n_bins,hw2,M_cellsInBlock2);
+		calcHisOfGrid(G1,blockSize,Size((int)(cellSz.width*f2),(int)(cellSz.height*f2)),Size((int)(blockSize.width*cellSz.width*f2/2),(int)(blockSize.height*cellSz.height*f2/2)),x_corr2,y_corr2,n_x2,n_y2,scale, n_bins,hw2,M_cellsInBlock2);
 		calcHisOfGrid(G1,blockSize,cellSz*2,Size(blockSize.width*cellSz.width*2/2,blockSize.height*cellSz.height*2/2),x_corr3,y_corr3,n_x3,n_y3,scale, n_bins,hw3,M_cellsInBlock3);
-		calcHisOfGrid(G1,blockSize,cellSz*2*f2,Size(blockSize.width*cellSz.width*2*f2/2,blockSize.height*cellSz.height*2*f2/2),x_corr4,y_corr4,n_x4,n_y4,scale, n_bins,hw4,M_cellsInBlock4);
+		calcHisOfGrid(G1,blockSize,Size((int)(cellSz.width*f2),(int)(cellSz.height*f2)),Size((int)(blockSize.width*cellSz.width*2*f2/2),(int)(blockSize.height*cellSz.height*2*f2/2)),x_corr4,y_corr4,n_x4,n_y4,scale, n_bins,hw4,M_cellsInBlock4);
 		calcHisOfGrid(G1,blockSize,cellSz*4,Size(blockSize.width*cellSz.width*4/2,blockSize.height*cellSz.height*4/2),x_corr5,y_corr5,n_x5,n_y5,scale, n_bins,hw5,M_cellsInBlock5);
 		//	hw1.copyTo((his_wind)(Rect(0,0,s1,1)));
 		//	hw2.copyTo((his_wind)(Rect(s1,0,s2,1)));
