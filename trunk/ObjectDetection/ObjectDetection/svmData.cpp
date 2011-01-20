@@ -496,6 +496,333 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 
 }
 
+PCA computePCA(string posfilelist, string negfilelist,int randTimePos,int randTimeNeg, int normType,float scale,float scaleStep, bool useMaxChannel,bool useSmooth,bool useLBP,int useNewTech)
+{	
+	ifstream inputFile;
+	printf("%s\n",posfilelist.c_str());
+	inputFile.open (posfilelist.c_str());
+	//inputNegFile.open (negfilelist.c_str());
+	string filepath,filename;
+	int randTime = randTimePos;
+	string pos ="+1";
+	string posStr = pos.compare("+1")==0?"Pos":"Neg";
+	Rect slideWnd(0,0,wndSize.width,wndSize.height);
+	int n_rows=0,n_cols=0,n_pos=0;
+	Mat* data=new Mat();
+	//	float scaleStep=1.2;          // change step.
+	if (inputFile.is_open())
+	{
+		getline (inputFile,filepath);
+		ofstream myfile2;
+
+		//ofstream myfile;
+		//	SYSTEMTIME st;
+		//	GetSystemTime(&st);
+		time_t curr;
+		tm local;
+		time(&curr); // get current time_t value
+		local=*(localtime(&curr)); // dereference and assign
+		//	stringstream outputfile;
+		stringstream outputfile2; 
+
+		//	outputfile<<"output/his_"<<"test"<<"_winSvm_"<<local.tm_year+1900<<"_"<<local.tm_mon+1<<"_"<<local.tm_mday<<"_"<<local.tm_hour<<"_"<<local.tm_min<<".txt" ;
+		outputfile2<<"output/his_test"<<"_svmLight_"<<local.tm_year+1900<<"_"<<local.tm_mon+1<<"_"<<local.tm_mday<<"_"<<local.tm_hour<<"_"<<local.tm_min<<".txt" ;
+		//	myfile.open(outputfile.str().c_str());
+		myfile2.open(outputfile2.str().c_str());
+		myfile2.precision(4);
+		Size cellSz,wndSz,tmp;
+		cellSz.width = cellSize.width;
+		cellSz.height = cellSize.height;
+		tmp.width = wndSize.width / cellSize.width;
+		tmp.height = wndSize.height / cellSize.height;
+		Mat his_cells_wnd ;
+		HIS his_wind;
+		HIS* h_ws=NULL;
+		int* x_corr=NULL;int* y_corr=NULL; int n_x=0, n_y=0;
+		int rnd=0;
+		int sizeW = 0;
+		int sizeH = 0;
+		for (int i=0;;i++)
+
+			//		while (! inputfile.eof() )
+		{
+			/*cellSz = cellSize;
+			wndSz = wndSize;
+			slideWnd.width = wndSize.width;
+			slideWnd.height =wndSize.height;*/
+
+			getline (inputFile,filename);
+			if (filename.length()<2)
+			{
+				if(pos.compare("+1")!=0)
+					break;
+				inputFile.close();
+				n_pos=n_rows;
+				inputFile.open(negfilelist.c_str());
+				if(!inputFile.is_open())
+					printf("XXXXXX");
+				pos="-1";
+				randTime=randTimeNeg;
+				inputFile.seekg(0, ios::beg);
+				getline (inputFile,filepath);
+				continue;
+				//break;
+			}
+			Mat img = imread(filepath+filename);
+
+			float maxSz=maxWndSz.width*maxWndSz.height;
+			float minSz = wndSize.width*wndSize.height;
+			Rect realRect=resizeImg(img,maxSz,minSz,false);
+			//	Mat img = imread(filepath+filename);
+			int n_channels=1;
+			Mat* imFils;
+			Mat G;
+			if(useMaxChannel==true)
+			{
+				n_channels=img.channels();
+				imFils = imFilterChannels(img,true);
+				G = calcGradientOfPixelsMaxChannel(imFils,n_channels);
+			}else{
+				imFils = imFilter(img,true);
+				G = calcGradientOfPixels(imFils[0],imFils[1]);
+			}
+
+			bool continueScale = false;
+			Point startP;
+			for (int j =0;j<randTime;)
+			{
+
+				if(randTime>1)
+				{
+
+					if (!continueScale)
+					{
+						//	int rnd;
+						sizeW = img.cols - wndSize.width;
+						sizeH = img.rows - wndSize.height;
+						switch(j)
+						{
+							//	case 0: startP.x=img.cols/2;startP.y=img.rows/2;break;
+							//	case 1: startP.x=wndSize.width/2+ sizeW/4;startP.y=wndSize.height/2+sizeH/4;break;
+							//	case 2: startP.x=wndSize.width/2+ 3*sizeW/4;startP.y=wndSize.height/2+sizeH/4;break;
+							//	case 3: startP.x=wndSize.width/2+ sizeW/4;startP.y=wndSize.height/2+3*sizeH/4;break;
+							//	case 4: startP.x=wndSize.width/2+ 3*sizeW/4;startP.y=wndSize.height/2+3*sizeH/4;break;
+							//	case 5: startP.x=wndSize.width/2+ sizeW/4;startP.y=wndSize.height/2+sizeH/2;break;
+							//	case 6: startP.x=wndSize.width/2+ 3*sizeW/4;startP.y=wndSize.height/2+sizeH/2;break;
+							//	case 7: startP.x=wndSize.width/2+ sizeW/2;startP.y=wndSize.height/2+sizeH/4;break;
+							//	case 8: startP.x=wndSize.width/2+ sizeW/2;startP.y=wndSize.height/2+3*sizeH/4;break;
+						default:
+
+							rnd = rand()%sizeW;
+							startP.x =wndSize.width/2+rnd;
+							rnd = rand()%sizeH;
+							startP.y = wndSize.height/2+rnd;
+							break;
+
+
+						}
+
+						//	slideWnd.width = wndSize.width;
+						//	slideWnd.height=wndSize.height;
+						scale=1.;
+						slideWnd=getRect(startP.x,startP.y,scale);
+						wndSz.width=slideWnd.width;
+						wndSz.height=slideWnd.height;
+					}
+					else
+					{
+						//	cellSz.width+=2;
+						//	cellSz.height+=2;
+
+						scale = scale * scaleStep;
+						float tt = scale* cellSize.width;
+						if( (int)tt==cellSz.width)
+						{
+							cellSz.width = ceil( tt);
+							cellSz.height = ceil( scale* cellSize.height);
+						}else{
+							cellSz.width = (int)tt;
+							cellSz.height = (int)( scale* cellSize.height);
+						}
+						scale = (float)cellSz.width/cellSize.width;
+						slideWnd= getRect(startP.x,startP.y,scale);
+						wndSz.width =slideWnd.width;
+						wndSz.height =slideWnd.height;
+
+					}
+
+					//	for (int t=0;;t++)
+					//	{
+					if( slideWnd.x<0 || slideWnd.y<0 || slideWnd.x+slideWnd.width>img.cols || 
+						slideWnd.y+slideWnd.height>img.rows || max(slideWnd.width,slideWnd.height)> 0.75*max(img.cols,img.rows))
+						//		if( (cellSz.width*tmp.width>img.cols - slideWnd.x) || (cellSz.height*tmp.height>img.rows - slideWnd.y) 
+						//		||	max(cellSz.width*tmp.width,cellSz.height*tmp.height)>0.75*max(img.cols,img.rows ) 
+						//			)
+					{
+
+						//	printf("SAI %d %d. %s (%d,%d, %d, %d)\n",j,i+1,filename.c_str(),slideWnd.x,slideWnd.y,slideWnd.width,slideWnd.height);
+						cellSz = cellSize;
+						wndSz = wndSize;
+						slideWnd.width = wndSize.width;
+						slideWnd.height =wndSize.height;
+						j++;
+						continueScale = false;
+						continue;
+					}
+					continueScale = true;
+
+				}else{
+					scale=1.;
+					if(pos.compare("+1")==0)
+					{
+						if(img.rows > slideWnd.height)
+						{
+							slideWnd.x = (img.rows - slideWnd.height)/2;
+							slideWnd.y = (img.cols - slideWnd.width)/2;
+						}else{
+							slideWnd.x=0;
+							slideWnd.y=0;
+						}
+
+					}
+					cellSz = cellSize;
+					wndSz = wndSize;
+					slideWnd.width = wndSize.width;
+					slideWnd.height =wndSize.height;
+					j++;
+					continueScale = false;
+				}
+				if((i+1)%300==0)
+					printf("%d %d. %s (%d,%d, %d, %d)\n",j,i+1,filename.c_str(),slideWnd.x,slideWnd.y,slideWnd.width,slideWnd.height);
+
+				svmClassify(img,G,slideWnd,cellSz,scale,n_x,n_y,x_corr,y_corr,his_cells_wnd,his_wind,h_ws,normType,useMaxChannel,useSmooth,useLBP,useNewTech);
+				if(n_cols==0)
+				{
+					n_cols=his_wind.cols;
+					*data=Mat::zeros(15000,n_cols,his_wind.type());
+				}
+				his_wind.copyTo((*data)(Rect(0,n_rows,n_cols,1)));
+				n_rows++;
+				myfile2 << pos<<"\t";
+				for (int i=0;i<his_wind.cols;i++)
+				{
+					//	printf("%f ; ",h_w->vector_weight[i]);
+					float v =his_wind.at<float>(0,i); 
+					//		myfile << v<<"\t";
+					if(v!=0)
+						myfile2 << i+1<<":"<<v<<"\t";
+				}
+				//	myfile << pos<<"\n";
+				myfile2 <<"\t #"<<filename<<"\t ("<<slideWnd.x<<", "<<slideWnd.y<<", "<<slideWnd.width<<", "<<slideWnd.height<<")\n";
+				//	delete[] h_w->vector_weight;
+				// h_w->release();
+				// delete h_w;
+				//for (int ii=0;ii<his_wnd.rows;ii++)
+				//{
+				//	for (int jj=0;jj<his_wnd.cols;jj++)
+				//	{
+				//		HIS* hh=his_wnd.at<HIS*>(ii,jj);
+				//	//	hh->release();
+				//		delete hh;
+				//	}
+				//}
+				//his_wnd.release();
+
+
+			}
+			img.release();
+			for (int i=0;i<n_channels;i++)
+			{
+				imFils[i].release();
+				imFils[i+1].release();
+			}
+			delete[] imFils;
+			G.release();
+		
+
+
+
+		}
+		for (int ii=0;ii<his_cells_wnd.rows;ii++)
+		{
+			for (int jj=0;jj<his_cells_wnd.cols;jj++)
+			{
+				HIS* hh=his_cells_wnd.at<HIS*>(ii,jj);
+				hh->release();
+				delete hh;
+			}
+		}
+		his_cells_wnd.release();
+		his_wind.release();
+		if(h_ws!=NULL){
+			for (int i=0;i<4;i++)
+			{
+				h_ws[i].release();
+			}
+			delete[]h_ws;
+		}
+		M_cellsInBlock1.release();
+		M_cellsInBlock2.release();
+		M_cellsInBlock3.release();
+		M_cellsInBlock4.release();
+		M_cellsInBlock5.release();
+		if(x_corr!=NULL)
+			delete[] x_corr;
+		if(y_corr!=NULL)
+			delete[] y_corr;
+		if(x_corr2!=NULL)
+			delete[] x_corr2;
+		if(y_corr2!=NULL)
+			delete[] y_corr2;
+		if(x_corr3!=NULL)
+			delete[] x_corr3;
+		if(y_corr3!=NULL)
+			delete[] y_corr3;
+		if(x_corr4!=NULL)
+			delete[] x_corr4;
+		if(y_corr4!=NULL)
+			delete[] y_corr4;
+		if(x_corr5!=NULL)
+			delete[] x_corr5;
+		if(y_corr5!=NULL)
+			delete[] y_corr5;
+		//	myfile.close();
+		myfile2.close();
+	}
+	inputFile.close();
+
+	 PCA myPCA((*data)(Rect(0,0,n_cols,n_rows)),Mat(),CV_PCA_DATA_AS_ROW,0);
+	 ofstream myfile;
+	 myfile.open("output/pca_vecs.txt");
+	 int ispos=1;
+
+	 
+	 for(int r=0;r<n_rows;r++)
+	 {
+		 if(r>=n_pos)
+			 ispos=-1;
+		 myfile<< ispos<<"\t";
+		 Mat his_wind=myPCA.project(data->row(r));
+		 for (int i=0;i<his_wind.cols;i++)
+		 {
+			 //	printf("%f ; ",h_w->vector_weight[i]);
+			 float v =his_wind.at<float>(0,i); 
+			 //		myfile << v<<"\t";
+			 if(v!=0)
+				 myfile << i+1<<":"<<v<<"\t";
+		 }
+	 //	myfile << pos<<"\n";
+		myfile <<"\t #"<<filename<<"\t ("<<slideWnd.x<<", "<<slideWnd.y<<", "<<slideWnd.width<<", "<<slideWnd.height<<")\n";
+	 }
+	 
+	return myPCA;
+
+
+}
+
+
+
+
 void svmClassify( Mat img,Mat G,Rect slideWnd, Size cellSz,float& scale, int& n_x, int& n_y,int*& x_corr,int*&y_corr, Mat& his_cells_wnd, HIS& his_wind,Mat*&h_ws, int normType, bool useMaxChannel,bool useSmooth,bool useLBP,int useNewTech)
 {	
 	Mat img_slideWnd=img(slideWnd);

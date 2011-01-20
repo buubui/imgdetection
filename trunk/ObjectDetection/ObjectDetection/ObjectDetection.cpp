@@ -13,7 +13,7 @@
 #include "glbVars.h"
 //#include "meanshift.h"
 //#include "HardSample.h"
-
+#include "myPCA.h"
 void takefalseImg(string ffile)
 {
 	ifstream in1,in2;
@@ -172,6 +172,23 @@ int main(array<System::String ^> ^args)
 	clock_t t1,t2;
 	t1 = clock();	
 	loadConfig();
+
+	/*Mat img=imread("d:\\Lectures\\Luan_van\\DATASET\\INRIAPerson\\train_64x128_H96\\pos\\person_and_bike_209a.png");
+	Mat* imFils;
+	Mat G;
+	int n_channels=img.channels();
+	imFils = imFilterChannels(img,true);
+	G = calcGradientOfPixelsMaxChannel(imFils,n_channels);
+	int* x_corr=NULL;int* y_corr=NULL; int n_x=0, n_y=0;
+	Mat his_cells_wnd ;
+	HIS his_wind;
+	HIS* h_ws=NULL;
+	cv::Rect slideWnd(0,0,64,128);
+	slideWnd.x = (img.rows - slideWnd.height)/2;
+	slideWnd.y = (img.cols - slideWnd.width)/2;
+	svmClassify( img, G,slideWnd, cellSize, 1.,  n_x,  n_y, x_corr,y_corr,  his_cells_wnd,  his_wind,h_ws, 3, true,false,false,4);
+	compressPCA(his_wind,0)*/
+
 	/*cout.precision(4);
 	cout << 1.23456789<<endl;
 	cout << 1.23456789<<endl;*/
@@ -279,9 +296,10 @@ int main(array<System::String ^> ^args)
 	svmGenerateData2("input/NULL.txt","input/trainNeg.txt",1,6,true,false,false,-1);*/
 
 //	svmGenerateData2("input/testPosF.txt","input/testNegF.txt",1,10,true,false,false,-1);
-	
+	computePCA("input/trainPos.txt","input/trainNeg.txt",1,1,3,1.,1.5,true,false,false,4);
+	//computePCA("input/a.txt","input/b.txt",1,1,3,1.,1.5,true,false,false,4);
 //	svmGenHardList("input/weight.txt","input/a.txt","input/b.txt","temp",1,4,1.,100,true,false,false,-1);
-	svmGenHardList("input/weightj3.txt","input/trainPos.txt","input/trainNeg.txt","train",1,350,3,1.,1.05,true,false,false,3);
+	//svmGenHardList("input/weightj3.txt","input/trainPos.txt","input/trainNeg.txt","train",1,400,3,1.,1.05,true,false,false,3);
 //	svmGenHardList("input/weight.txt","input/testPosF.txt","input/testNegF.txt","test",1,350,1.,1.05,true,false,false,-1);
 	/************************************************************************/
 	/*                      Test new mean shift                             */
