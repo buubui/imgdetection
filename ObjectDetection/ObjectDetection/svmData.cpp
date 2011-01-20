@@ -177,7 +177,7 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 		outputfile2<<"output/his_test"<<"_svmLight_"<<local.tm_year+1900<<"_"<<local.tm_mon+1<<"_"<<local.tm_mday<<"_"<<local.tm_hour<<"_"<<local.tm_min<<".txt" ;
 		//	myfile.open(outputfile.str().c_str());
 		myfile2.open(outputfile2.str().c_str());
-		myfile2.precision(4);
+		//myfile2.precision(4);
 		Size cellSz,wndSz,tmp;
 		cellSz.width = cellSize.width;
 		cellSz.height = cellSize.height;
@@ -797,7 +797,7 @@ PCA computePCA(string posfilelist, string negfilelist,int randTimePos,int randTi
 	 ofstream myfile;
 	 
 	 myfile.open("output/pca_vecs.txt");
-	 myfile.precision(4);
+	 //myfile.precision(4);
 	 int ispos=1;
 	
 	 
@@ -824,6 +824,9 @@ PCA computePCA(string posfilelist, string negfilelist,int randTimePos,int randTi
 	 }
 	 
 	 myfile.close();
+	 cout<<myPCA.eigenvalues.cols<<" "<<myPCA.eigenvalues.rows<<endl;
+	 cout<<myPCA.eigenvectors.cols<<" "<<myPCA.eigenvectors.rows<<endl;
+	cout<<myPCA.mean.cols<<" "<<myPCA.mean.rows<<endl;
 	return myPCA;
 
 
@@ -983,11 +986,11 @@ void svmGenHardList(string weightFile,string posfilelist, string negfilelist,str
 		scoreFilePos.open(str.c_str());
 		str="output/"+prefixName+"_scoreNeg.txt";
 		scoreFileNeg.open(str.c_str());
-		hardPosFile.precision(4);
-		harNegFile.precision(4);
+		/*hardPosFile.precision(4);
+		harNegFile.precision(4);*/
 		
-		scoreFilePos.precision(4);
-		scoreFileNeg.precision(4);
+		/*scoreFilePos.precision(4);
+		scoreFileNeg.precision(4);*/
 		int truePos=0,trueNeg=0,falsePos=0,falseNeg=0;
 		long totalWnd=0;
 		float precision=0,recall=0;
@@ -1286,7 +1289,7 @@ void svmGenHardList(string weightFile,string posfilelist, string negfilelist,str
 		ofstream infofile;
 		str="output/"+prefixName+"_info.txt";
 		infofile.open(str.c_str());
-		infofile.precision(4);
+		//infofile.precision(4);
 		infofile<<"Total windows: "<<totalWnd<<endl;
 		infofile<<"True Pos: "<<truePos<<endl;
 		infofile<<"True Neg: "<<trueNeg<<endl;
