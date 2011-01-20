@@ -496,7 +496,7 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 
 }
 
-PCA computePCA(string posfilelist, string negfilelist,int randTimePos,int randTimeNeg, int normType,float scale,float scaleStep, bool useMaxChannel,bool useSmooth,bool useLBP,int useNewTech)
+PCA computePCA(string posfilelist, string negfilelist,int randTimePos,int randTimeNeg, int normType,float scale,float scaleStep, bool useMaxChannel,bool useSmooth,bool useLBP,int useNewTech,int maxComponents)
 {	
 	ifstream inputFile;
 	printf("%s\n",posfilelist.c_str());
@@ -528,8 +528,8 @@ PCA computePCA(string posfilelist, string negfilelist,int randTimePos,int randTi
 		//	outputfile<<"output/his_"<<"test"<<"_winSvm_"<<local.tm_year+1900<<"_"<<local.tm_mon+1<<"_"<<local.tm_mday<<"_"<<local.tm_hour<<"_"<<local.tm_min<<".txt" ;
 		outputfile2<<"output/his_test"<<"_svmLight_"<<local.tm_year+1900<<"_"<<local.tm_mon+1<<"_"<<local.tm_mday<<"_"<<local.tm_hour<<"_"<<local.tm_min<<".txt" ;
 		//	myfile.open(outputfile.str().c_str());
-		myfile2.open(outputfile2.str().c_str());
-		myfile2.precision(4);
+		//myfile2.open(outputfile2.str().c_str());
+		//myfile2.precision(4);
 		Size cellSz,wndSz,tmp;
 		cellSz.width = cellSize.width;
 		cellSz.height = cellSize.height;
@@ -699,21 +699,23 @@ PCA computePCA(string posfilelist, string negfilelist,int randTimePos,int randTi
 				if(n_cols==0)
 				{
 					n_cols=his_wind.cols;
-					*data=Mat::zeros(15000,n_cols,his_wind.type());
+					*data=Mat::zeros(20000,n_cols,his_wind.type());
+					his_wind.copyTo((*data)(Rect(0,n_rows,n_cols,1)));
 				}
-				his_wind.copyTo((*data)(Rect(0,n_rows,n_cols,1)));
 				n_rows++;
-				myfile2 << pos<<"\t";
-				for (int i=0;i<his_wind.cols;i++)
-				{
-					//	printf("%f ; ",h_w->vector_weight[i]);
-					float v =his_wind.at<float>(0,i); 
-					//		myfile << v<<"\t";
-					if(v!=0)
-						myfile2 << i+1<<":"<<v<<"\t";
-				}
+				his_wind=((*data)(Rect(0,n_rows,n_cols,1)));
+				
+				//myfile2 << pos<<"\t";
+				//for (int i=0;i<his_wind.cols;i++)
+				//{
+				//	//	printf("%f ; ",h_w->vector_weight[i]);
+				//	float v =his_wind.at<float>(0,i); 
+				//	//		myfile << v<<"\t";
+				//	if(v!=0)
+				//		myfile2 << i+1<<":"<<v<<"\t";
+				//}
 				//	myfile << pos<<"\n";
-				myfile2 <<"\t #"<<filename<<"\t ("<<slideWnd.x<<", "<<slideWnd.y<<", "<<slideWnd.width<<", "<<slideWnd.height<<")\n";
+				//myfile2 <<"\t #"<<filename<<"\t ("<<slideWnd.x<<", "<<slideWnd.y<<", "<<slideWnd.width<<", "<<slideWnd.height<<")\n";
 				//	delete[] h_w->vector_weight;
 				// h_w->release();
 				// delete h_w;
@@ -791,16 +793,20 @@ PCA computePCA(string posfilelist, string negfilelist,int randTimePos,int randTi
 	}
 	inputFile.close();
 
-	 PCA myPCA((*data)(Rect(0,0,n_cols,n_rows)),Mat(),CV_PCA_DATA_AS_ROW,0);
+	 PCA myPCA((*data)(Rect(0,0,n_cols,n_rows)),Mat(),CV_PCA_DATA_AS_ROW,maxComponents);
 	 ofstream myfile;
+	 
 	 myfile.open("output/pca_vecs.txt");
+	 myfile.precision(4);
 	 int ispos=1;
-
+	
 	 
 	 for(int r=0;r<n_rows;r++)
 	 {
+		 
 		 if(r>=n_pos)
 			 ispos=-1;
+		 //myfile<< ispos<<"\t";
 		 myfile<< ispos<<"\t";
 		 Mat his_wind=myPCA.project(data->row(r));
 		 for (int i=0;i<his_wind.cols;i++)
@@ -809,12 +815,15 @@ PCA computePCA(string posfilelist, string negfilelist,int randTimePos,int randTi
 			 float v =his_wind.at<float>(0,i); 
 			 //		myfile << v<<"\t";
 			 if(v!=0)
-				 myfile << i+1<<":"<<v<<"\t";
+				 //myfile << i+1<<":"<<v<<"\t";
+				myfile << i+1<<":"<<v<<"\t";
 		 }
 	 //	myfile << pos<<"\n";
+		//myfile <<"\t #"<<filename<<"\t ("<<slideWnd.x<<", "<<slideWnd.y<<", "<<slideWnd.width<<", "<<slideWnd.height<<")\n";
 		myfile <<"\t #"<<filename<<"\t ("<<slideWnd.x<<", "<<slideWnd.y<<", "<<slideWnd.width<<", "<<slideWnd.height<<")\n";
 	 }
 	 
+	 myfile.close();
 	return myPCA;
 
 

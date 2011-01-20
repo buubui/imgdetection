@@ -296,8 +296,8 @@ int main(array<System::String ^> ^args)
 	svmGenerateData2("input/NULL.txt","input/trainNeg.txt",1,6,true,false,false,-1);*/
 
 //	svmGenerateData2("input/testPosF.txt","input/testNegF.txt",1,10,true,false,false,-1);
-	computePCA("input/trainPos.txt","input/trainNeg.txt",1,1,3,1.,1.5,true,false,false,4);
-	//computePCA("input/a.txt","input/b.txt",1,1,3,1.,1.5,true,false,false,4);
+	//computePCA("input/trainPos.txt","input/trainNeg.txt",1,1,3,1.,1.5,true,false,false,3);
+	computePCA("input/a.txt","input/b.txt",1,5,3,1.,1.1,true,false,false,4,700);
 //	svmGenHardList("input/weight.txt","input/a.txt","input/b.txt","temp",1,4,1.,100,true,false,false,-1);
 	//svmGenHardList("input/weightj3.txt","input/trainPos.txt","input/trainNeg.txt","train",1,400,3,1.,1.05,true,false,false,3);
 //	svmGenHardList("input/weight.txt","input/testPosF.txt","input/testNegF.txt","test",1,350,1.,1.05,true,false,false,-1);
