@@ -315,6 +315,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\myPCA.h"
+				>
+			</File>
+			<File
 				RelativePath=".\resource.h"
 				>
 			</File>
