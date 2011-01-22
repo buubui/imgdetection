@@ -31,4 +31,22 @@ PCA  compressPCA(const  Mat&  pcaset,  int  maxComponents,
 	}
 	return  pca;
 };
+void backupPCA(PCA& p,std::string filename)
+{
+	FileStorage fs(filename,FileStorage::WRITE);
+	fs<<"eigenvalues"<<p.eigenvalues;
+	fs<<"eigenvectors"<<p.eigenvectors;
+	fs<<"mean"<<p.mean;
+	fs.release();
+}
+PCA restorePCA(std::string filename)
+{
+	FileStorage fs(filename,FileStorage::READ);
+	PCA p;
+	fs["eigenvalues"]>>p.eigenvalues;
+	fs["eigenvectors"]>>p.eigenvectors;
+	fs["mean"]>>p.mean;
+	fs.release();
+	return p;
+}
 #endif
