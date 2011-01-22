@@ -13,7 +13,7 @@
 #include "glbVars.h"
 //#include "meanshift.h"
 //#include "HardSample.h"
-#include "myPCA.h"
+
 void takefalseImg(string ffile)
 {
 	ifstream in1,in2;

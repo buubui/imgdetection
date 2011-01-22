@@ -30,7 +30,7 @@ using namespace System::Collections;
 #include "detection.h"
 #include "meanshift.h"
 #include <msclr\marshal_cppstd.h>
-
+#include "myPCA.h"
 //abc
 
 
