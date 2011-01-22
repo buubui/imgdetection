@@ -824,9 +824,9 @@ PCA computePCA(string posfilelist, string negfilelist,int randTimePos,int randTi
 	 }
 	 
 	 myfile.close();
-	 cout<<myPCA.eigenvalues.cols<<" "<<myPCA.eigenvalues.rows<<endl;
-	 cout<<myPCA.eigenvectors.cols<<" "<<myPCA.eigenvectors.rows<<endl;
-	cout<<myPCA.mean.cols<<" "<<myPCA.mean.rows<<endl;
+	 cout<<myPCA.eigenvalues.rows<<" "<<myPCA.eigenvalues.cols<<endl;
+	 cout<<myPCA.eigenvectors.rows<<" "<<myPCA.eigenvectors.cols<<endl;
+	cout<<myPCA.mean.rows<<" "<<myPCA.mean.cols<<endl;
 	return myPCA;
 
 
