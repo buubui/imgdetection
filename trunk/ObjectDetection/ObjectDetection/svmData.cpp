@@ -794,6 +794,8 @@ PCA computePCA(string posfilelist, string negfilelist,int randTimePos,int randTi
 	inputFile.close();
 
 	 PCA myPCA((*data)(Rect(0,0,n_cols,n_rows)),Mat(),CV_PCA_DATA_AS_ROW,maxComponents);
+	 /*backupPCA(myPCA,"output/pca.yml");
+	 PCA myPCA=restorePCA("output/pca.yml");*/
 	 ofstream myfile;
 	 
 	 myfile.open("output/pca_vecs.txt");
@@ -824,9 +826,9 @@ PCA computePCA(string posfilelist, string negfilelist,int randTimePos,int randTi
 	 }
 	 
 	 myfile.close();
-	 cout<<myPCA.eigenvalues.rows<<" "<<myPCA.eigenvalues.cols<<endl;
+	 /*cout<<myPCA.eigenvalues.rows<<" "<<myPCA.eigenvalues.cols<<endl;
 	 cout<<myPCA.eigenvectors.rows<<" "<<myPCA.eigenvectors.cols<<endl;
-	cout<<myPCA.mean.rows<<" "<<myPCA.mean.cols<<endl;
+	cout<<myPCA.mean.rows<<" "<<myPCA.mean.cols<<endl;*/
 	return myPCA;
 
 

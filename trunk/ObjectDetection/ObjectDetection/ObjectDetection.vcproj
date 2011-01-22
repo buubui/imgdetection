@@ -235,6 +235,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\myPCA.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\ObjectDetection.cpp"
 				>
 			</File>
