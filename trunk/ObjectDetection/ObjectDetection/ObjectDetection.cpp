@@ -3,7 +3,7 @@
 #include "stdafx.h"
 #include "MainWindow.h"
 //using namespace System;
-//using namespace ObjectDetection;
+using namespace ObjectDetection;
 // TestOpenCv.cpp : Defines the entry point for the console application.
 //
 //#include "imFilter.h"
@@ -297,12 +297,14 @@ int main(array<System::String ^> ^args)
 
 //	svmGenerateData2("input/testPosF.txt","input/testNegF.txt",1,10,true,false,false,-1);
 	//computePCA("input/trainPos.txt","input/trainNeg.txt",1,1,3,1.,1.5,true,false,false,3);
-	PCA p=computePCA("input/a.txt","input/b.txt",1,5,3,1.,1.1,true,false,false,4,700);
+
+	/*PCA p=computePCA("input/a.txt","input/b.txt",1,5,3,1.,1.1,true,false,false,4,700);
 	backupPCA(p,"output/pca.yml");
 	PCA p1=restorePCA("output/pca.yml");
 	cout <<p1.eigenvalues.rows<<" "<<p1.eigenvalues.cols<<endl;
 	cout <<p1.eigenvectors.rows<<" "<<p1.eigenvectors.cols<<endl;
-	cout <<p1.mean.rows<<" "<<p1.mean.cols<<endl;
+	cout <<p1.mean.rows<<" "<<p1.mean.cols<<endl;*/
+
 //	svmGenHardList("input/weight.txt","input/a.txt","input/b.txt","temp",1,4,1.,100,true,false,false,-1);
 	//svmGenHardList("input/weightj3.txt","input/trainPos.txt","input/trainNeg.txt","train",1,400,3,1.,1.05,true,false,false,3);
 //	svmGenHardList("input/weight.txt","input/testPosF.txt","input/testNegF.txt","test",1,350,1.,1.05,true,false,false,-1);
@@ -372,11 +374,11 @@ int main(array<System::String ^> ^args)
 /************************************************************************/
 
 	// Enabling Windows XP visual effects before any controls are created
-	//Application::EnableVisualStyles();
-	//Application::SetCompatibleTextRenderingDefault(false); 
+	Application::EnableVisualStyles();
+	Application::SetCompatibleTextRenderingDefault(false); 
 
-	//// Create the main window and run it
-	//Application::Run(gcnew MainWindow());
+	// Create the main window and run it
+	Application::Run(gcnew MainWindow());
 
 
 	t2 = clock();

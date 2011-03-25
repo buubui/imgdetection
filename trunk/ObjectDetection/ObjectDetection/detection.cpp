@@ -22,7 +22,8 @@ bool detection(string path,string fname, string ext,float scaleStep,Size addStep
 		imgOrg.release();*/
 		
 		if(!justMeanshift){
-			multiscaleExp(path+fname+ext,scaleStep,addStep,true);
+			multiscaleExp(path+fname+ext,scaleStep,addStep,3,true,false,false,3);
+		//	multiscaleExp(path+fname+ext,scaleStep,addStep,true);
 		}
 		Mat multiscale=img.clone();
 		drawRect2Img(multiscale,"output/"+fname+"_multiscale.txt",minB,realRect,false);
@@ -73,7 +74,7 @@ Rect resizeImg(Mat& img,float maxSz,float minSz,bool addBlank)
 	img.release();
 	Size addSz(0.1*img2.cols,0.1*img2.rows);
 	img = Mat::zeros(img2.rows+addSz.width,img2.cols+addSz.height,img2.type());
-	Rect realRect=Rect(addSz.width/3,addSz.height/2,retV.width,retV.height);
+	Rect realRect=Rect(addSz.width/2-1,addSz.height/2-1,retV.width,retV.height);
 	img2.copyTo(img(realRect));
 	img2.release();
 //	img(Rect(wndSize.width,wndSize.height,retV.width,retV.height))=img2;

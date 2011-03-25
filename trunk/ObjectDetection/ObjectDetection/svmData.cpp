@@ -1804,7 +1804,7 @@ void VOCSvmGenerateData2(System::String^ AnnPath,std::string imgsPath,std::strin
 							//			case 1: startP.x=wndSize.width/2+ sizeW/4;startP.y=wndSize.height/2+sizeH/4;break;
 							//			case 2: startP.x=wndSize.width/2+ 3*sizeW/4;startP.y=wndSize.height/2+sizeH/4;break;
 							//			case 3: startP.x=wndSize.width/2+ sizeW/4;startP.y=wndSize.height/2+3*sizeH/4;break;
-							//			case 4: startP.x=wndSize.width/2+ 3*sizeW/4;startP.y=wndSize.height/2+3*sizeH/4;break;
+							//			case 4: startP.fx=wndSize.width/2+ 3*sizeW/4;startP.y=wndSize.height/2+3*sizeH/4;break;
 							//			case 5: startP.x=wndSize.width/2+ sizeW/4;startP.y=wndSize.height/2+sizeH/2;break;
 							//			case 6: startP.x=wndSize.width/2+ 3*sizeW/4;startP.y=wndSize.height/2+sizeH/2;break;
 							//			case 7: startP.x=wndSize.width/2+ sizeW/2;startP.y=wndSize.height/2+sizeH/4;break;
