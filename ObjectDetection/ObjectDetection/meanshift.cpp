@@ -477,7 +477,7 @@ bool newMeanshiftFromFile(string fname,float c ,int minCsize,Mat* &means,int& n_
 		return false;
 	string tmp;
 	int p=0,n=0;
-	Mat data[4000];
+	Mat data[40000];
 	while(1){
 		getline (in,tmp);
 		std::vector<std::string> strs;

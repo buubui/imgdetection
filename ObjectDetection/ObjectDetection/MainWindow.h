@@ -81,6 +81,7 @@ namespace ObjectDetection {
 
 	private: System::Windows::Forms::Label^  label5;
 	private: System::Windows::Forms::TextBox^  txtAddStepH;
+	private: System::Windows::Forms::ComboBox^  comboBox1;
 
 
 
@@ -123,6 +124,7 @@ namespace ObjectDetection {
 			this->txtAddStepW = (gcnew System::Windows::Forms::TextBox());
 			this->label5 = (gcnew System::Windows::Forms::Label());
 			this->txtAddStepH = (gcnew System::Windows::Forms::TextBox());
+			this->comboBox1 = (gcnew System::Windows::Forms::ComboBox());
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->imgBox1))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->imgBox2))->BeginInit();
 			this->tableLayoutPanel1->SuspendLayout();
@@ -142,7 +144,7 @@ namespace ObjectDetection {
 			// btnOpen
 			// 
 			this->btnOpen->Anchor = System::Windows::Forms::AnchorStyles::Bottom;
-			this->btnOpen->Location = System::Drawing::Point(291, 379);
+			this->btnOpen->Location = System::Drawing::Point(545, 380);
 			this->btnOpen->Name = L"btnOpen";
 			this->btnOpen->Size = System::Drawing::Size(75, 23);
 			this->btnOpen->TabIndex = 2;
@@ -153,7 +155,7 @@ namespace ObjectDetection {
 			// btnDetect
 			// 
 			this->btnDetect->Anchor = System::Windows::Forms::AnchorStyles::Bottom;
-			this->btnDetect->Location = System::Drawing::Point(372, 379);
+			this->btnDetect->Location = System::Drawing::Point(626, 380);
 			this->btnDetect->Name = L"btnDetect";
 			this->btnDetect->Size = System::Drawing::Size(75, 23);
 			this->btnDetect->TabIndex = 3;
@@ -164,7 +166,7 @@ namespace ObjectDetection {
 			// btnRefresh
 			// 
 			this->btnRefresh->Anchor = System::Windows::Forms::AnchorStyles::Bottom;
-			this->btnRefresh->Location = System::Drawing::Point(453, 379);
+			this->btnRefresh->Location = System::Drawing::Point(707, 380);
 			this->btnRefresh->Name = L"btnRefresh";
 			this->btnRefresh->Size = System::Drawing::Size(75, 23);
 			this->btnRefresh->TabIndex = 4;
@@ -311,7 +313,7 @@ namespace ObjectDetection {
 			this->cbMergeRect->AutoSize = true;
 			this->cbMergeRect->Checked = true;
 			this->cbMergeRect->CheckState = System::Windows::Forms::CheckState::Checked;
-			this->cbMergeRect->Location = System::Drawing::Point(365, 11);
+			this->cbMergeRect->Location = System::Drawing::Point(173, 382);
 			this->cbMergeRect->Name = L"cbMergeRect";
 			this->cbMergeRect->Size = System::Drawing::Size(77, 17);
 			this->cbMergeRect->TabIndex = 17;
@@ -344,11 +346,22 @@ namespace ObjectDetection {
 			this->txtAddStepH->TabIndex = 20;
 			this->txtAddStepH->Text = L"8";
 			// 
+			// comboBox1
+			// 
+			this->comboBox1->FormattingEnabled = true;
+			this->comboBox1->Items->AddRange(gcnew cli::array< System::Object^  >(5) {L"Cach cu", L"kim dong ho", L"4 phan", L"grid", 
+				L"multiscale"});
+			this->comboBox1->Location = System::Drawing::Point(16, 380);
+			this->comboBox1->Name = L"comboBox1";
+			this->comboBox1->Size = System::Drawing::Size(121, 21);
+			this->comboBox1->TabIndex = 21;
+			// 
 			// MainWindow
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->ClientSize = System::Drawing::Size(829, 414);
+			this->Controls->Add(this->comboBox1);
 			this->Controls->Add(this->txtAddStepH);
 			this->Controls->Add(this->txtAddStepW);
 			this->Controls->Add(this->label5);
