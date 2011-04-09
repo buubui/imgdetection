@@ -16,6 +16,6 @@ Block Overlap
 Del part
 0.125
 Region Overlap (cell)
-0
-0
+1
+1
 

@@ -500,7 +500,10 @@ Mat multiscaleExp(string filepath,float step,Size addStep, int normType, bool us
 	step=1.2;
 	float maxSz=maxWndSz.width*maxWndSz.height;
 	float minSz = wndSize.width*wndSize.height;
+//	imshow("o1",img);
 	Rect realRect=resizeImg(img,maxSz,minSz,true);
+	
+//	imshow("o2",img);
 	/*
 	//float t=(float)imgOrg.rows*imgOrg.cols;
 	float resizeScale=t>maxSz?sqrt(maxSz/t):1.;
@@ -539,7 +542,7 @@ Mat multiscaleExp(string filepath,float step,Size addStep, int normType, bool us
 	Mat * weight;
 	float b;
 	//get detection vector
-	getWeight("w.txt",weight,b);
+	getWeight("input/weight.txt",weight,b);
 	int n_channels=1;
 	Mat* imFils;
 	Mat G;
@@ -547,7 +550,7 @@ Mat multiscaleExp(string filepath,float step,Size addStep, int normType, bool us
 	HIS his_wind;
 	HIS* h_ws=NULL;
 	int* x_corr=NULL;int* y_corr=NULL; int n_x=0, n_y=0;
-	if(useMaxChannel==true)
+	/*if(useMaxChannel==true)
 	{
 		n_channels=img.channels();
 		imFils = imFilterChannels(img,true);
@@ -555,7 +558,7 @@ Mat multiscaleExp(string filepath,float step,Size addStep, int normType, bool us
 	}else{
 		imFils = imFilter(img,true);
 		G = calcGradientOfPixels(imFils[0],imFils[1]);
-	}
+	}*/
 	Rect MaxWnd(0,0,wndSize.width,wndSize.height);
 	float max=0;
 	Mat img_slideWnd, his_wnd;
@@ -564,6 +567,7 @@ Mat multiscaleExp(string filepath,float step,Size addStep, int normType, bool us
 	Mat img_gray;
 
 //	cvtColor(img,img_gray,CV_BGR2GRAY);
+	n_channels=img.channels();
 	Mat * imgs = new Mat[n_channels];
 	cv::split(img,imgs);
 	img_gray=imgs[0];
@@ -574,20 +578,20 @@ Mat multiscaleExp(string filepath,float step,Size addStep, int normType, bool us
 	//	Size addStep;//=Size(2,2);
 	//	addStep.width=cellSize.width*1.;
 	//	addStep.height=cellSize.height*1.;
-	float divStep =sqrt(((maxSz)/(img.rows*img.cols)));
-	divStep=divStep<1?1:divStep;
-	//	divStep=divStep<1.?1:divStep;
-	addStep.width =round(addStep.width /divStep);
-	addStep.height =round(addStep.height /divStep);
-	if(addStep.width<1) addStep.width=1;
-	if(addStep.height<1) addStep.height=1;
+	//float divStep =sqrt(((maxSz)/(img.rows*img.cols)));
+	//divStep=divStep<1?1:divStep;
+	////	divStep=divStep<1.?1:divStep;
+	//addStep.width =round(addStep.width /divStep);
+	//addStep.height =round(addStep.height /divStep);
+	//if(addStep.width<1) addStep.width=1;
+	//if(addStep.height<1) addStep.height=1;
 
 	//	addStep=Size(1,1);
 
-	printf("addstep %d divstep %f\n",addStep.width,divStep);
+//	printf("addstep %d divstep %f\n",addStep.width,divStep);
 	ofstream outtmp;
 	//for (int h=tmp.height*cellSize.height/2;h<img.rows-wndSize.height/2;h+=addStep.height)
-	int colFound1=0,colFound2=0;
+//	int colFound1=0,colFound2=0;
 	int addH=addStep.height;
 	int addW=addStep.width;
 	//	float sizeLim=std::max((float)wndSize.width*wndSize.height,(float)realRect.height/3*realRect.width/3);
@@ -597,7 +601,7 @@ Mat multiscaleExp(string filepath,float step,Size addStep, int normType, bool us
 	/************************************************************************/
 	/*                    Fill into wEdges                                 */
 	/************************************************************************/
-	float del_lim=0.01;
+	float del_lim=0.1;
 //	float del_lim=-10;
 	for (int hh=realRect.y+2;hh<realRect.y+realRect.height-2;hh+=addH){
 		int ih=hh-realRect.y-2;
@@ -652,7 +656,7 @@ Mat multiscaleExp(string filepath,float step,Size addStep, int normType, bool us
 	//////////////////////////////////////////////////////////////////////////
 	for (int w=realRect.x+2;w<realRect.x+realRect.width-2;w+=addW)
 	{
-		int lastfound=0;
+	//	int lastfound=0;
 		int firstEdge=realRect.y;
 		int lastEdge=realRect.y+realRect.height;
 		//////////////////////////////////////////////////////////////////////////
@@ -699,19 +703,19 @@ Mat multiscaleExp(string filepath,float step,Size addStep, int normType, bool us
 			firstEdge=lastEdge=realRect.y+2;
 		}
 		//////////////////////////////////////////////////////////////////////////
-		int oldH=addH;
+	//	int oldH=addH;
 		addH=addStep.height;
 		addW=addStep.width;
 		startP.x= w;
-		if(!colFound2){
+		/*if(!colFound2){
 			float t=std::abs(lastEdge-firstEdge);
 			t= (t/wndSize.height);
 			sizeLim=min((float)wndSize.width*wndSize.height*4,t*t*wndSize.width*wndSize.height*2*2);
 
-		}
+		}*/
 		//	printf("%d: %d %d: %d %d\n",startP.x,addW,addH,colFound1,colFound2);
-		colFound1=colFound2;
-		colFound2=0;
+	//	colFound1=colFound2;
+	//	colFound2=0;
 		//	sizeLim=(float)wndSize.width*wndSize.height*4;
 		//	for (int w=tmp.width*cellSize.width/2;w<img.cols-wndSize.width/2;w+=addStep.width)
 		int firstH=realRect.y+2;
@@ -748,17 +752,59 @@ Mat multiscaleExp(string filepath,float step,Size addStep, int normType, bool us
 			cellSz.height = cellSize.height;
 			wndSz.width =slideWnd.width;
 			wndSz.height =slideWnd.height;
+			Mat img_small;
+			Rect slideWnd_small;
+			Mat G_small;
+			Mat* imFils_small;
+	//		imshow("ori",img);
 			while( slideWnd.x>=0 && slideWnd.y>=0 && slideWnd.x+slideWnd.width<=img.cols && 
-				slideWnd.y+slideWnd.height<=img.rows && slideWnd.width* slideWnd.height<=sizeLim)
+				slideWnd.y+slideWnd.height<=img.rows )// && slideWnd.width* slideWnd.height<=sizeLim)
 			{
 				img_slideWnd=img(slideWnd);
-//Must Correct this crap // buubui
 		//		printf("slidewd: x=%d,y=%d,w=%d,h=%d; img:%dx%d\n",slideWnd.x,slideWnd.y,slideWnd.width,slideWnd.height,img.cols,img.rows);
 				if (useNewTech>=3&&( cellSz.width*blockSize.width*4>slideWnd.width || cellSz.height*blockSize.height*4>slideWnd.height))
 				{
 					break;
 				}
-				svmClassify(img,G,slideWnd,cellSz,scale,n_x,n_y,x_corr,y_corr,his_cells_wnd,his_wind,h_ws,normType,useMaxChannel,useSmooth,useLBP,useNewTech);
+				Mat img_small=img(slideWnd).clone();
+				Rect slideWnd_small=resizeImg(img_small,minSz,minSz,false);
+	//			imshow("aaa",img_small);
+	//			return result;
+				/*if (slideWnd.width>wndSize.width*1.2)
+				{
+					printf("%d %d \n",img_small.rows,img_small.cols);
+				imshow("small",img_small);
+				imshow("small_ori",img(slideWnd));
+				return result;
+				}*/
+				
+
+			//	Mat G_small;
+			//	Mat* imFils_small;
+					if(useMaxChannel==true)
+					{
+						n_channels=img_small.channels();
+						imFils_small = imFilterChannels(img_small,true);
+						G_small = calcGradientOfPixelsMaxChannel(imFils_small,n_channels);
+					}else{
+						imFils_small = imFilter(img_small,true);
+						G_small = calcGradientOfPixels(imFils_small[0],imFils_small[1]);
+					}
+					
+					float scale_small=1.;
+			//		printf("%d %d %d %d || %d %d \n",slideWnd.x,slideWnd.y,slideWnd.width,slideWnd.height,wndSz.width,wndSz.height);
+					svmClassify(img_small,G_small,slideWnd_small,cellSize,scale_small,n_x,n_y,x_corr,y_corr,his_cells_wnd,his_wind,h_ws,normType,useMaxChannel,useSmooth,useLBP,useNewTech);
+					
+					
+					G_small.release();
+					img_small.release();
+					for (int i=0;i<n_channels;i++)
+					{
+						imFils_small[i].release();
+						imFils_small[i+1].release();
+					}
+					delete[] imFils_small;
+			//	svmClassify(img,G,slideWnd,cellSz,scale,n_x,n_y,x_corr,y_corr,his_cells_wnd,his_wind,h_ws,normType,useMaxChannel,useSmooth,useLBP,useNewTech);
 				//	svmClassify(img(slideWnd),G(slideWnd),Rect(0,0,slideWnd.width,slideWnd.height),cellSz,scale,n_x,n_y,x_corr,y_corr,his_cells_wnd,his_wind,h_ws,normType,useMaxChannel,useSmooth,useLBP,useNewTech);
 
 				
@@ -770,21 +816,36 @@ Mat multiscaleExp(string filepath,float step,Size addStep, int normType, bool us
 		//		calcHistOfWnd(his_wnd,blockSize,blockOverlap,2,h_w);
 		//		printf("h=%d x %d",his_wind.rows,his_wind.cols);
 		//		printf("w=%d x %d",weight->rows,weight->cols);
-				Mat R = (his_wind)* (*weight ) - b;
+					h_w = his_wind;
+					if(weight->rows<his_wind.cols)
+					{
+						//	Mat tmp=(*weight);		//
+
+						//	*weight=Mat::zeros(his_wind.cols,1,weight->type());
+						//	Mat m=(*weight)(Rect(0,0,1,tmp.rows));
+						//	tmp.copyTo(m);
+
+						h_w=his_wind(Rect(0,0,weight->rows,1));
+					}
+				//	R = (his_wind)* (*weight ) - b;
+				Mat R = (h_w)* (*weight ) - b;
 				float v = R.at<float>(0,0);
+			//		float v=0;
 		//		float v=0;
 
 				R.release();
 				//	v>0.068
 				//	float v=1;
+				
+			//	printf("%d, %d, %f, %f, (%d, %d), (%d, %d), %d\n",startP.x,startP.y,wndSz.width/baseWidth,v,firstEdge,lastEdge,wEdges.at<int>(ih,0),wEdges.at<int>(ih,1),ih);
 				if(v>0.){
 					printf("%d, %d, %f, %f, (%d, %d), (%d, %d), %d\n",startP.x,startP.y,wndSz.width/baseWidth,v,firstEdge,lastEdge,wEdges.at<int>(ih,0),wEdges.at<int>(ih,1),ih);
 					outstr<<startP.x<<", "<<startP.y<<", "<<log(wndSz.width/baseWidth)<<", "<<v<<endl;
-					lastfound=h;
+				/*	lastfound=h;
 					if(!colFound2)
 						colFound1=colFound2;
-					colFound2++;
-					float t=std::max(lastEdge,firstEdge)-std::min(lastEdge,firstEdge);
+					colFound2++;*/
+				/*	float t=std::max(lastEdge,firstEdge)-std::min(lastEdge,firstEdge);
 					t= (t/wndSize.height);
 					float largeSzLim=t*t*wndSize.width*wndSize.height*1.5*1.5;
 					if(sizeLim<largeSzLim){
@@ -795,7 +856,7 @@ Mat multiscaleExp(string filepath,float step,Size addStep, int normType, bool us
 							}
 							break;
 						}
-					}
+					}*/
 					addH=addStep.height;
 				}
 				i++;
@@ -826,11 +887,12 @@ Mat multiscaleExp(string filepath,float step,Size addStep, int normType, bool us
 	}
 	//	imFils[0].release();
 	//	imFils[1].release();
-	for (int i=0;i<n_channels;i++)
-	{
-		imFils[i].release();
-		imFils[i+1].release();
-	}
+	if (imFils!=NULL)
+		for (int i=0;i<n_channels;i++)
+		{
+			imFils[i].release();
+			imFils[i+1].release();
+		}
 	delete[] imFils;
 	imFils2[0].release();
 	imFils2[1].release();
