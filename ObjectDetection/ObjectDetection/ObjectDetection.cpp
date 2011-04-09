@@ -284,9 +284,9 @@ int main(array<System::String ^> ^args)
 	
 //	svmGenerateData2("input/Train_Pos.txt","input/Train_Neg_P1.txt",1,8);
 //	svmGenerateData2("input/Test_Pos.txt","input/Test_Neg.txt",1,8);
-//	svmGenerateData2("input/a.txt","input/b.txt",1,5000000,3, 1., 1.05, true,false,false,2);
+//	svmGenerateData2("input/a.txt","input/b.txt",1,3,3, 1., 1.05, true,false,false,1);
 
-//	svmGenerateData2("input/trainPos.txt","input/trainNeg.txt",1,2,3,1.,1.1,true,false,false,3);
+//	svmGenerateData2("input/trainPos.txt","input/trainNeg.txt",1,2,3,1.,1.1,true,false,false,1);
 //	svmGenerateData2("input/NULL.txt","input/trainNeg_0.txt",1,1,true,false,false);
 //	svmGenerateData2("input/NULL.txt","input/trainNeg_1.txt",1,1,true,false,false);
 //	svmGenerateData2("input/NULL.txt","input/trainNeg.txt",1,6,true,false,false,-1);
@@ -306,8 +306,8 @@ int main(array<System::String ^> ^args)
 	cout <<p1.mean.rows<<" "<<p1.mean.cols<<endl;*/
 
 //	svmGenHardList("input/weight.txt","input/a.txt","input/b.txt","temp",1,4,1.,100,true,false,false,-1);
-	//svmGenHardList("input/weightj3.txt","input/trainPos.txt","input/trainNeg.txt","train",1,400,3,1.,1.05,true,false,false,3);
-//	svmGenHardList("input/weight.txt","input/testPosF.txt","input/testNegF.txt","test",1,350,1.,1.05,true,false,false,-1);
+//	svmGenHardList("input/weight4p.txt","input/trainPos.txt","input/trainNeg.txt","train",1,400,3,1.,1.05,true,false,false,1);
+	svmGenHardList("input/weight.txt","input/testPosF.txt","input/testNegF.txt","test",1,350,1.,1.05,true,false,false,1);
 	/************************************************************************/
 	/*                      Test new mean shift                             */
 	/************************************************************************/
@@ -374,12 +374,12 @@ int main(array<System::String ^> ^args)
 /************************************************************************/
 
 	// Enabling Windows XP visual effects before any controls are created
-	Application::EnableVisualStyles();
-	Application::SetCompatibleTextRenderingDefault(false); 
+//	Application::EnableVisualStyles();
+//	Application::SetCompatibleTextRenderingDefault(false); 
 
 	// Create the main window and run it
-	Application::Run(gcnew MainWindow());
-
+//	Application::Run(gcnew MainWindow());
+//
 
 	t2 = clock();
 	printf("Running time: %f (mins)\n",(float)(t2-t1)/(60*CLOCKS_PER_SEC));

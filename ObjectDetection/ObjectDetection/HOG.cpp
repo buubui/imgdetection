@@ -1083,7 +1083,7 @@ void calcHisOfGrid(Mat hog_mat,Size blockSz,Size cellSz, Size gridSz, int* x_cor
 				blockRect.x--;
 			if(blockRect.y+blockRect.height-hog_mat.rows==1)
 				blockRect.y--;
-	//		printf("blockRect=%dx%dx%dx%d--hog:%dx%d\n",blockRect.x,blockRect.y,blockRect.width,blockRect.height,hog_mat.cols,hog_mat.rows);
+//			printf("blockRect=%dx%dx%dx%d--hog:%dx%d\n",blockRect.x,blockRect.y,blockRect.width,blockRect.height,hog_mat.cols,hog_mat.rows);
 			blockWnd=hog_mat(blockRect).clone();
 			filter2D(blockWnd,blockWnd,-1,gkernel);
 		//	GaussianBlur(blockWnd,blockWnd,Size(3,3),0.5*cellSz.width*blockSz.width);

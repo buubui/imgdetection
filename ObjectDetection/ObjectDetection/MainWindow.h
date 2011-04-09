@@ -296,7 +296,7 @@ namespace ObjectDetection {
 			this->txtRadius->Name = L"txtRadius";
 			this->txtRadius->Size = System::Drawing::Size(42, 20);
 			this->txtRadius->TabIndex = 15;
-			this->txtRadius->Text = L"50";
+			this->txtRadius->Text = L"25";
 			// 
 			// txtMinCSize
 			// 
@@ -305,7 +305,7 @@ namespace ObjectDetection {
 			this->txtMinCSize->Name = L"txtMinCSize";
 			this->txtMinCSize->Size = System::Drawing::Size(48, 20);
 			this->txtMinCSize->TabIndex = 16;
-			this->txtMinCSize->Text = L"2";
+			this->txtMinCSize->Text = L"1";
 			// 
 			// cbMergeRect
 			// 

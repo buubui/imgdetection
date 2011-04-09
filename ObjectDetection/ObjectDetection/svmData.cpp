@@ -222,9 +222,14 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 			Rect realRect=resizeImg(img,maxSz,minSz,false);
 			//	Mat img = imread(filepath+filename);
 			int n_channels=1;
-			Mat* imFils;
-			Mat G;
-			if(useMaxChannel==true)
+		//	Mat* imFils;
+		//	Mat G;
+			Mat img_small;
+			Rect slideWnd_small;
+			Mat G_small;
+			Mat* imFils_small;
+
+			/*if(useMaxChannel==true)
 			{
 				n_channels=img.channels();
 				imFils = imFilterChannels(img,true);
@@ -232,7 +237,7 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 			}else{
 				imFils = imFilter(img,true);
 				G = calcGradientOfPixels(imFils[0],imFils[1]);
-			}
+			}*/
 
 			bool continueScale = false;
 			Point startP;
@@ -348,9 +353,30 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 				}
 				if((i+1)%300==0)
 					printf("%d %d. %s (%d,%d, %d, %d)\n",j,i+1,filename.c_str(),slideWnd.x,slideWnd.y,slideWnd.width,slideWnd.height);
+				Mat img_small=img(slideWnd).clone();
+				Rect slideWnd_small=resizeImg(img_small,minSz,minSz,false);
 
-					svmClassify(img,G,slideWnd,cellSz,scale,n_x,n_y,x_corr,y_corr,his_cells_wnd,his_wind,h_ws,normType,useMaxChannel,useSmooth,useLBP,useNewTech);
+				if(useMaxChannel==true)
+				{
+					n_channels=img_small.channels();
+					imFils_small = imFilterChannels(img_small,true);
+					G_small = calcGradientOfPixelsMaxChannel(imFils_small,n_channels);
+				}else{
+					imFils_small = imFilter(img_small,true);
+					G_small = calcGradientOfPixels(imFils_small[0],imFils_small[1]);
+				}
 
+				float scale_small=1.;
+				//	svmClassify(img,G,slideWnd,cellSz,scale,n_x,n_y,x_corr,y_corr,his_cells_wnd,his_wind,h_ws,normType,useMaxChannel,useSmooth,useLBP,useNewTech);
+				svmClassify(img_small,G_small,slideWnd_small,cellSize,scale_small,n_x,n_y,x_corr,y_corr,his_cells_wnd,his_wind,h_ws,normType,useMaxChannel,useSmooth,useLBP,useNewTech);
+					G_small.release();
+					img_small.release();
+					for (int i=0;i<n_channels;i++)
+					{
+						imFils_small[i].release();
+						imFils_small[i+1].release();
+					}
+					delete[] imFils_small;
 				//Mat img_slideWnd=img(slideWnd);
 				//Mat G1=G(slideWnd);
 				//if(useSmooth)
@@ -428,13 +454,13 @@ void svmGenerateData2(string posfilelist, string negfilelist,int randTimePos,int
 
 			}
 			img.release();
-			for (int i=0;i<n_channels;i++)
+			/*for (int i=0;i<n_channels;i++)
 			{
 				imFils[i].release();
 				imFils[i+1].release();
-			}
-			delete[] imFils;
-			G.release();
+			}*/
+		//	delete[] imFils;
+		//	G.release();
 
 
 
@@ -1039,10 +1065,10 @@ void svmGenHardList(string weightFile,string posfilelist, string negfilelist,str
 			Rect realRect=resizeImg(img,maxSz,minSz,false);
 			//	Mat img = imread(filepath+filename);
 			int n_channels=1;
-			Mat* imFils;                           //
-			Mat G;									//
+		//	Mat* imFils;                           //
+		//	Mat G;									//
 			
-			if(useMaxChannel==true)
+			/*if(useMaxChannel==true)
 			{
 				n_channels=img.channels();
 				imFils = imFilterChannels(img,true);
@@ -1050,8 +1076,11 @@ void svmGenHardList(string weightFile,string posfilelist, string negfilelist,str
 			}else{
 				imFils = imFilter(img,true);
 				G = calcGradientOfPixels(imFils[0],imFils[1]);
-			}
-
+			}*/
+			Mat img_small;
+			Rect slideWnd_small;
+			Mat G_small;
+			Mat* imFils_small;
 			bool continueScale = false;
 			Point startP;
 			
@@ -1167,8 +1196,31 @@ void svmGenHardList(string weightFile,string posfilelist, string negfilelist,str
 				}
 				if((i+1)%300==0)
 					printf("%d %d. %s (%d,%d, %d, %d)\n",j,i+1,filename.c_str(),slideWnd.x,slideWnd.y,slideWnd.width,slideWnd.height);
+				Mat img_small=img(slideWnd).clone();
+				Rect slideWnd_small=resizeImg(img_small,minSz,minSz,false);
 
-				svmClassify(img,G,slideWnd,cellSz,scale,n_x,n_y,x_corr,y_corr,his_cells_wnd,his_wind,h_ws,normType, useMaxChannel,useSmooth,useLBP,useNewTech);
+				if(useMaxChannel==true)
+				{
+					n_channels=img_small.channels();
+					imFils_small = imFilterChannels(img_small,true);
+					G_small = calcGradientOfPixelsMaxChannel(imFils_small,n_channels);
+				}else{
+					imFils_small = imFilter(img_small,true);
+					G_small = calcGradientOfPixels(imFils_small[0],imFils_small[1]);
+				}
+
+				float scale_small=1.;
+				//	svmClassify(img,G,slideWnd,cellSz,scale,n_x,n_y,x_corr,y_corr,his_cells_wnd,his_wind,h_ws,normType,useMaxChannel,useSmooth,useLBP,useNewTech);
+				svmClassify(img_small,G_small,slideWnd_small,cellSize,scale_small,n_x,n_y,x_corr,y_corr,his_cells_wnd,his_wind,h_ws,normType,useMaxChannel,useSmooth,useLBP,useNewTech);
+				G_small.release();
+				img_small.release();
+				for (int i=0;i<n_channels;i++)
+				{
+					imFils_small[i].release();
+					imFils_small[i+1].release();
+				}
+				delete[] imFils_small;
+			//	svmClassify(img,G,slideWnd,cellSz,scale,n_x,n_y,x_corr,y_corr,his_cells_wnd,his_wind,h_ws,normType, useMaxChannel,useSmooth,useLBP,useNewTech);
 				h_w = his_wind;
 				if(weight->rows<his_wind.cols)
 				{
@@ -1233,13 +1285,13 @@ void svmGenHardList(string weightFile,string posfilelist, string negfilelist,str
 			}
 			
 			img.release();
-			for (int i=0;i<n_channels;i++)
+			/*for (int i=0;i<n_channels;i++)
 			{
 				imFils[i].release();
 				imFils[i+1].release();
 			}
 			delete[] imFils;
-			G.release();
+			G.release();*/
 			
 		}
 		

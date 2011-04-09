@@ -22,7 +22,7 @@ bool detection(string path,string fname, string ext,float scaleStep,Size addStep
 		imgOrg.release();*/
 		
 		if(!justMeanshift){
-			multiscaleExp(path+fname+ext,scaleStep,addStep,3,true,false,false,3);
+			multiscaleExp(path+fname+ext,scaleStep,addStep,3,true,false,false,1);
 		//	multiscaleExp(path+fname+ext,scaleStep,addStep,true);
 		}
 		Mat multiscale=img.clone();
@@ -62,7 +62,13 @@ Rect resizeImg(Mat& img,float maxSz,float minSz,bool addBlank)
 	float t=(float)img.rows*img.cols;
 	float resizeScale=t>maxSz?sqrt(maxSz/t):1.;
 	resizeScale=t<minSz?sqrt(minSz/t):resizeScale;
-	resize(img,img2,Size(img.cols*resizeScale,img.rows*resizeScale),resizeScale,resizeScale);
+//	printf("%d %d %f %f\n",img.rows,img.cols,maxSz,resizeScale);
+	Size newSz=Size(img.cols*resizeScale,img.rows*resizeScale);
+	if (newSz.width<wndSize.width || newSz.height<wndSize.height)
+	{
+		newSz=wndSize;
+	}
+	resize(img,img2,newSz);
 	if(!addBlank)
 	{
 		img.release();
@@ -70,11 +76,16 @@ Rect resizeImg(Mat& img,float maxSz,float minSz,bool addBlank)
 		return Rect(0,0,img.cols,img.rows);
 	}
 	Size retV = img2.size();
-	cout<<img2.rows<<" "<<img2.cols<<" "<<resizeScale<<endl;
+//	cout<<img2.rows<<" "<<img2.cols<<" "<<resizeScale<<endl;
 	img.release();
 	Size addSz(0.1*img2.cols,0.1*img2.rows);
 	img = Mat::zeros(img2.rows+addSz.width,img2.cols+addSz.height,img2.type());
 	Rect realRect=Rect(addSz.width/2-1,addSz.height/2-1,retV.width,retV.height);
+	if (realRect.width<wndSize.width || realRect.height< wndSize.height)
+	{
+		realRect.width=wndSize.width;
+		realRect.height=wndSize.height;
+	}
 	img2.copyTo(img(realRect));
 	img2.release();
 //	img(Rect(wndSize.width,wndSize.height,retV.width,retV.height))=img2;
