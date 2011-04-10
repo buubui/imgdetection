@@ -601,7 +601,7 @@ Mat multiscaleExp(string filepath,float step,Size addStep, int normType, bool us
 	/************************************************************************/
 	/*                    Fill into wEdges                                 */
 	/************************************************************************/
-	float del_lim=0.1;
+	float del_lim=0.08;
 //	float del_lim=-10;
 	for (int hh=realRect.y+2;hh<realRect.y+realRect.height-2;hh+=addH){
 		int ih=hh-realRect.y-2;

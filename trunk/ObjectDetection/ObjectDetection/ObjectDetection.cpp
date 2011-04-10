@@ -307,7 +307,7 @@ int main(array<System::String ^> ^args)
 
 //	svmGenHardList("input/weight.txt","input/a.txt","input/b.txt","temp",1,4,1.,100,true,false,false,-1);
 //	svmGenHardList("input/weight4p.txt","input/trainPos.txt","input/trainNeg.txt","train",1,400,3,1.,1.05,true,false,false,1);
-	svmGenHardList("input/weight.txt","input/testPosF.txt","input/testNegF.txt","test",1,350,3,1.,1.05,true,false,false,1);
+//	svmGenHardList("input/weight.txt","input/testPosF.txt","input/testNegF.txt","test",1,350,3,1.,1.05,true,false,false,1);
 	/************************************************************************/
 	/*                      Test new mean shift                             */
 	/************************************************************************/
@@ -374,11 +374,11 @@ int main(array<System::String ^> ^args)
 /************************************************************************/
 
 	// Enabling Windows XP visual effects before any controls are created
-//	Application::EnableVisualStyles();
-//	Application::SetCompatibleTextRenderingDefault(false); 
+	Application::EnableVisualStyles();
+	Application::SetCompatibleTextRenderingDefault(false); 
 
 	// Create the main window and run it
-//	Application::Run(gcnew MainWindow());
+	Application::Run(gcnew MainWindow());
 //
 
 	t2 = clock();
