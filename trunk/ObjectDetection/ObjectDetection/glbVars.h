@@ -5,4 +5,6 @@ cv::Size cellSize,blockSize,wndSize,maxWndSz;
 cv::Vec2i blockOverlap;
 cv::Vec2f regionOverlap;
 float delPart;
+int useTech;
+string weightFile;
 #endif

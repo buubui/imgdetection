@@ -493,7 +493,7 @@ extern int n_x2,n_y2,n_x3,n_y3,n_x4, n_y4, n_x5, n_y5;
 extern int* x_corr2, *x_corr3,*x_corr4,*x_corr5,*y_corr2,*y_corr3,*y_corr4,*y_corr5;
 extern Mat M_cellsInBlock1,M_cellsInBlock2,M_cellsInBlock3,M_cellsInBlock4, M_cellsInBlock5 ;
 //Mat multiscaleExp(string filepath,float step,Size addStep,bool useMaxChannel)
-Mat multiscaleExp(string filepath,float step,Size addStep, int normType, bool useMaxChannel,bool useSmooth,bool useLBP,int useNewTech)
+Mat multiscaleExp(string filepath,float step,Size addStep, int normType, bool useMaxChannel,bool useSmooth,bool useLBP,int useNewTech,string weightFile)
 {
 	Mat img = imread(filepath);
 	//	Mat img;
@@ -542,7 +542,7 @@ Mat multiscaleExp(string filepath,float step,Size addStep, int normType, bool us
 	Mat * weight;
 	float b;
 	//get detection vector
-	getWeight("input/weight.txt",weight,b);
+	getWeight(weightFile,weight,b);
 	int n_channels=1;
 	Mat* imFils;
 	Mat G;
@@ -917,7 +917,7 @@ Mat multiscaleExp(string filepath,float step,Size addStep, int normType, bool us
 
 	//	imshow("max",img(MaxWnd));
 	//	imshow("result",result);
-	imshow("dasd",img2);
+//	imshow("dasd",img2);
 	//imshow("w",wEdges);
 	img2.release();
 	if(h_ws!=NULL){

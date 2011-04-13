@@ -6,7 +6,8 @@ extern Size cellSize,blockSize,wndSize,maxWndSz;
 extern cv::Vec2i blockOverlap;
 extern cv::Vec2f regionOverlap;
 extern float delPart;
-
+extern int useTech;
+extern string weightFile;
 int n_x2 = 0;
 int n_y2 = 0;
 int n_x3 = 0;

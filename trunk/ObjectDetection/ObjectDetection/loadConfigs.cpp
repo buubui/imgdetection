@@ -3,6 +3,8 @@ extern Size cellSize,blockSize,wndSize,maxWndSz;
 extern cv::Vec2i blockOverlap;
 extern cv::Vec2f regionOverlap;
 extern float delPart;
+extern int useTech;
+extern string weightFile;
 void loadConfig()
 {
 	srand(time(NULL));
@@ -50,6 +52,13 @@ void loadConfig()
 		regionOverlap[0] = atof(tmp.c_str());
 		getline (conffile,tmp);
 		regionOverlap[1] = atof(tmp.c_str());
+		getline (conffile,tmp); // use tech
+		getline (conffile,tmp);
+		useTech = atoi(tmp.c_str());
+		getline (conffile,tmp);//weight file
+		getline (conffile,tmp);
+		weightFile = tmp;
+		printf("tech:%d weight:%s",useTech,weightFile.c_str());
 		//		}
 	}
 	conffile.close();
