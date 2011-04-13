@@ -18,4 +18,7 @@ Del part
 Region Overlap (cell)
 1
 1
-
+Use Tech 
+3
+Weight File
+input/weight3level.txt

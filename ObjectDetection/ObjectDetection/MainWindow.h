@@ -309,7 +309,7 @@ namespace ObjectDetection {
 			// 
 			// cbMergeRect
 			// 
-			this->cbMergeRect->Anchor = System::Windows::Forms::AnchorStyles::Top;
+			this->cbMergeRect->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Left));
 			this->cbMergeRect->AutoSize = true;
 			this->cbMergeRect->Checked = true;
 			this->cbMergeRect->CheckState = System::Windows::Forms::CheckState::Checked;
@@ -348,6 +348,7 @@ namespace ObjectDetection {
 			// 
 			// comboBox1
 			// 
+			this->comboBox1->Anchor = static_cast<System::Windows::Forms::AnchorStyles>((System::Windows::Forms::AnchorStyles::Bottom | System::Windows::Forms::AnchorStyles::Left));
 			this->comboBox1->FormattingEnabled = true;
 			this->comboBox1->Items->AddRange(gcnew cli::array< System::Object^  >(5) {L"Cach cu", L"kim dong ho", L"4 phan", L"grid", 
 				L"multiscale"});
@@ -355,6 +356,7 @@ namespace ObjectDetection {
 			this->comboBox1->Name = L"comboBox1";
 			this->comboBox1->Size = System::Drawing::Size(121, 21);
 			this->comboBox1->TabIndex = 21;
+			this->comboBox1->Visible = false;
 			// 
 			// MainWindow
 			// 

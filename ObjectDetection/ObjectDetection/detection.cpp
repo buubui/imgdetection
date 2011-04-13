@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "meanshift.h"
 extern Size cellSize,blockSize,wndSize,maxWndSz;
+extern int useTech;
+extern string weightFile;
 bool detection(string path,string fname, string ext,float scaleStep,Size addStep,float minB,float radius,int minCsize, bool justMeanshift,bool mergeRect)
 {
 	if(path[path.size()-1]!='\\')
@@ -22,7 +24,7 @@ bool detection(string path,string fname, string ext,float scaleStep,Size addStep
 		imgOrg.release();*/
 		
 		if(!justMeanshift){
-			multiscaleExp(path+fname+ext,scaleStep,addStep,3,true,false,false,1);
+			multiscaleExp(path+fname+ext,scaleStep,addStep,3,true,false,false,useTech,weightFile);
 		//	multiscaleExp(path+fname+ext,scaleStep,addStep,true);
 		}
 		Mat multiscale=img.clone();
