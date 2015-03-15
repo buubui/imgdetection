@@ -1,0 +1,1 @@
+Detect objects from image using HOG.
